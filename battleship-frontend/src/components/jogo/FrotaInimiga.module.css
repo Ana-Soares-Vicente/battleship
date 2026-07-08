@@ -1,0 +1,113 @@
+/* ========================= */
+/* INVENTÁRIO — HUD MC       */
+/* ========================= */
+
+.inventario {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    image-rendering: pixelated;
+    width: 100%;
+}
+
+/* ========================= */
+/* SLOT — ÍCONE + CORAÇÕES   */
+/* Barco em cima, vidas baixo */
+/* ========================= */
+
+.slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 5px;
+}
+
+/* ========================= */
+/* SLOT AFUNDADO             */
+/* ========================= */
+
+.slotAfundado .slotIcone {
+    background: #5a2020;
+    box-shadow:
+        inset 1px 1px 0 #3a0a0a,
+        inset -1px -1px 0 #7a4a4a;
+}
+
+.slotAfundado .barcoImg {
+    filter: grayscale(100%) brightness(0.4);
+    opacity: 0.5;
+}
+
+/* ========================= */
+/* SLOT OCULTO               */
+/* ========================= */
+
+.slotOculto .slotIcone {
+    background: #5a5a5a;
+    box-shadow:
+        inset 1px 1px 0 #3a3a3a,
+        inset -1px -1px 0 #7a7a7a;
+}
+
+/* ========================= */
+/* ÍCONE (SLOT QUADRADO MC)  */
+/* ========================= */
+
+.slotIcone {
+    width: 52px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #8b8b8b;
+    border: 2px solid #000000;
+    box-shadow:
+        inset 1px 1px 0 #555555,
+        inset -1px -1px 0 #ffffff;
+}
+
+.barcoImg {
+    width: 42px;
+    height: 30px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    -webkit-user-drag: none;
+}
+
+.misterio {
+    color: #3a3a3a;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.xMark {
+    position: absolute;
+    bottom: 0;
+    right: 1px;
+    color: #ff2222;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* ========================= */
+/* CORAÇÕES (EMBAIXO)        */
+/* ========================= */
+
+.hearts {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 16px;
+}
+
+.hpOculto {
+    color: #555555;
+    font-size: 8px;
+    letter-spacing: 1px;
+}
