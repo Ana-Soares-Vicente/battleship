@@ -1,0 +1,49 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Silkscreen', monospace;
+    background-color: #2d2d2d;
+    color: #ffffff;
+    min-height: 100vh;
+    image-rendering: pixelated;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+a {
+    color: #55ff55;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #ffff55;
+}
+
+/* Scrollbar MC */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border: 1px solid #2a2a2a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #5a5a5a;
+}
+
+::selection {
+    background: rgba(85, 85, 255, 0.4);
+    color: #ffffff;
+}
