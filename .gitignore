@@ -1,0 +1,10 @@
+# IDE
+.idea/
+*.iml
+
+# H2 database files
+battleship-api/data/
+
+# OS
+Thumbs.db
+.DS_Store
