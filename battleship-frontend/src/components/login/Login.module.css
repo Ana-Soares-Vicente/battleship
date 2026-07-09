@@ -9,25 +9,65 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    gap: 20px;
+    gap: 16px;
     background: url('/img/fundo_mine.jpg') center/cover no-repeat;
-    background-color: #1a1a1a;
+    background-color: #4a8c2a;
     position: relative;
 }
 
-/* Overlay escuro sutil para legibilidade */
-.container::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 0;
-}
+/* ========================= */
+/* LOGO MINECRAFT            */
+/* ========================= */
 
-/* Todos os filhos acima do overlay */
-.container > * {
+.logo {
+    width: 280px;
+    max-width: 80%;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
     position: relative;
     z-index: 1;
+}
+
+/* ========================= */
+/* CARD BRANCO               */
+/* ========================= */
+
+.card {
+    background: #ffffff;
+    border-radius: 4px;
+    padding: 36px 40px 28px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================= */
+/* HEADER MINECRAFT          */
+/* ========================= */
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.microsoftIcon {
+    width: 1.5em;       
+    height: 1.5em;      
+    vertical-align: middle; 
+}
+
+.microsoftText {
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+    width: 1.5em;       
+    height: 1.5em;      
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        vertical-align: middle; 
 }
 
 /* ========================= */
@@ -35,28 +75,11 @@
 /* ========================= */
 
 .title {
-    color: #ffffff;
-    font-size: 28px;
-    text-shadow:
-        2px 2px 0 #3f3f3f,
-        0 0 10px rgba(0, 0, 0, 0.8);
-    letter-spacing: 1px;
-    margin: 0;
-}
-
-/* ========================= */
-/* PAINEL CENTRAL            */
-/* ========================= */
-
-.panel {
-    background: rgba(30, 30, 30, 0.85);
-    border: 2px solid #3a3a3a;
-    padding: 30px 35px;
-    width: 100%;
-    max-width: 440px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1b1b1b;
+    margin: 0 0 20px 0;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ========================= */
@@ -69,194 +92,122 @@
     gap: 14px;
 }
 
-.field {
-    text-align: left;
-}
-
-.label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 13px;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-shadow: 1px 1px 0 #000;
-}
-
 .input {
     width: 100%;
-    padding: 10px 12px;
-    font-family: 'Silkscreen', monospace;
-    font-size: 13px;
-    background: #4a4a4a;
-    color: #ffffff;
-    border: 2px solid #2a2a2a;
-    border-top-color: #1a1a1a;
-    border-left-color: #1a1a1a;
-    border-bottom-color: #6a6a6a;
-    border-right-color: #6a6a6a;
+    padding: 8px 0;
+    font-size: 15px;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #1b1b1b;
+    border: none;
+    border-bottom: 1px solid #ababab;
     outline: none;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+    background: transparent;
+    transition: border-color 0.2s;
 }
 
 .input:focus {
-    border-color: #7a7a7a;
-    background: #555555;
+    border-bottom: 2px solid #0067b8;
 }
 
 .input::placeholder {
-    color: #888888;
+    color: #767676;
+}
+
+/* ========================= */
+/* LINK "CREATE ONE"         */
+/* ========================= */
+
+.noAccount {
+    font-size: 13px;
+    color: #1b1b1b;
+    margin: 4px 0 0;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.createLink {
+    color: #0067b8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.createLink:hover {
+    text-decoration: underline;
+    color: #005a9e;
 }
 
 /* ========================= */
 /* BOTÕES                    */
 /* ========================= */
 
-.btnLogin,
-.btnRegister {
-    width: 100%;
-    padding: 10px 16px;
-    font-family: 'Silkscreen', monospace;
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btnBack,
+.btnNext {
+    padding: 8px 24px;
     font-size: 14px;
-    color: #ffffff;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 500;
+    border: none;
+    border-radius: 2px;
     cursor: pointer;
-    transition: background 0.1s, filter 0.1s;
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-    text-align: center;
-    letter-spacing: 0.5px;
+    transition: background 0.15s, opacity 0.15s;
 }
 
-.btnLogin {
-    background: #6a6a6a;
-    border: 2px solid #2a2a2a;
-    border-top-color: #8a8a8a;
-    border-left-color: #8a8a8a;
-    border-bottom-color: #3a3a3a;
-    border-right-color: #3a3a3a;
-    box-shadow: 0 2px 0 #1a1a1a;
+.btnBack {
+    background: #e1e1e1;
+    color: #1b1b1b;
 }
 
-.btnLogin:hover:not(:disabled) {
-    background: #7a7a7a;
-    filter: brightness(1.1);
+.btnBack:hover:not(:disabled) {
+    background: #d1d1d1;
 }
 
-.btnRegister {
-    background: #5a5a5a;
-    border: 2px solid #2a2a2a;
-    border-top-color: #7a7a7a;
-    border-left-color: #7a7a7a;
-    border-bottom-color: #3a3a3a;
-    border-right-color: #3a3a3a;
-    box-shadow: 0 2px 0 #1a1a1a;
+.btnNext {
+    background: #0067b8;
+    color: #ffffff;
 }
 
-.btnRegister:hover:not(:disabled) {
-    background: #6a6a6a;
-    filter: brightness(1.1);
+.btnNext:hover:not(:disabled) {
+    background: #005a9e;
 }
 
-.btnLogin:active:not(:disabled),
-.btnRegister:active:not(:disabled) {
-    border-top-color: #3a3a3a;
-    border-left-color: #3a3a3a;
-    border-bottom-color: #8a8a8a;
-    border-right-color: #8a8a8a;
-    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3);
-}
-
-.btnLogin:disabled,
-.btnRegister:disabled {
+.btnBack:disabled,
+.btnNext:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
 /* ========================= */
-/* DIVIDER (OR)              */
+/* SIGN-IN OPTIONS           */
 /* ========================= */
 
-.divider {
+.signInOptions {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin: 4px 0;
-}
-
-.dividerLine {
-    flex: 1;
-    height: 1px;
-    background: #5a5a5a;
-}
-
-.dividerText {
-    color: #888888;
-    font-size: 11px;
-    letter-spacing: 1px;
-}
-
-/* ========================= */
-/* FOOTER (LINKS)            */
-/* ========================= */
-
-.footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 8px;
-    padding-top: 12px;
-}
-
-.footerLink {
-    color: #5bc0de;
-    font-size: 11px;
+    gap: 8px;
+    background: #ffffff;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #1b1b1b;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     cursor: pointer;
-    transition: color 0.15s;
+    position: relative;
+    z-index: 1;
 }
 
-.footerLink:hover {
-    color: #7dd4ec;
-    text-decoration: underline;
+.signInOptions:hover {
+    background: #f5f5f5;
 }
 
-/* ========================= */
-/* BARRA INFERIOR            */
-/* ========================= */
-
-.bottomBar {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 10px;
-}
-
-.version {
-    background: rgba(30, 30, 30, 0.85);
-    border: 2px solid #3a3a3a;
-    padding: 6px 14px;
-    color: #ffffff;
-    font-size: 11px;
-    letter-spacing: 0.5px;
-}
-
-.serverStatus {
-    background: rgba(30, 30, 30, 0.85);
-    border: 2px solid #3a3a3a;
-    padding: 6px 14px;
-    color: #55ff55;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    letter-spacing: 0.5px;
-}
-
-.serverDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #55ff55;
-    box-shadow: 0 0 4px #55ff55;
-    display: inline-block;
+.keyIcon {
+    font-size: 16px;
 }
 
 /* ========================= */
@@ -264,10 +215,26 @@
 /* ========================= */
 
 .erro {
-    color: #ff5555;
-    font-size: 11px;
-    padding: 8px;
-    background: rgba(255, 85, 85, 0.1);
-    border: 1px solid #ff5555;
-    text-align: center;
+    color: #d32f2f;
+    font-size: 13px;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 8px 12px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 3px;
+    margin: 0;
+}
+
+/* ========================= */
+/* RESPONSIVO                */
+/* ========================= */
+
+@media (max-width: 500px) {
+    .card {
+        padding: 28px 24px 20px;
+    }
+
+    .logo {
+        width: 220px;
+    }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
-import { login, register } from '../../services/api';
+import { useNavigate, Navigate, Link } from 'react-router-dom';
+import { login } from '../../services/api';
 import styles from './Login.module.css';
 
 export default function Login() {
@@ -33,90 +33,65 @@ export default function Login() {
         }
     }
 
-    async function handleRegister(e) {
-        e.preventDefault();
-        if (!username.trim() || !password.trim()) {
-            setErro('Preencha todos os campos');
-            return;
-        }
-        setErro('');
-        setCarregando(true);
-        try {
-            await register(username.trim(), password);
-            navigate('/lobby');
-        } catch (err) {
-            setErro(err.message || 'Erro ao cadastrar');
-        } finally {
-            setCarregando(false);
-        }
-    }
-
     return (
         <div className={styles.container}>
-            {/* Título no topo */}
-            <h1 className={styles.title}>Minecraft Battleship</h1>
+         
+            <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                    <span className={styles.microsoftIcon}><img
+                src="/img/bloco_logo.png"
+                alt="Minecraft"
+                className={styles.logo}
+            /></span>
+                    <span className={styles.microsoftText}>Minecraft</span>
+                </div>
 
-            {/* Painel central estilo MC */}
-            <div className={styles.panel}>
+                <h1 className={styles.title}> Sign in</h1>
+
                 <form className={styles.form} onSubmit={handleLogin}>
                     {erro && <p className={styles.erro}>{erro}</p>}
 
-                    <div className={styles.field}>
-                        <label className={styles.label} htmlFor="username">Username</label>
-                        <input
-                            className={styles.input}
-                            id="username"
-                            value={username}
-                            onChange={e => setUsername(e.target.value)}
-                            placeholder="Player Name..."
-                            autoComplete="username"
-                            disabled={carregando}
-                            required
-                        />
+                    <input
+                        className={styles.input}
+                        id="username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        placeholder="Email, phone, or Skype"
+                        autoComplete="username"
+                        disabled={carregando}
+                        required
+                    />
+
+                    <input
+                        className={styles.input}
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder="Password"
+                        autoComplete="current-password"
+                        disabled={carregando}
+                        required
+                    />
+
+                    <p className={styles.noAccount}>
+                        No account? <Link to="/register" className={styles.createLink}>Create one!</Link>
+                    </p>
+
+                    <div className={styles.buttons}>
+                        <button type="button" className={styles.btnBack} disabled={carregando}>
+                            Back
+                        </button>
+                        <button type="submit" className={styles.btnNext} disabled={carregando}>
+                            {carregando ? 'Loading...' : 'Next'}
+                        </button>
                     </div>
-
-                    <div className={styles.field}>
-                        <label className={styles.label} htmlFor="password">Password</label>
-                        <input
-                            className={styles.input}
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                            autoComplete="current-password"
-                            disabled={carregando}
-                            required
-                        />
-                    </div>
-
-                    <button className={styles.btnLogin} type="submit" disabled={carregando}>
-                        {carregando ? 'Entrando...' : 'Login'}
-                    </button>
-
-                    <div className={styles.divider}>
-                        <span className={styles.dividerLine}></span>
-                        <span className={styles.dividerText}>OR</span>
-                        <span className={styles.dividerLine}></span>
-                    </div>
-
-                    <button className={styles.btnRegister} type="button" onClick={handleRegister} disabled={carregando}>
-                        {carregando ? 'Criando...' : 'Register'}
-                    </button>
                 </form>
-
-                <div className={styles.footer}>
-                    <span className={styles.footerLink}>Forgot Password?</span>
-                </div>
             </div>
 
-            {/* Barra inferior com versão e status */}
-            <div className={styles.bottomBar}>
-                <span className={styles.version}>V1.18.2 STABLE</span>
-                <span className={styles.serverStatus}>
-                    <span className={styles.serverDot}></span>
-                    SERVER ONLINE
-                </span>
+            <div className={styles.signInOptions}>
+                <span className={styles.keyIcon}>🔑</span>
+                <span>Sign-in options</span>
             </div>
         </div>
     );
