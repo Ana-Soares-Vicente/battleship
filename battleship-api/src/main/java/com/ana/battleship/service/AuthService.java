@@ -45,11 +45,14 @@ public class AuthService implements UserDetailsService {
                 .senha(passwordEncoder.encode(senha))
                 .build();
         usuarioRepo.save(usuario);
-        return Map.of("token", gerarToken(nome), "username", nome);
+        Map<String, String> result = new HashMap<>();
+        result.put("token", gerarToken(nome));
+        result.put("username", nome);
+        result.put("skin", null);
+        return result;
     }
 
     public Map<String, String> login(String identificador, String senha) {
-        // Tenta buscar por email primeiro, depois por username
         Optional<Usuario> optUsuario = usuarioRepo.findByEmail(identificador);
         if (optUsuario.isEmpty()) {
             optUsuario = usuarioRepo.findByUsername(identificador);
@@ -58,7 +61,21 @@ public class AuthService implements UserDetailsService {
                 .orElseThrow(() -> new IllegalArgumentException("Credenciais inválidas"));
         if (!passwordEncoder.matches(senha, usuario.getSenha()))
             throw new IllegalArgumentException("Credenciais inválidas");
-        return Map.of("token", gerarToken(usuario.getUsername()), "username", usuario.getUsername());
+        Map<String, String> result = new HashMap<>();
+        result.put("token", gerarToken(usuario.getUsername()));
+        result.put("username", usuario.getUsername());
+        result.put("skin", usuario.getSkin());
+        return result;
+    }
+
+    public Map<String, String> atualizarSkin(String username, String skin) {
+        Usuario usuario = usuarioRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        usuario.setSkin(skin);
+        usuarioRepo.save(usuario);
+        Map<String, String> result = new HashMap<>();
+        result.put("skin", skin);
+        return result;
     }
 
     public String gerarToken(String username) {
