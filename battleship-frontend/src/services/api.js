@@ -36,6 +36,9 @@ export async function login(username, password) {
     }, 'Usuário ou senha inválidos');
     localStorage.setItem('token', data.token);
     localStorage.setItem('username', data.username);
+    if (data.skin) {
+        localStorage.setItem('skinAtual', data.skin);
+    }
     return data;
 }
 
@@ -48,6 +51,14 @@ export async function register(nome, email, password) {
     localStorage.setItem('token', data.token);
     localStorage.setItem('username', data.username || data.nome);
     return data;
+}
+
+export async function updateSkin(skin) {
+    return request(`${API_URL}/auth/skin`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ skin }),
+    }, 'Erro ao atualizar skin');
 }
 
 export async function getLobby() {

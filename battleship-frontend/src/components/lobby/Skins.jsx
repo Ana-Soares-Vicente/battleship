@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { updateSkin } from '../../services/api';
 import styles from './Skins.module.css';
 
 const SKINS_DISPONIVEIS = [
@@ -24,6 +25,7 @@ export default function Skins() {
     function handleTrocarSkin(novaSkin) {
         localStorage.setItem('skinAtual', novaSkin.img);
         setSkinAtual(novaSkin.img);
+        updateSkin(novaSkin.img).catch(() => {});
     }
 
     // Skins disponíveis = todas menos a atual
