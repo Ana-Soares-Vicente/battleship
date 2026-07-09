@@ -39,14 +39,14 @@ export async function login(username, password) {
     return data;
 }
 
-export async function register(username, password) {
+export async function register(nome, email, password) {
     const data = await request(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-    }, 'Falha ao cadastrar. Username pode já existir.');
+        body: JSON.stringify({ nome, email, password }),
+    }, 'Falha ao cadastrar. Email pode já existir.');
     localStorage.setItem('token', data.token);
-    localStorage.setItem('username', data.username);
+    localStorage.setItem('username', data.username || data.nome);
     return data;
 }
 

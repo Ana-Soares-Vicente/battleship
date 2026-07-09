@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Login from './components/login/Login';
+import Register from './components/register/Register';
 import Lobby from './components/lobby/Lobby';
 import CriarPartida from './components/lobby/CriarPartida';
 import EntrarPartida from './components/lobby/EntrarPartida';
@@ -21,6 +22,7 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/lobby" element={<PrivateRoute><Lobby /></PrivateRoute>} />
                 <Route path="/criar-partida" element={<PrivateRoute><CriarPartida /></PrivateRoute>} />
                 <Route path="/entrar-partida" element={<PrivateRoute><EntrarPartida /></PrivateRoute>} />
