@@ -34,23 +34,31 @@ public class AuthService implements UserDetailsService {
         return new User(usuario.getUsername(), usuario.getSenha(), List.of());
     }
 
-    public Map<String, String> registrar(String username, String senha) {
-        if (usuarioRepo.existsByUsername(username))
-            throw new IllegalArgumentException("Username já existe");
+    public Map<String, String> registrar(String nome, String email, String senha) {
+        if (usuarioRepo.existsByUsername(nome))
+            throw new IllegalArgumentException("Nome já existe");
+        if (usuarioRepo.existsByEmail(email))
+            throw new IllegalArgumentException("Email já está em uso");
         Usuario usuario = Usuario.builder()
-                .username(username)
+                .username(nome)
+                .email(email)
                 .senha(passwordEncoder.encode(senha))
                 .build();
         usuarioRepo.save(usuario);
-        return Map.of("token", gerarToken(username), "username", username);
+        return Map.of("token", gerarToken(nome), "username", nome);
     }
 
-    public Map<String, String> login(String username, String senha) {
-        Usuario usuario = usuarioRepo.findByUsername(username)
+    public Map<String, String> login(String identificador, String senha) {
+        // Tenta buscar por email primeiro, depois por username
+        Optional<Usuario> optUsuario = usuarioRepo.findByEmail(identificador);
+        if (optUsuario.isEmpty()) {
+            optUsuario = usuarioRepo.findByUsername(identificador);
+        }
+        Usuario usuario = optUsuario
                 .orElseThrow(() -> new IllegalArgumentException("Credenciais inválidas"));
         if (!passwordEncoder.matches(senha, usuario.getSenha()))
             throw new IllegalArgumentException("Credenciais inválidas");
-        return Map.of("token", gerarToken(username), "username", username);
+        return Map.of("token", gerarToken(usuario.getUsername()), "username", usuario.getUsername());
     }
 
     public String gerarToken(String username) {
