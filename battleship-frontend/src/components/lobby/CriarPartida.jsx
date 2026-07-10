@@ -25,18 +25,12 @@ export default function CriarPartida() {
     const navigate = useNavigate();
     const unsubRef = useRef(null);
     const pollingRef = useRef(null);
-    const criadoRef = useRef(false);
 
     const modoAtual = MODOS[modoIndex];
     const dificuldadeAtual = DIFICULDADES[dificuldadeIndex];
 
     useEffect(() => {
         conectarWebSocket(() => {});
-        // Criar partida automaticamente ao entrar na tela (guard contra StrictMode)
-        if (!criadoRef.current) {
-            criadoRef.current = true;
-            criarPartidaAuto();
-        }
         return () => {
             if (unsubRef.current) unsubRef.current();
             if (pollingRef.current) clearInterval(pollingRef.current);
@@ -46,7 +40,7 @@ export default function CriarPartida() {
     async function criarPartidaAuto() {
         setCriando(true);
         try {
-            const jogo = await criarJogo();
+            const jogo = await criarJogo(MODOS[modoIndex].id);
             setJogoCriado({ id: jogo.id, token: jogo.token });
 
             unsubRef.current = inscrever(`/topic/jogo/${jogo.id}`, (evento) => {
@@ -121,10 +115,10 @@ export default function CriarPartida() {
 
                 {/* Modo de jogo + Dificuldade */}
                 <div className={styles.btnRow}>
-                    <button className={styles.btnOption} onClick={ciclarModo}>
+                    <button className={styles.btnOption} onClick={ciclarModo} disabled={!!jogoCriado}>
                         Modo de jogo: {modoAtual.label}
                     </button>
-                    <button className={styles.btnOption} onClick={ciclarDificuldade}>
+                    <button className={styles.btnOption} onClick={ciclarDificuldade} disabled={!!jogoCriado}>
                         Dificuldade: {dificuldadeAtual.label}
                     </button>
                 </div>
@@ -153,6 +147,15 @@ export default function CriarPartida() {
 
             {/* Rodapé */}
             <div className={styles.footer}>
+                {!jogoCriado && (
+                    <button
+                        className={`${styles.btnFooter} ${styles.btnCancel}`}
+                        onClick={criarPartidaAuto}
+                        disabled={criando}
+                    >
+                        {criando ? 'Criando...' : 'Criar Sala'}
+                    </button>
+                )}
                 <button className={`${styles.btnFooter} ${styles.btnCancel}`} onClick={handleCancelar}>
                     Cancelar
                 </button>
