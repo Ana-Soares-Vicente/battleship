@@ -65,12 +65,12 @@ export async function getLobby() {
     return request(`${API_URL}/jogos/lobby`, { headers: getHeaders() }, 'Erro ao buscar lobby');
 }
 
-export async function criarJogo() {
+export async function criarJogo(modo) {
     const skin = localStorage.getItem('skinAtual');
     return request(`${API_URL}/jogos`, {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({ skin }),
+        body: JSON.stringify({ skin, modo: modo || 'PADRAO' }),
     }, 'Erro ao criar jogo');
 }
 
@@ -126,4 +126,16 @@ export async function getTirosRecebidos(id) {
 
 export async function getNaviosAfundadosInimigo(id) {
     return request(`${API_URL}/jogos/${id}/navios-afundados-inimigo`, { headers: getHeaders() }, 'Erro ao buscar navios afundados');
+}
+
+export async function atirarExplosao(id, tiros) {
+    return request(`${API_URL}/jogos/${id}/atirar-explosao`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ tiros }),
+    }, 'Erro ao atirar');
+}
+
+export async function getTirosDisponiveis(id) {
+    return request(`${API_URL}/jogos/${id}/tiros-disponiveis`, { headers: getHeaders() }, 'Erro ao buscar tiros disponíveis');
 }

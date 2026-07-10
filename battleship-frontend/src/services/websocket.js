@@ -1,7 +1,7 @@
 import { Client } from '@stomp/stompjs';
 
-// Com SockJS endpoint do Spring, o WebSocket nativo conecta em /ws-sockjs/websocket
-const WS_URL = 'ws://localhost:8080/ws-sockjs/websocket';
+// WebSocket nativo direto (sem SockJS) — menor latência
+const WS_URL = 'ws://localhost:8080/ws';
 
 let stompClient = null;
 const subscriptions = new Map();
@@ -30,7 +30,9 @@ export function conectarWebSocket(onConnected) {
 
     stompClient = new Client({
         brokerURL: WS_URL,
-        reconnectDelay: 5000,
+        reconnectDelay: 2000,
+        heartbeatIncoming: 10000,
+        heartbeatOutgoing: 10000,
         debug: (str) => {
             console.log('[STOMP]', str);
         },
