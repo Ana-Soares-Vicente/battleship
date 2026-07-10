@@ -28,9 +28,14 @@ export default function CriarPartida() {
 
     const modoAtual = MODOS[modoIndex];
     const dificuldadeAtual = DIFICULDADES[dificuldadeIndex];
+    const criadoRef = useRef(false);
 
     useEffect(() => {
         conectarWebSocket(() => {});
+        if (!criadoRef.current) {
+            criadoRef.current = true;
+            criarPartidaAuto();
+        }
         return () => {
             if (unsubRef.current) unsubRef.current();
             if (pollingRef.current) clearInterval(pollingRef.current);
@@ -81,7 +86,37 @@ export default function CriarPartida() {
     }
 
     function ciclarModo() {
-        setModoIndex((prev) => (prev + 1) % MODOS.length);
+        if (criando) return;
+        // Cancelar sala atual
+        if (unsubRef.current) { unsubRef.current(); unsubRef.current = null; }
+        if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
+        // NÃO limpar jogoCriado para evitar layout shift — será substituído pelo novo
+        const novoIndex = (modoIndex + 1) % MODOS.length;
+        setModoIndex(novoIndex);
+        criarComModo(novoIndex);
+    }
+
+    async function criarComModo(idx) {
+        setCriando(true);
+        try {
+            const jogo = await criarJogo(MODOS[idx].id);
+            setJogoCriado({ id: jogo.id, token: jogo.token });
+
+            unsubRef.current = inscrever(`/topic/jogo/${jogo.id}`, (evento) => {
+                if (evento.tipo === 'JOGADOR_ENTROU') navegarParaJogo(jogo.id);
+            });
+
+            pollingRef.current = setInterval(async () => {
+                try {
+                    const estado = await getEstadoJogo(jogo.id);
+                    if (estado.status !== 'AGUARDANDO') navegarParaJogo(jogo.id);
+                } catch (err) { console.error(err); }
+            }, 2000);
+        } catch (e) {
+            alert(e.message);
+        } finally {
+            setCriando(false);
+        }
     }
 
     function ciclarDificuldade() {
@@ -115,10 +150,10 @@ export default function CriarPartida() {
 
                 {/* Modo de jogo + Dificuldade */}
                 <div className={styles.btnRow}>
-                    <button className={styles.btnOption} onClick={ciclarModo} disabled={!!jogoCriado}>
+                    <button className={styles.btnOption} onClick={ciclarModo} disabled={criando}>
                         Modo de jogo: {modoAtual.label}
                     </button>
-                    <button className={styles.btnOption} onClick={ciclarDificuldade} disabled={!!jogoCriado}>
+                    <button className={styles.btnOption} onClick={ciclarDificuldade} disabled={criando}>
                         Dificuldade: {dificuldadeAtual.label}
                     </button>
                 </div>
@@ -136,26 +171,15 @@ export default function CriarPartida() {
                     />
                 </div>
 
-                {/* Aguardando jogador */}
-                {jogoCriado && (
-                    <div className={styles.waitingRow}>
-                        <div className={styles.spinner}></div>
-                        <span className={styles.waitingText}>Aguardando jogador entrar...</span>
-                    </div>
-                )}
+                {/* Aguardando jogador — sempre presente para evitar layout shift */}
+                <div className={styles.waitingRow} style={{ visibility: jogoCriado ? 'visible' : 'hidden' }}>
+                    <div className={styles.spinner}></div>
+                    <span className={styles.waitingText}>Aguardando jogador entrar...</span>
+                </div>
             </div>
 
             {/* Rodapé */}
             <div className={styles.footer}>
-                {!jogoCriado && (
-                    <button
-                        className={`${styles.btnFooter} ${styles.btnCancel}`}
-                        onClick={criarPartidaAuto}
-                        disabled={criando}
-                    >
-                        {criando ? 'Criando...' : 'Criar Sala'}
-                    </button>
-                )}
                 <button className={`${styles.btnFooter} ${styles.btnCancel}`} onClick={handleCancelar}>
                     Cancelar
                 </button>
