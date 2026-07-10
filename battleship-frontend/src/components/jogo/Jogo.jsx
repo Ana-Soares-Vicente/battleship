@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getEstadoJogo, getMeusTiros, atirar, getMinhaFrota, getTirosRecebidos, getNaviosAfundadosInimigo } from '../../services/api';
+import { getEstadoJogo, getMeusTiros, atirar, getMinhaFrota, getTirosRecebidos, getNaviosAfundadosInimigo, atirarExplosao, getTirosDisponiveis } from '../../services/api';
 import { conectarWebSocket, inscrever } from '../../services/websocket';
 import audioManager from '../../services/audioManager';
 import Posicionamento from './Posicionamento';
@@ -29,10 +29,17 @@ export default function Jogo() {
     const [loadingFinalizado, setLoadingFinalizado] = useState(false);
     const [fadeOut, setFadeOut] = useState(false);
     const [skinAdversario, setSkinAdversario] = useState(null);
+    const [alvosExplosao, setAlvosExplosao] = useState([]); // [{linha, coluna}]
+    const [tirosDisponiveis, setTirosDisponiveis] = useState(0);
+    const [processandoExplosao, setProcessandoExplosao] = useState(false);
     const username = localStorage.getItem('username');
     const minhaSkin = getMinhaSkinEquipada();
     const unsubscribeRef = useRef(null);
     const loadingJaMostrouRef = useRef(false);
+    const estadoRef = useRef(null);
+
+    // Manter ref sincronizada para uso em setInterval
+    useEffect(() => { estadoRef.current = estado; }, [estado]);
 
     const carregarEstado = useCallback(async () => {
         try {
@@ -93,6 +100,13 @@ export default function Jogo() {
                         }
                     }
                 } catch { /* */ }
+
+                if (e.modo === 'EXPLOSAO') {
+                    try {
+                        const td = await getTirosDisponiveis(id);
+                        if (td) setTirosDisponiveis(td.tirosDisponiveis);
+                    } catch { /* */ }
+                }
             }
             if (e.status === 'POSICIONANDO' || e.status === 'JOGANDO') {
                 if (e.meusProntos) {
@@ -110,7 +124,6 @@ export default function Jogo() {
     }, [id]);
 
     useEffect(() => {
-        let interval;
         let inscrito = false;
 
         function inscreverNoJogo() {
@@ -154,6 +167,7 @@ export default function Jogo() {
                         break;
 
                     case 'TIRO':
+                        console.log(`[WS TIRO RECEBIDO] atirador=${evento.atirador} turnoAtual=${evento.turnoAtual} eu=${username} ts=${Date.now()}`);
                         setEstado(prev => {
                             if (!prev) return prev;
                             const novo = { ...prev, turnoAtual: evento.turnoAtual };
@@ -165,14 +179,25 @@ export default function Jogo() {
                         });
 
                         if (evento.atirador === username) {
-                            setTiros(prev => [...prev, {
-                                linha: evento.linha,
-                                coluna: evento.coluna,
-                                resultado: evento.resultado,
-                                tipoAfundado: evento.tipoAfundado,
-                            }]);
+                            setTiros(prev => {
+                                // Se HTTP já processou este tiro, não duplicar
+                                const jaProcessado = prev.some(t => t.linha === evento.linha && t.coluna === evento.coluna && t.resultado !== 'PENDENTE');
+                                if (jaProcessado) return prev;
+                                // Substituir tiro pendente pelo resultado real
+                                const semPendente = prev.filter(t => !(t.linha === evento.linha && t.coluna === evento.coluna && t.resultado === 'PENDENTE'));
+                                return [...semPendente, {
+                                    linha: evento.linha,
+                                    coluna: evento.coluna,
+                                    resultado: evento.resultado,
+                                    tipoAfundado: evento.tipoAfundado,
+                                }];
+                            });
                             if (evento.navioAfundado) {
-                                setNaviosAfundados(prev => [...prev, evento.navioAfundado]);
+                                setNaviosAfundados(prev => {
+                                    const jaTemEsse = prev.some(n => n.linhaInicial === evento.navioAfundado.linhaInicial && n.colunaInicial === evento.navioAfundado.colunaInicial);
+                                    if (jaTemEsse) return prev;
+                                    return [...prev, evento.navioAfundado];
+                                });
                             }
                             if (evento.resultado === 'AFUNDOU') {
                                 setBannerAfundou(true);
@@ -204,6 +229,71 @@ export default function Jogo() {
                         }
                         break;
 
+                    case 'TIROS_EXPLOSAO':
+                        setEstado(prev => {
+                            if (!prev) return prev;
+                            const novo = { ...prev, turnoAtual: evento.turnoAtual };
+                            if (evento.fimDeJogo) {
+                                novo.status = 'FINALIZADO';
+                                novo.vencedor = evento.vencedor;
+                            }
+                            return novo;
+                        });
+
+                        if (evento.atirador === username) {
+                            setTiros(prev => {
+                                const novos = evento.tiros.map(t => ({
+                                    linha: t.linha,
+                                    coluna: t.coluna,
+                                    resultado: t.resultado,
+                                    tipoAfundado: t.tipoAfundado,
+                                }));
+                                const semPendentes = prev.filter(p => p.resultado !== 'PENDENTE');
+                                return [...semPendentes, ...novos];
+                            });
+                            const afundadosExp = evento.tiros.filter(t => t.navioAfundado).map(t => t.navioAfundado);
+                            if (afundadosExp.length > 0) {
+                                setNaviosAfundados(prev => {
+                                    const novos = afundadosExp.filter(a => !prev.some(p => p.linhaInicial === a.linhaInicial && p.colunaInicial === a.colunaInicial));
+                                    return [...prev, ...novos];
+                                });
+                                setBannerAfundou(true);
+                                audioManager.playExplosion();
+                                setTimeout(() => setBannerAfundou(false), 2500);
+                            }
+                            setAlvosExplosao([]);
+                            setProcessandoExplosao(false);
+                        } else {
+                            setTirosRecebidos(prev => [...prev, ...evento.tiros.map(t => ({
+                                linha: t.linha,
+                                coluna: t.coluna,
+                                resultado: t.resultado,
+                                tipoAfundado: t.tipoAfundado,
+                            }))]);
+                            const afundadosExp = evento.tiros.filter(t => t.navioAfundado).map(t => t.navioAfundado);
+                            if (afundadosExp.length > 0) {
+                                setNaviosAfundadosMeus(prev => [...prev, ...afundadosExp]);
+                                audioManager.playExplosion();
+                            }
+                        }
+
+                        if (!evento.fimDeJogo) {
+                            getTirosDisponiveis(id).then(td => { if (td) setTirosDisponiveis(td.tirosDisponiveis); }).catch(() => {});
+                        }
+
+                        if (evento.fimDeJogo) {
+                            setMsg(`Fim do Jogo! Vencedor: ${evento.vencedor}`);
+                        } else {
+                            const acertosExp = evento.tiros.filter(t => t.resultado !== 'AGUA').length;
+                            const errosExp = evento.tiros.filter(t => t.resultado === 'AGUA').length;
+                            if (evento.atirador === username) {
+                                setMsg(`${acertosExp} acerto(s), ${errosExp} erro(s)`);
+                            } else {
+                                setMsg(`${evento.atirador} disparou ${evento.tiros.length} tiros!`);
+                            }
+                        }
+                        break;
+
                     default:
                         break;
                 }
@@ -220,7 +310,20 @@ export default function Jogo() {
             carregarEstado();
         }, 1500);
 
-        interval = setInterval(carregarEstado, 3000);
+        // Polling como fallback de segurança caso WebSocket falhe
+        // Pré-jogo: cada 3s (precisa detectar mudanças de status)
+        // Em jogo: cada 2s (safety net para turno, WebSocket é a fonte primária)
+        const interval = setInterval(() => {
+            const atual = estadoRef.current;
+            if (!atual || atual.status === 'AGUARDANDO' || atual.status === 'POSICIONANDO') {
+                carregarEstado();
+            } else if (atual.status === 'JOGANDO') {
+                // Fallback leve: só busca o estado do jogo (1 request) para sincronizar turno
+                getEstadoJogo(id).then(e => {
+                    if (e) setEstado(prev => prev ? { ...prev, turnoAtual: e.turnoAtual, status: e.status, vencedor: e.vencedor } : prev);
+                }).catch(() => {});
+            }
+        }, 2000);
 
         return () => {
             clearTimeout(fallbackTimeout);
@@ -235,11 +338,120 @@ export default function Jogo() {
     }
 
     async function handleAtirar(linha, coluna) {
+        const t0 = performance.now();
+        console.log(`[TIRO CLICADO] pos=${linha},${coluna} ts=${Date.now()}`);
         setMsg('');
+        // Optimistic update — marca a célula imediatamente como "pendente" para feedback instantâneo
+        const tiroPendente = { linha, coluna, resultado: 'PENDENTE' };
+        setTiros(prev => [...prev, tiroPendente]);
+        console.log(`[TABULEIRO ATUALIZADO] optimistic em ${(performance.now() - t0).toFixed(1)}ms`);
         try {
-            await atirar(id, linha, coluna);
+            console.log(`[REQUISIÇÃO ENVIADA] ts=${Date.now()}`);
+            const res = await atirar(id, linha, coluna);
+            console.log(`[RESPOSTA RECEBIDA] tempo_total=${(performance.now() - t0).toFixed(1)}ms`);
+            // Atualizar imediatamente com a resposta HTTP (não esperar WebSocket)
+            if (res) {
+                setTiros(prev => {
+                    const semPendente = prev.filter(t => !(t.linha === linha && t.coluna === coluna && t.resultado === 'PENDENTE'));
+                    // Se WebSocket já substituiu, não duplicar
+                    const jaExiste = semPendente.some(t => t.linha === linha && t.coluna === coluna && t.resultado !== 'PENDENTE');
+                    if (jaExiste) return semPendente;
+                    return [...semPendente, {
+                        linha: res.linha,
+                        coluna: res.coluna,
+                        resultado: res.resultado,
+                        tipoAfundado: res.tipoAfundado,
+                    }];
+                });
+                // Atualizar turno e estado do jogo imediatamente
+                if (res.fimDeJogo) {
+                    setEstado(prev => prev ? { ...prev, status: 'FINALIZADO', vencedor: res.vencedor, turnoAtual: null } : prev);
+                    setMsg(`Fim do Jogo! Vencedor: ${res.vencedor}`);
+                } else {
+                    setEstado(prev => prev ? { ...prev, turnoAtual: res.turnoAtual } : prev);
+                    setMsg(`${res.resultado}${res.tipoAfundado ? ' - ' + res.tipoAfundado : ''}`);
+                }
+                // Navio afundado
+                if (res.navioAfundado) {
+                    setNaviosAfundados(prev => {
+                        const jaTemEsse = prev.some(n => n.linhaInicial === res.navioAfundado.linhaInicial && n.colunaInicial === res.navioAfundado.colunaInicial);
+                        if (jaTemEsse) return prev;
+                        return [...prev, res.navioAfundado];
+                    });
+                    setBannerAfundou(true);
+                    audioManager.playExplosion();
+                    setTimeout(() => setBannerAfundou(false), 2500);
+                }
+            }
         } catch (e) {
+            // Reverter tiro pendente em caso de erro
+            setTiros(prev => prev.filter(t => !(t.linha === linha && t.coluna === coluna && t.resultado === 'PENDENTE')));
             setMsg(e.message);
+        }
+    }
+
+    // ========================= //
+    // MODO EXPLOSÃO — HANDLERS  //
+    // ========================= //
+
+    function handleCelulaClickExplosao(linha, coluna) {
+        setAlvosExplosao(prev => {
+            const jaExiste = prev.some(a => a.linha === linha && a.coluna === coluna);
+            if (jaExiste) {
+                return prev.filter(a => !(a.linha === linha && a.coluna === coluna));
+            }
+            if (prev.length >= tirosDisponiveis) return prev;
+            return [...prev, { linha, coluna }];
+        });
+    }
+
+    async function handleConfirmarExplosao() {
+        if (alvosExplosao.length !== tirosDisponiveis) return;
+        setProcessandoExplosao(true);
+        setMsg('');
+        setTiros(prev => [...prev, ...alvosExplosao.map(a => ({ linha: a.linha, coluna: a.coluna, resultado: 'PENDENTE' }))]);
+        try {
+            const res = await atirarExplosao(id, alvosExplosao);
+            if (res) {
+                setTiros(prev => {
+                    const semPendentes = prev.filter(p => p.resultado !== 'PENDENTE');
+                    const novos = res.map(t => ({ linha: t.linha, coluna: t.coluna, resultado: t.resultado, tipoAfundado: t.tipoAfundado }));
+                    return [...semPendentes, ...novos];
+                });
+                const afundados = res.filter(t => t.navioAfundado).map(t => t.navioAfundado);
+                if (afundados.length > 0) {
+                    setNaviosAfundados(prev => {
+                        const novos = afundados.filter(a => !prev.some(p => p.linhaInicial === a.linhaInicial && p.colunaInicial === a.colunaInicial));
+                        return [...prev, ...novos];
+                    });
+                    setBannerAfundou(true);
+                    audioManager.playExplosion();
+                    setTimeout(() => setBannerAfundou(false), 2500);
+                }
+                const ultimoResultado = res[res.length - 1];
+                if (ultimoResultado) {
+                    if (ultimoResultado.fimDeJogo) {
+                        setEstado(prev => prev ? { ...prev, status: 'FINALIZADO', vencedor: ultimoResultado.vencedor } : prev);
+                    } else {
+                        setEstado(prev => prev ? { ...prev, turnoAtual: ultimoResultado.turnoAtual } : prev);
+                    }
+                }
+                const acertos = res.filter(t => t.resultado !== 'AGUA').length;
+                const erros = res.filter(t => t.resultado === 'AGUA').length;
+                setMsg(`${acertos} acerto(s), ${erros} erro(s)`);
+                setAlvosExplosao([]);
+                // Fetch updated tiros disponiveis
+                try {
+                    const td = await getTirosDisponiveis(id);
+                    if (td) setTirosDisponiveis(td.tirosDisponiveis);
+                } catch { /* */ }
+            }
+        } catch (e) {
+            setTiros(prev => prev.filter(t => t.resultado !== 'PENDENTE'));
+            setMsg(e.message);
+            setAlvosExplosao([]);
+        } finally {
+            setProcessandoExplosao(false);
         }
     }
 
@@ -361,37 +573,54 @@ export default function Jogo() {
             {/* ===== JOGO ===== */}
             {(estado.status === 'JOGANDO' || estado.status === 'FINALIZADO') && (
                 <div className={styles.jogoArea}>
-                    {/* Turno + Mensagem */}
-                    {estado.status === 'JOGANDO' && (
-                        <div className={styles.turnoBar}>
-                            {ehMeuTurno ? (
-                                <span className={styles.meuTurno}>⚔️ Sua vez — Ataque!</span>
-                            ) : (
-                                <span className={styles.aguardeTurno}>⏳ Aguarde seu turno</span>
-                            )}
-                        </div>
-                    )}
+                    {/* Status Area — altura fixa, nunca empurra os tabuleiros */}
+                    <div className={styles.statusArea}>
+                        {estado.status === 'JOGANDO' && (
+                            <div className={styles.turnoBar}>
+                                {ehMeuTurno ? (
+                                    <span className={styles.meuTurno}>⚔️ Sua vez — Ataque!</span>
+                                ) : (
+                                    <span className={styles.aguardeTurno}>⏳ Aguarde seu turno</span>
+                                )}
+                            </div>
+                        )}
 
-                    {estado.status === 'FINALIZADO' && (
-                        <div className={styles.resultadoBar}>
-                            {estado.vencedor === username ? (
-                                <span className={styles.vitoria}>🏆 Você Venceu!</span>
-                            ) : (
-                                <span className={styles.derrota}>💀 Game Over</span>
-                            )}
-                        </div>
-                    )}
+                        {estado.status === 'FINALIZADO' && (
+                            <div className={styles.resultadoBar}>
+                                {estado.vencedor === username ? (
+                                    <span className={styles.vitoria}>🏆 Você Venceu!</span>
+                                ) : (
+                                    <span className={styles.derrota}>💀 Game Over</span>
+                                )}
+                            </div>
+                        )}
 
-                    {msg && (
-                        <p className={msg.includes('Fim do Jogo') ? styles.msgSucesso : styles.msgInfo}>{msg}</p>
-                    )}
+                        {msg && (
+                            <p className={msg.includes('Fim do Jogo') ? styles.msgSucesso : styles.msgInfo}>{msg}</p>
+                        )}
 
-                    {bannerAfundou && (
-                        <div className={styles.bannerAfundou}>💥 BARCO AFUNDADO!</div>
-                    )}
+                        {estado.modo === 'EXPLOSAO' && ehMeuTurno && estado.status === 'JOGANDO' && (
+                            <div className={styles.explosaoBar}>
+                                <span className={styles.explosaoLabel}>💣 TIROS: {alvosExplosao.length}/{tirosDisponiveis}</span>
+                                {alvosExplosao.length === tirosDisponiveis && tirosDisponiveis > 0 && (
+                                    <button
+                                        className={styles.btnConfirmar}
+                                        onClick={handleConfirmarExplosao}
+                                        disabled={processandoExplosao}
+                                    >
+                                        {processandoExplosao ? 'DISPARANDO...' : 'CONFIRMAR ATAQUE'}
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
                     {/* Tabuleiros lado a lado com frotas embaixo */}
                     <div className={styles.tabuleiros}>
+                        {/* Banner afundou — overlay absoluto, não empurra nada */}
+                        {bannerAfundou && (
+                            <div className={styles.bannerAfundou}>💥 BARCO AFUNDADO!</div>
+                        )}
                         <div className={styles.tabuleiroBloco}>
                             <h3 className={styles.tabTitulo}>Meu Porto</h3>
                             <div className={styles.boardFrame}>
@@ -420,8 +649,9 @@ export default function Jogo() {
                                     modo="ataque"
                                     tiros={tiros}
                                     naviosAfundados={naviosAfundados}
-                                    onCelulaClick={handleAtirar}
-                                    desabilitado={!ehMeuTurno || estado.status === 'FINALIZADO'}
+                                    onCelulaClick={estado.modo === 'EXPLOSAO' ? handleCelulaClickExplosao : handleAtirar}
+                                    desabilitado={!ehMeuTurno || estado.status === 'FINALIZADO' || processandoExplosao}
+                                    alvosExplosao={estado.modo === 'EXPLOSAO' ? alvosExplosao : []}
                                 />
                             </div>
                             <div className={styles.frotaAbaixo}>

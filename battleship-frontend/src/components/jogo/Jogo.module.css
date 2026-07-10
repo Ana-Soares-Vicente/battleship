@@ -29,7 +29,7 @@
 .bgOverlay {
     position: absolute;
     inset: 0;
-    background: url('/img/initial_page.jpg') center/cover no-repeat;
+    background: url('/img/fundo_nether.jpg') center/cover no-repeat;
     filter: blur(1px) brightness(0.25);
     z-index: 0;
 }
@@ -188,7 +188,25 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 0;
+}
+
+/* ========================= */
+/* STATUS AREA — ALTURA FIXA */
+/* Reserva espaço para turno */
+/* msg e banner sem shift    */
+/* ========================= */
+
+.statusArea {
+    height: 90px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-shrink: 0;
+    position: relative;
 }
 
 /* ========================= */
@@ -209,7 +227,11 @@
         inset -2px -2px 0 rgba(0, 0, 0, 0.4),
         0 4px 12px rgba(0, 0, 0, 0.6);
     min-width: 280px;
+    min-height: 40px;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .meuTurno {
@@ -245,7 +267,12 @@
         inset 2px 2px 0 var(--frame-highlight),
         inset -2px -2px 0 rgba(0, 0, 0, 0.4),
         0 4px 12px rgba(0, 0, 0, 0.6);
+    min-width: 280px;
+    min-height: 40px;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .vitoria {
@@ -272,27 +299,38 @@
     font-family: 'Silkscreen', monospace;
     color: #ffaa00;
     font-size: 11px;
-    padding: 6px 16px;
+    padding: 4px 16px;
     background: rgba(255, 170, 0, 0.1);
     border: 1px solid rgba(255, 170, 0, 0.4);
     text-align: center;
     text-shadow: 1px 1px 0 #000;
+    margin: 0;
+    min-height: 22px;
+    line-height: 22px;
 }
 
 .msgSucesso {
     font-family: 'Silkscreen', monospace;
     color: var(--green-mc);
     font-size: 11px;
-    padding: 6px 16px;
+    padding: 4px 16px;
     background: rgba(85, 255, 85, 0.1);
     border: 1px solid rgba(85, 255, 85, 0.4);
     text-align: center;
     text-shadow: 1px 1px 0 #000;
+    margin: 0;
+    min-height: 22px;
+    line-height: 22px;
 }
 
 .bannerAfundou {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
     font-family: 'Silkscreen', monospace;
-    background: rgba(60, 20, 20, 0.9);
+    background: rgba(60, 20, 20, 0.95);
     border: 2px solid var(--red-mc);
     color: var(--red-mc);
     padding: 8px 20px;
@@ -301,6 +339,7 @@
     text-shadow: 0 0 6px rgba(255, 85, 85, 0.5);
     box-shadow: 0 0 12px rgba(255, 85, 85, 0.3);
     animation: popIn 0.3s ease;
+    pointer-events: none;
 }
 
 @keyframes popIn {
@@ -318,6 +357,7 @@
     align-items: flex-start;
     gap: clamp(16px, 3vw, 32px);
     flex-wrap: nowrap;
+    position: relative;
 }
 
 .tabuleiroBloco {
@@ -458,6 +498,9 @@
 .frotaAbaixo {
     margin-top: 8px;
     width: 100%;
+    height: 90px;
+    min-height: 90px;
+    max-height: 90px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -473,6 +516,7 @@
         inset 2px 2px 0 var(--frame-highlight),
         inset -2px -2px 0 rgba(0, 0, 0, 0.4),
         0 4px 12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
 }
 
 .frotaLabel {
@@ -731,4 +775,47 @@
 @keyframes loadShine {
     0% { left: -40%; }
     100% { left: 110%; }
+}
+
+/* ========================= */
+/* MODO EXPLOSÃO — HUD      */
+/* ========================= */
+
+.explosaoBar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 16px;
+    background: rgba(255, 100, 0, 0.1);
+    border: 1px solid rgba(255, 100, 0, 0.5);
+}
+
+.explosaoLabel {
+    font-family: 'Silkscreen', monospace;
+    color: #ff8800;
+    font-size: 12px;
+    text-shadow: 1px 1px 0 #000;
+    letter-spacing: 1px;
+}
+
+.btnConfirmar {
+    padding: 6px 16px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 11px;
+    color: #ffffff;
+    background: linear-gradient(180deg, #cc4400, #992200);
+    border: 2px solid;
+    border-color: #ff6600 #661100 #661100 #ff6600;
+    cursor: pointer;
+    text-shadow: 1px 1px 0 #000;
+    letter-spacing: 1px;
+}
+
+.btnConfirmar:hover {
+    background: linear-gradient(180deg, #dd5500, #aa3300);
+}
+
+.btnConfirmar:disabled {
+    opacity: 0.5;
+    cursor: default;
 }
