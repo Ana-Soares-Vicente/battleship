@@ -163,6 +163,7 @@ export default function Jogo() {
                             getMeusTiros(id).then(setTiros).catch(console.error);
                             getMinhaFrota(id).then(f => { if (f) setMeusNavios(f); }).catch(() => {});
                             getTirosRecebidos(id).then(r => { if (r) setTirosRecebidos(r); }).catch(() => {});
+                            getTirosDisponiveis(id).then(td => { if (td) setTirosDisponiveis(td.tirosDisponiveis); }).catch(() => {});
                         }
                         break;
 
@@ -490,7 +491,7 @@ export default function Jogo() {
     return (
         <div className={styles.container}>
             {/* Background oceano */}
-            <div className={styles.bgOverlay} />
+            <div className={`${styles.bgOverlay} ${estado?.modo === 'EXPLOSAO' ? styles.bgExplosao : ''}`} />
 
             {/* Minimapa decorativo — HUD top-left */}
             <img src="/img/mapa_base.png" alt="" className={styles.minimapa} />
