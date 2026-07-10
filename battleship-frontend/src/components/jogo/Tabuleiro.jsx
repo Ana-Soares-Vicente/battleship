@@ -75,6 +75,7 @@ export default function Tabuleiro({
     desabilitado,
     modo = 'ataque',
     meusNavios = [],
+    alvosExplosao = [],
 }) {
     // Track quais células acabaram de afundar (para mostrar explosão uma vez)
     const [celulasRecentementeAfundadas, setCelulasRecentementeAfundadas] = useState(new Set());
@@ -160,6 +161,10 @@ export default function Tabuleiro({
         return celulasRecentementeAfundadas.has(`${linha},${coluna}`);
     }
 
+    function ehAlvoExplosao(linha, coluna) {
+        return alvosExplosao.some(a => a.linha === linha && a.coluna === coluna);
+    }
+
     // ========================= //
     // MODO ATAQUE               //
     // ========================= //
@@ -167,17 +172,22 @@ export default function Tabuleiro({
     function getCelulaClassAtaque(linha, coluna) {
         const tiro = getTiro(linha, coluna);
         if (tiro) {
+            if (tiro.resultado === 'PENDENTE') return styles.celulaPendente;
             if (ehNavioAfundado(linha, coluna)) return styles.celulaAfundou;
             if (tiro.resultado === 'AFUNDOU') return styles.celulaAfundou;
             if (tiro.resultado === 'ACERTO') return styles.celulaAcerto;
             if (tiro.resultado === 'AGUA') return styles.celulaAgua;
         }
+        if (ehAlvoExplosao(linha, coluna)) return styles.celulaAlvo;
         if (desabilitado) return styles.celulaDesabilitada;
         return styles.celulaLivre;
     }
 
     function getConteudoAtaque(linha, coluna) {
         const tiro = getTiro(linha, coluna);
+        if (!tiro && ehAlvoExplosao(linha, coluna)) {
+            return <span className={styles.miraAlvo}>🎯</span>;
+        }
         if (!tiro) return null;
 
         if (ehNavioAfundado(linha, coluna) || tiro.resultado === 'AFUNDOU') {
@@ -261,6 +271,11 @@ export default function Tabuleiro({
 
     function handleClick(linha, coluna) {
         if (desabilitado || modo === 'defesa') return;
+        // No modo explosão, permitir clicar em alvos já selecionados (para remover)
+        if (alvosExplosao.length > 0 && ehAlvoExplosao(linha, coluna)) {
+            if (onCelulaClick) onCelulaClick(linha, coluna);
+            return;
+        }
         if (getTiro(linha, coluna)) return;
         if (onCelulaClick) onCelulaClick(linha, coluna);
     }
