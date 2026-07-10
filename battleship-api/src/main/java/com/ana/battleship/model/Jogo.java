@@ -35,6 +35,10 @@ public class Jogo {
     private String skinJogador1;
     private String skinJogador2;
 
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'PADRAO'")
+    @Builder.Default
+    private String modo = "PADRAO"; // PADRAO, EXPLOSAO
+
     @Column(updatable = false)
     private Instant criadoEm;
 

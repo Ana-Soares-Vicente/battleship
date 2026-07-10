@@ -34,7 +34,7 @@ public class JogoService {
     }
 
     @Transactional
-    public Jogo criarJogo(String username, String skin) {
+    public Jogo criarJogo(String username, String skin, String modo) {
         Usuario jogador = buscarUsuario(username);
 
         // Cancelar salas anteriores AGUARDANDO deste jogador
@@ -45,7 +45,7 @@ public class JogoService {
         }
 
         String token = gerarToken();
-        Jogo jogo = Jogo.builder().jogador1(jogador).status("AGUARDANDO").token(token).skinJogador1(skin).build();
+        Jogo jogo = Jogo.builder().jogador1(jogador).status("AGUARDANDO").token(token).skinJogador1(skin).modo(modo != null ? modo : "PADRAO").build();
         jogo = jogoRepo.save(jogo);
         tabuleiroRepo.save(Tabuleiro.builder().jogo(jogo).dono(jogador).build());
 
@@ -202,14 +202,11 @@ public class JogoService {
 
     @Transactional
     public Map<String, Object> atirar(Long jogoId, String username, int linha, int coluna) {
+        long t0 = System.currentTimeMillis();
+        System.out.println("[ATAQUE RECEBIDO] jogador=" + username + " jogo=" + jogoId + " pos=" + linha + "," + coluna + " ts=" + t0);
+
         Usuario atirador = buscarUsuario(username);
         Jogo jogo = buscarJogo(jogoId);
-
-        System.out.println(">>> ATIRAR: jogador=" + username
-                + " | atirador.id=" + atirador.getId()
-                + " | turnoAtual.id=" + (jogo.getTurnoAtual() != null ? jogo.getTurnoAtual().getId() : "null")
-                + " | turnoAtual.username=" + (jogo.getTurnoAtual() != null ? jogo.getTurnoAtual().getUsername() : "null")
-                + " | status=" + jogo.getStatus());
 
         if (!jogo.getStatus().equals("JOGANDO"))
             throw new IllegalStateException("Jogo não está em andamento");
@@ -250,12 +247,20 @@ public class JogoService {
         if (fimDeJogo) {
             jogo.setStatus("FINALIZADO");
             jogo.setVencedor(atirador);
-        } else {
+        } else if (resultado.equals("AGUA")) {
+            // Só troca turno se errou — acertou ou afundou continua jogando
             jogo.setTurnoAtual(oponente);
         }
+        // Se ACERTO ou AFUNDOU, turno permanece com o atirador
+        jogo.setUltimaAtividade(Instant.now());
         jogoRepo.save(jogo);
 
-        atualizarAtividade(jogo);
+        long t1 = System.currentTimeMillis();
+        System.out.println("[ATAQUE PROCESSADO] resultado=" + resultado + " tempo_db=" + (t1 - t0) + "ms");
+
+        // turnoAtual na resposta: se acertou, continua sendo o atirador
+        String proximoTurno = fimDeJogo ? null :
+                resultado.equals("AGUA") ? oponente.getUsername() : atirador.getUsername();
 
         Map<String, Object> resposta = new HashMap<>();
         resposta.put("linha", linha);
@@ -264,6 +269,7 @@ public class JogoService {
         resposta.put("tipoAfundado", tipoAfundado);
         resposta.put("fimDeJogo", fimDeJogo);
         resposta.put("vencedor", fimDeJogo ? atirador.getUsername() : null);
+        resposta.put("turnoAtual", proximoTurno);
 
         Map<String, Object> navioAfundadoInfo = null;
         if (resultado.equals("AFUNDOU") && atingido != null) {
@@ -286,8 +292,11 @@ public class JogoService {
         evento.put("navioAfundado", navioAfundadoInfo);
         evento.put("fimDeJogo", fimDeJogo);
         evento.put("vencedor", fimDeJogo ? atirador.getUsername() : null);
-        evento.put("turnoAtual", fimDeJogo ? null : oponente.getUsername());
+        evento.put("turnoAtual", proximoTurno);
         messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+
+        long t2 = System.currentTimeMillis();
+        System.out.println("[WEBSOCKET ENVIADO] tempo_ws=" + (t2 - t1) + "ms | tempo_total=" + (t2 - t0) + "ms");
 
         return resposta;
     }
@@ -310,6 +319,7 @@ public class JogoService {
         r.put("meusProntos", ehJogador1(jogo, jogador) ? jogo.isJogador1Pronto() : jogo.isJogador2Pronto());
         r.put("skinJogador1", jogo.getSkinJogador1());
         r.put("skinJogador2", jogo.getSkinJogador2());
+        r.put("modo", jogo.getModo());
         return r;
     }
 
@@ -326,6 +336,7 @@ public class JogoService {
         r.put("vencedor", jogo.getVencedor() != null ? jogo.getVencedor().getUsername() : null);
         r.put("skinJogador1", jogo.getSkinJogador1());
         r.put("skinJogador2", jogo.getSkinJogador2());
+        r.put("modo", jogo.getModo());
         return r;
     }
 
@@ -427,6 +438,131 @@ public class JogoService {
             m.put("token", j.getToken());
             return m;
         }).toList();
+    }
+
+    @Transactional
+    public List<Map<String, Object>> atirarExplosao(Long jogoId, String username, List<Map<String, Object>> tiros) {
+        Usuario atirador = buscarUsuario(username);
+        Jogo jogo = buscarJogo(jogoId);
+
+        if (!jogo.getModo().equals("EXPLOSAO"))
+            throw new IllegalStateException("Este jogo não está em modo Explosão");
+        if (!jogo.getStatus().equals("JOGANDO"))
+            throw new IllegalStateException("Jogo não está em andamento");
+        if (!jogo.getTurnoAtual().getId().equals(atirador.getId()))
+            throw new IllegalStateException("Não é seu turno");
+
+        // Contar navios vivos do atirador
+        Tabuleiro meuTabuleiro = tabuleiroRepo.findByJogoAndDono(jogo, atirador).orElseThrow();
+        List<Navio> meusNavios = navioRepo.findByTabuleiro(meuTabuleiro);
+        long naviosVivos = meusNavios.stream().filter(n -> !n.estaAfundado()).count();
+
+        if (tiros.size() != naviosVivos)
+            throw new IllegalArgumentException("Quantidade de tiros deve ser igual ao número de navios vivos (" + naviosVivos + ")");
+
+        // Validar tiros duplicados entre si
+        Set<String> posicoesTiro = new HashSet<>();
+        for (Map<String, Object> tiro : tiros) {
+            int linha = ((Number) tiro.get("linha")).intValue();
+            int coluna = ((Number) tiro.get("coluna")).intValue();
+            String chave = linha + "," + coluna;
+            if (!posicoesTiro.add(chave))
+                throw new IllegalArgumentException("Tiro duplicado na posição " + linha + "," + coluna);
+            // Validar tiros anteriores
+            if (tiroRepo.existsByJogoAndAtiradorAndLinhaAndColuna(jogo, atirador, linha, coluna))
+                throw new IllegalArgumentException("Já atirou na posição " + linha + "," + coluna);
+        }
+
+        // Processar todos os tiros
+        Usuario oponente = jogo.getJogador1().getId().equals(atirador.getId())
+                ? jogo.getJogador2() : jogo.getJogador1();
+        Tabuleiro tabuleiroOponente = tabuleiroRepo.findByJogoAndDono(jogo, oponente).orElseThrow();
+        List<Navio> naviosOponente = navioRepo.findByTabuleiro(tabuleiroOponente);
+
+        List<Map<String, Object>> resultados = new ArrayList<>();
+
+        for (Map<String, Object> tiro : tiros) {
+            int linha = ((Number) tiro.get("linha")).intValue();
+            int coluna = ((Number) tiro.get("coluna")).intValue();
+
+            Navio atingido = naviosOponente.stream().filter(n -> n.ocupa(linha, coluna)).findFirst().orElse(null);
+
+            String resultado;
+            String tipoAfundado = null;
+            Map<String, Object> navioAfundadoInfo = null;
+
+            if (atingido == null) {
+                resultado = "AGUA";
+            } else {
+                atingido.setAcertos(atingido.getAcertos() + 1);
+                navioRepo.save(atingido);
+                if (atingido.estaAfundado()) {
+                    resultado = "AFUNDOU";
+                    tipoAfundado = atingido.getTipo();
+                    navioAfundadoInfo = new HashMap<>();
+                    navioAfundadoInfo.put("tipo", atingido.getTipo());
+                    navioAfundadoInfo.put("tamanho", atingido.getTamanho());
+                    navioAfundadoInfo.put("linhaInicial", atingido.getLinhaInicial());
+                    navioAfundadoInfo.put("colunaInicial", atingido.getColunaInicial());
+                    navioAfundadoInfo.put("direcao", atingido.getDirecao());
+                } else {
+                    resultado = "ACERTO";
+                }
+            }
+
+            tiroRepo.save(Tiro.builder()
+                    .jogo(jogo).atirador(atirador)
+                    .linha(linha).coluna(coluna)
+                    .resultado(resultado).tipoNavioAfundado(tipoAfundado).build());
+
+            Map<String, Object> r = new HashMap<>();
+            r.put("linha", linha);
+            r.put("coluna", coluna);
+            r.put("resultado", resultado);
+            r.put("tipoAfundado", tipoAfundado);
+            r.put("navioAfundado", navioAfundadoInfo);
+            resultados.add(r);
+        }
+
+        // Verificar fim de jogo
+        boolean fimDeJogo = naviosOponente.stream().allMatch(Navio::estaAfundado);
+        if (fimDeJogo) {
+            jogo.setStatus("FINALIZADO");
+            jogo.setVencedor(atirador);
+        } else {
+            // Sempre troca turno no modo explosão
+            jogo.setTurnoAtual(oponente);
+        }
+        jogo.setUltimaAtividade(Instant.now());
+        jogoRepo.save(jogo);
+
+        // Enviar evento WebSocket
+        Map<String, Object> evento = new HashMap<>();
+        evento.put("tipo", "TIROS_EXPLOSAO");
+        evento.put("atirador", atirador.getUsername());
+        evento.put("tiros", resultados);
+        evento.put("fimDeJogo", fimDeJogo);
+        evento.put("vencedor", fimDeJogo ? atirador.getUsername() : null);
+        evento.put("turnoAtual", fimDeJogo ? null : oponente.getUsername());
+        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+
+        return resultados;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getTirosDisponiveis(Long jogoId, String username) {
+        Usuario jogador = buscarUsuario(username);
+        Jogo jogo = buscarJogo(jogoId);
+        validarJogadorNoJogo(jogo, jogador);
+
+        Tabuleiro meuTabuleiro = tabuleiroRepo.findByJogoAndDono(jogo, jogador).orElseThrow();
+        List<Navio> meusNavios = navioRepo.findByTabuleiro(meuTabuleiro);
+        long naviosVivos = meusNavios.stream().filter(n -> !n.estaAfundado()).count();
+
+        Map<String, Object> r = new HashMap<>();
+        r.put("tirosDisponiveis", (int) naviosVivos);
+        r.put("modo", jogo.getModo());
+        return r;
     }
 
     private Usuario buscarUsuario(String username) {

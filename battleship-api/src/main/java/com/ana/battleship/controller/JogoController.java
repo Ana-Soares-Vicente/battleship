@@ -19,7 +19,8 @@ public class JogoController {
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, Object> criar(@RequestBody(required = false) Map<String, Object> body, Principal principal) {
         String skin = (body != null && body.containsKey("skin")) ? (String) body.get("skin") : null;
-        var jogo = jogoService.criarJogo(principal.getName(), skin);
+        String modo = (body != null && body.containsKey("modo")) ? (String) body.get("modo") : "PADRAO";
+        var jogo = jogoService.criarJogo(principal.getName(), skin, modo);
         return jogoService.getEstadoJogoInterno(jogo.getId());
     }
 
@@ -49,6 +50,18 @@ public class JogoController {
         int linha = (int) body.get("linha");
         int coluna = (int) body.get("coluna");
         return jogoService.atirar(id, principal.getName(), linha, coluna);
+    }
+
+    @PostMapping("/{id}/atirar-explosao")
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> atirarExplosao(@PathVariable Long id, @RequestBody Map<String, Object> body, Principal principal) {
+        List<Map<String, Object>> tiros = (List<Map<String, Object>>) body.get("tiros");
+        return jogoService.atirarExplosao(id, principal.getName(), tiros);
+    }
+
+    @GetMapping("/{id}/tiros-disponiveis")
+    public Map<String, Object> tirosDisponiveis(@PathVariable Long id, Principal principal) {
+        return jogoService.getTirosDisponiveis(id, principal.getName());
     }
 
     @GetMapping("/{id}")
