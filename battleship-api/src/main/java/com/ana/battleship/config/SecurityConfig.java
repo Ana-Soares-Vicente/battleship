@@ -33,7 +33,7 @@ public class SecurityConfig {
             .headers(h -> h.frameOptions(f -> f.disable()))
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/ws/**", "/h2-console/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/health", "/ws/**", "/h2-console/**").permitAll()
                 .anyRequest().authenticated()
             )
             .securityContext(sc -> sc.requireExplicitSave(false))
