@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { login } from '../../services/api';
+import { useTranslation } from '../../i18n/useTranslation';
 import styles from './Login.module.css';
 
 export default function Login() {
@@ -9,6 +10,7 @@ export default function Login() {
     const [erro, setErro] = useState('');
     const [carregando, setCarregando] = useState(false);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const token = localStorage.getItem('token');
     if (token) {
@@ -18,7 +20,7 @@ export default function Login() {
     async function handleLogin(e) {
         e.preventDefault();
         if (!username.trim() || !password.trim()) {
-            setErro('Preencha todos os campos');
+            setErro(t('login.fillAll'));
             return;
         }
         setErro('');
@@ -46,7 +48,7 @@ export default function Login() {
                     <span className={styles.microsoftText}>Minecraft</span>
                 </div>
 
-                <h1 className={styles.title}> Sign in</h1>
+                <h1 className={styles.title}> {t('login.title')}</h1>
 
                 <form className={styles.form} onSubmit={handleLogin}>
                     {erro && <p className={styles.erro}>{erro}</p>}
@@ -56,7 +58,7 @@ export default function Login() {
                         id="username"
                         value={username}
                         onChange={e => setUsername(e.target.value)}
-                        placeholder="Email, phone, or Skype"
+                        placeholder={t('login.placeholder.username')}
                         autoComplete="username"
                         disabled={carregando}
                         required
@@ -68,22 +70,22 @@ export default function Login() {
                         type="password"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
-                        placeholder="Password"
+                        placeholder={t('login.placeholder.password')}
                         autoComplete="current-password"
                         disabled={carregando}
                         required
                     />
 
                     <p className={styles.noAccount}>
-                        No account? <Link to="/register" className={styles.createLink}>Create one!</Link>
+                        {t('login.noAccount')} <Link to="/register" className={styles.createLink}>{t('login.createOne')}</Link>
                     </p>
 
                     <div className={styles.buttons}>
                         <button type="button" className={styles.btnBack} disabled={carregando}>
-                            Back
+                            {t('login.back')}
                         </button>
                         <button type="submit" className={styles.btnNext} disabled={carregando}>
-                            {carregando ? 'Loading...' : 'Next'}
+                            {carregando ? t('login.loading') : t('login.next')}
                         </button>
                     </div>
                 </form>
@@ -91,7 +93,7 @@ export default function Login() {
 
             <div className={styles.signInOptions}>
                 <span className={styles.keyIcon}>🔑</span>
-                <span>Sign-in options</span>
+                <span>{t('login.signInOptions')}</span>
             </div>
         </div>
     );
