@@ -101,6 +101,37 @@ class AudioManager {
         });
     }
 
+    /** Água — tiro que não acertou nenhum navio */
+    playSplash() {
+        if (!this.soundOn) return;
+        const audio = new Audio('/img/splash-agua.mp3');
+        audio.volume = 0.6;
+        audio.play().catch((e) => {
+            console.warn('Erro ao tocar splash:', e);
+        });
+    }
+
+    /** Acerto parcial — navio atingido mas ainda não afundou */
+    playTntHit() {
+        if (!this.soundOn) return;
+        console.log('[AUDIO] Tocando tnt-explodindo.mp3');
+        const audio = new Audio('/img/tnt-explodindo.mp3');
+        audio.volume = 0.8;
+        audio.play().catch((e) => {
+            console.warn('Erro ao tocar tnt-explodindo:', e);
+        });
+    }
+
+    /** Navio afundado — último pedaço destruído */
+    playTntExplosion() {
+        if (!this.soundOn) return;
+        const audio = new Audio('/img/tnt-explosao.mp3');
+        audio.volume = 0.8;
+        audio.play().catch((e) => {
+            console.warn('Erro ao tocar tnt-explosao:', e);
+        });
+    }
+
     // ========================= //
     // FADE IN / FADE OUT         //
     // ========================= //
