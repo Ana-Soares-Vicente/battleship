@@ -64,7 +64,7 @@ export default function Skins() {
                 </div>
 
                 {/* Skins disponíveis para trocar */}
-                <div className={styles.skinsLabel}>Skins Disponíveis</div>
+                <div className={styles.skinsLabel}>{t('skins.available')}</div>
                 <div className={styles.skinsGrid}>
                     {skinsParaEscolher.map((skin) => (
                         <div

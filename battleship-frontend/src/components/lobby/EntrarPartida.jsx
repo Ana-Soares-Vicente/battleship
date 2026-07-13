@@ -148,7 +148,7 @@ export default function EntrarPartida() {
                                             {sala.nome || `Partida de ${sala.jogador1 || 'Jogador'}`}
                                         </span>
                                         <span className={styles.servidorDetalhes}>
-                                            Criador: {sala.jogador1 || '???'} • Código: {sala.token || '---'} • 1/2 jogadores
+                                            {t('joinMatch.creator')}: {sala.jogador1 || '???'} • {t('joinMatch.code')}: {sala.token || '---'} • 1/2 {t('joinMatch.players')}
                                         </span>
                                     </div>
                                     <div className={styles.servidorStatus}>

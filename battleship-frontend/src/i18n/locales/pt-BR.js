@@ -46,10 +46,15 @@ export default {
   'createMatch.copied': 'Copiado!',
   'createMatch.copy': 'COPIAR',
   'createMatch.cancel': 'CANCELAR',
+  'createMatch.gameMode': 'Modo de jogo',
+  'createMatch.difficulty': 'Dificuldade',
   'createMatch.modeStandard': 'padrão',
   'createMatch.modeExplosion': 'explosão',
   'createMatch.modeStandardDesc': 'Busque recursos, fabrique ferramentas,\nsuba de nível e coma para se manter vivo',
   'createMatch.modeExplosionDesc': 'Modo alternativo com mecânicas\nde explosão e regras especiais',
+  'createMatch.diffEasy': 'fácil',
+  'createMatch.diffMedium': 'médio',
+  'createMatch.diffHard': 'difícil',
 
   // Join Match
   'joinMatch.title': 'Entrar em uma Partida',
@@ -62,6 +67,9 @@ export default {
   'joinMatch.noRooms': 'Nenhuma sala disponível',
   'joinMatch.back': 'VOLTAR',
   'joinMatch.enterCode': 'Digite o código da sala.',
+  'joinMatch.creator': 'Criador',
+  'joinMatch.code': 'Código',
+  'joinMatch.players': 'jogadores',
 
   // Game
   'game.myPort': 'Meu Porto',
@@ -79,6 +87,9 @@ export default {
   'game.backToMenu': 'Voltar ao Menu',
   'game.loading': 'Carregando...',
   'game.waitingOpponent': 'AGUARDANDO OPONENTE',
+  'game.waitingPlayer': 'Aguardando outro jogador entrar...',
+  'game.sendCode': 'Envie este código para seu oponente:',
+  'game.copy': 'Copiar',
   'game.gameEnd': 'Fim do Jogo! Vencedor:',
 
   // Positioning
@@ -101,6 +112,7 @@ export default {
   'skins.title': 'Skins',
   'skins.equip': 'EQUIPAR',
   'skins.equipped': 'EQUIPADA',
+  'skins.available': 'Skins Disponíveis',
   'skins.back': 'VOLTAR',
 
   // Tips

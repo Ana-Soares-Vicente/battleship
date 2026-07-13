@@ -6,14 +6,14 @@ import { useTranslation } from '../../i18n/useTranslation';
 import styles from './CriarPartida.module.css';
 
 const MODOS = [
-    { id: 'PADRAO', label: 'padrão', desc: 'Busque recursos, fabrique ferramentas,\nsuba de nível e coma para se manter vivo', img: '/img/modo_padrao.png' },
-    { id: 'EXPLOSAO', label: 'explosão', desc: 'Modo alternativo com mecânicas\nde explosão e regras especiais', img: '/img/modo_explosao.png' },
+    { id: 'PADRAO', labelKey: 'createMatch.modeStandard', descKey: 'createMatch.modeStandardDesc', img: '/img/modo_padrao.png' },
+    { id: 'EXPLOSAO', labelKey: 'createMatch.modeExplosion', descKey: 'createMatch.modeExplosionDesc', img: '/img/modo_explosao.png' },
 ];
 
 const DIFICULDADES = [
-    { id: 'FACIL', label: 'fácil' },
-    { id: 'MEDIO', label: 'médio' },
-    { id: 'DIFICIL', label: 'difícil' },
+    { id: 'FACIL', labelKey: 'createMatch.diffEasy' },
+    { id: 'MEDIO', labelKey: 'createMatch.diffMedium' },
+    { id: 'DIFICIL', labelKey: 'createMatch.diffHard' },
 ];
 
 export default function CriarPartida() {
@@ -153,21 +153,21 @@ export default function CriarPartida() {
                 {/* Modo de jogo + Dificuldade */}
                 <div className={styles.btnRow}>
                     <button className={styles.btnOption} onClick={ciclarModo} disabled={criando}>
-                        Modo de jogo: {modoAtual.label}
+                        {t('createMatch.gameMode')}: {t(modoAtual.labelKey)}
                     </button>
                     <button className={styles.btnOption} onClick={ciclarDificuldade} disabled={criando}>
-                        Dificuldade: {dificuldadeAtual.label}
+                        {t('createMatch.difficulty')}: {t(dificuldadeAtual.labelKey)}
                     </button>
                 </div>
 
                 {/* Descrição do modo */}
-                <p className={styles.modoDesc}>{modoAtual.desc}</p>
+                <p className={styles.modoDesc}>{t(modoAtual.descKey)}</p>
 
                 {/* Imagem do modo */}
                 <div className={styles.imgContainer}>
                     <img
                         src={modoAtual.img}
-                        alt={`Modo ${modoAtual.label}`}
+                        alt={t(modoAtual.labelKey)}
                         className={styles.modoImg}
                         draggable={false}
                     />

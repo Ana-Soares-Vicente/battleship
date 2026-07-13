@@ -46,10 +46,15 @@ export default {
   'createMatch.copied': 'Copied!',
   'createMatch.copy': 'COPY',
   'createMatch.cancel': 'CANCEL',
+  'createMatch.gameMode': 'Game mode',
+  'createMatch.difficulty': 'Difficulty',
   'createMatch.modeStandard': 'standard',
   'createMatch.modeExplosion': 'explosion',
   'createMatch.modeStandardDesc': 'Search for resources, craft tools,\nlevel up and eat to stay alive',
   'createMatch.modeExplosionDesc': 'Alternative mode with explosion\nmechanics and special rules',
+  'createMatch.diffEasy': 'easy',
+  'createMatch.diffMedium': 'medium',
+  'createMatch.diffHard': 'hard',
 
   // Join Match
   'joinMatch.title': 'Join a Match',
@@ -62,6 +67,9 @@ export default {
   'joinMatch.noRooms': 'No rooms available',
   'joinMatch.back': 'BACK',
   'joinMatch.enterCode': 'Enter the room code.',
+  'joinMatch.creator': 'Creator',
+  'joinMatch.code': 'Code',
+  'joinMatch.players': 'players',
 
   // Game
   'game.myPort': 'My Port',
@@ -79,6 +87,9 @@ export default {
   'game.backToMenu': 'Back to Menu',
   'game.loading': 'Loading...',
   'game.waitingOpponent': 'WAITING FOR OPPONENT',
+  'game.waitingPlayer': 'Waiting for another player to join...',
+  'game.sendCode': 'Send this code to your opponent:',
+  'game.copy': 'Copy',
   'game.gameEnd': 'Game Over! Winner:',
 
   // Positioning
@@ -101,6 +112,7 @@ export default {
   'skins.title': 'Skins',
   'skins.equip': 'EQUIP',
   'skins.equipped': 'EQUIPPED',
+  'skins.available': 'Available Skins',
   'skins.back': 'BACK',
 
   // Tips

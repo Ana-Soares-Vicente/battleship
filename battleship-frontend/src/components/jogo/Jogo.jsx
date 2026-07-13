@@ -559,7 +559,7 @@ export default function Jogo() {
                     </div>
                     <span className={styles.vs}>⚔</span>
                     <div className={styles.playerSlot}>
-                        <span className={styles.playerName}>{(adversario || 'Aguardando...').toUpperCase()}</span>
+                        <span className={styles.playerName}>{(adversario || t('game.loading')).toUpperCase()}</span>
                         {skinAdversario && <img src={skinAdversario} alt={adversario} className={styles.playerSkin} />}
                     </div>
                 </div>
@@ -569,14 +569,14 @@ export default function Jogo() {
             {/* ===== PRE-JOGO ===== */}
             {estado.status === 'AGUARDANDO' && (
                 <div className={styles.preJogo}>
-                    <p className={styles.aguardando}>Aguardando outro jogador entrar...</p>
+                    <p className={styles.aguardando}>{t('game.waitingPlayer')}</p>
                     {estado.token && (
                         <div className={styles.tokenSection}>
-                            <p className={styles.tokenLabel}>Envie este código para seu oponente:</p>
+                            <p className={styles.tokenLabel}>{t('game.sendCode')}</p>
                             <div className={styles.tokenDisplay}>
                                 <code className={styles.tokenCode}>{estado.token}</code>
                                 <button className={styles.btnCopiar} onClick={() => navigator.clipboard.writeText(estado.token)}>
-                                    Copiar
+                                    {t('game.copy')}
                                 </button>
                             </div>
                         </div>

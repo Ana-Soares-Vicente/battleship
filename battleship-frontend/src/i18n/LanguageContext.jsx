@@ -1,4 +1,4 @@
-import { createContext, useState, useCallback } from 'react';
+import { createContext, useState, useCallback, useMemo } from 'react';
 import ptBR from './locales/pt-BR';
 import enUS from './locales/en-US';
 
@@ -14,12 +14,14 @@ export function LanguageProvider({ children }) {
     localStorage.setItem('language', lang);
   }, []);
 
-  const t = useCallback((key) => {
-    return locales[language]?.[key] || locales['pt-BR']?.[key] || key;
+  const t = useMemo(() => {
+    return (key) => locales[language]?.[key] || locales['pt-BR']?.[key] || key;
   }, [language]);
 
+  const value = useMemo(() => ({ language, setLanguage, t }), [language, setLanguage, t]);
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
