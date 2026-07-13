@@ -72,48 +72,23 @@
 }
 
 .playersRow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(12px, 2vw, 32px);
-    padding: clamp(6px, 1vh, 14px) clamp(16px, 2vw, 36px);
-    background: rgba(0, 0, 0, 0.5);
-    border: 2px solid #3a3a3a;
-    border-top-color: #5a5a5a;
-    border-left-color: #5a5a5a;
-    box-shadow:
-        0 4px 16px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    display: none;
 }
 
 .playerSlot {
-    display: flex;
-    align-items: center;
-    gap: clamp(6px, 1vw, 14px);
+    display: none;
 }
 
 .playerSkin {
-    width: clamp(36px, 6vh, 64px);
-    height: clamp(36px, 6vh, 64px);
-    image-rendering: pixelated;
-    object-fit: contain;
-    border: 2px solid #5a5a5a;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+    display: none;
 }
 
 .playerName {
-    color: var(--text-primary);
-    font-family: 'Silkscreen', monospace;
-    font-size: clamp(10px, 1.5vh, 16px);
-    font-weight: bold;
-    text-shadow: 2px 2px 0 #000;
-    letter-spacing: 1.5px;
+    display: none;
 }
 
 .vs {
-    color: #ffcc00;
-    font-size: clamp(18px, 3vh, 30px);
-    text-shadow: 2px 2px 0 #000, 0 0 10px rgba(255, 204, 0, 0.6);
+    display: none;
 }
 
 /* ========================= */
@@ -372,17 +347,76 @@
     color: #c8a85c;
     font-size: clamp(9px, 1.2vh, 12px);
     text-transform: uppercase;
-    margin: 0 0 clamp(3px, 0.5vh, 6px) 0;
-    padding: clamp(3px, 0.5vh, 6px) clamp(8px, 1vw, 16px);
+    margin: 0;
+    letter-spacing: 1.5px;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* === Tab Header (skin + nome acima do tabuleiro) === */
+.tabHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: clamp(4px, 0.6vh, 8px);
+    padding: clamp(4px, 0.6vh, 8px) clamp(10px, 1vw, 16px);
     background: rgba(20, 20, 20, 0.9);
     border: 2px solid #4a4a4a;
     border-top-color: #6a6a6a;
     border-left-color: #6a6a6a;
     border-bottom-color: #2a2a2a;
     border-right-color: #2a2a2a;
-    letter-spacing: 1.5px;
-    text-shadow: 1px 1px 0 #000;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.tabSkin {
+    width: clamp(32px, 4.5vh, 48px);
+    height: clamp(32px, 4.5vh, 48px);
+    image-rendering: pixelated;
+    object-fit: contain;
+    border: 2px solid #5a5a5a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.tabHeaderText {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.tabNome {
+    font-family: 'Silkscreen', monospace;
+    color: var(--text-primary);
+    font-size: clamp(9px, 1.1vh, 12px);
+    text-shadow: 1px 1px 0 #000;
+    letter-spacing: 1px;
+}
+
+/* === Tabuleiro + Frota Lateral (oceano inimigo) === */
+.tabuleiroComFrota {
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(8px, 1vw, 14px);
+}
+
+.frotaLateral {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: clamp(6px, 0.8vh, 10px) clamp(6px, 0.6vw, 10px);
+    background:
+        linear-gradient(135deg, #2a1a08 0%, #1a1008 50%, #2a1a08 100%);
+    border: 3px solid var(--frame-outer);
+    border-top-color: var(--frame-highlight);
+    border-left-color: var(--frame-inner);
+    border-bottom-color: #1a0f03;
+    border-right-color: #2a1808;
+    box-shadow:
+        inset 2px 2px 0 var(--frame-highlight),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.5);
+    min-width: 70px;
+    align-self: stretch;
 }
 
 /* Board frame — Dark Oak (igual posicionamento) */

@@ -552,17 +552,6 @@ export default function Jogo() {
             {estado.status !== 'POSICIONANDO' && (
             <header className={styles.header}>
                 <h1 className={styles.title}>MINECRAFT BATTLESHIP</h1>
-                <div className={styles.playersRow}>
-                    <div className={styles.playerSlot}>
-                        {minhaSkin && <img src={minhaSkin} alt={username} className={styles.playerSkin} />}
-                        <span className={styles.playerName}>{(username || '').toUpperCase()}</span>
-                    </div>
-                    <span className={styles.vs}>⚔</span>
-                    <div className={styles.playerSlot}>
-                        <span className={styles.playerName}>{(adversario || t('game.loading')).toUpperCase()}</span>
-                        {skinAdversario && <img src={skinAdversario} alt={adversario} className={styles.playerSkin} />}
-                    </div>
-                </div>
             </header>
             )}
 
@@ -660,14 +649,22 @@ export default function Jogo() {
                         )}
                     </div>
 
-                    {/* Tabuleiros lado a lado com frotas embaixo */}
+                    {/* Tabuleiros lado a lado */}
                     <div className={styles.tabuleiros}>
                         {/* Banner afundou — overlay absoluto, não empurra nada */}
                         {bannerAfundou && (
                             <div className={styles.bannerAfundou}>💥 {t('game.shipSunk')}</div>
                         )}
+
+                        {/* MEU PORTO */}
                         <div className={styles.tabuleiroBloco}>
-                            <h3 className={styles.tabTitulo}>{t('game.myPort')}</h3>
+                            <div className={styles.tabHeader}>
+                                {minhaSkin && <img src={minhaSkin} alt={username} className={styles.tabSkin} />}
+                                <div className={styles.tabHeaderText}>
+                                    <h3 className={styles.tabTitulo}>{t('game.myPort')}</h3>
+                                    <span className={styles.tabNome}>{(username || '').toUpperCase()}</span>
+                                </div>
+                            </div>
                             <div className={styles.boardFrame}>
                                 <Tabuleiro
                                     modo="defesa"
@@ -687,19 +684,28 @@ export default function Jogo() {
                             </div>
                         </div>
 
-                        <div className={`${styles.tabuleiroBloco} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.tabuleiroAtivo : ''}`}>
-                            <h3 className={styles.tabTitulo}>{t('game.enemyOcean')}</h3>
-                            <div className={`${styles.boardFrame} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.boardFrameAtivo : ''}`}>
-                                <Tabuleiro
-                                    modo="ataque"
-                                    tiros={tiros}
-                                    naviosAfundados={naviosAfundados}
-                                    onCelulaClick={estado.modo === 'EXPLOSAO' ? handleCelulaClickExplosao : handleAtirar}
-                                    desabilitado={!ehMeuTurno || estado.status === 'FINALIZADO' || processandoExplosao}
-                                    alvosExplosao={estado.modo === 'EXPLOSAO' ? alvosExplosao : []}
-                                />
+                        {/* OCEANO INIMIGO + FROTA LATERAL */}
+                        <div className={styles.tabuleiroComFrota}>
+                            <div className={`${styles.tabuleiroBloco} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.tabuleiroAtivo : ''}`}>
+                                <div className={styles.tabHeader}>
+                                    <div className={styles.tabHeaderText}>
+                                        <h3 className={styles.tabTitulo}>{t('game.enemyOcean')}</h3>
+                                        <span className={styles.tabNome}>{(adversario || '...').toUpperCase()}</span>
+                                    </div>
+                                    {skinAdversario && <img src={skinAdversario} alt={adversario} className={styles.tabSkin} />}
+                                </div>
+                                <div className={`${styles.boardFrame} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.boardFrameAtivo : ''}`}>
+                                    <Tabuleiro
+                                        modo="ataque"
+                                        tiros={tiros}
+                                        naviosAfundados={naviosAfundados}
+                                        onCelulaClick={estado.modo === 'EXPLOSAO' ? handleCelulaClickExplosao : handleAtirar}
+                                        desabilitado={!ehMeuTurno || estado.status === 'FINALIZADO' || processandoExplosao}
+                                        alvosExplosao={estado.modo === 'EXPLOSAO' ? alvosExplosao : []}
+                                    />
+                                </div>
                             </div>
-                            <div className={styles.frotaAbaixo}>
+                            <div className={styles.frotaLateral}>
                                 <span className={styles.frotaLabel}>{t('game.enemyFleet')}</span>
                                 <FrotaInimiga
                                     naviosAfundados={naviosAfundados}
