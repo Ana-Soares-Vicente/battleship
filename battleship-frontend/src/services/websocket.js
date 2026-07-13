@@ -1,7 +1,7 @@
 import { Client } from '@stomp/stompjs';
 
 // WebSocket nativo direto (sem SockJS) — menor latência
-const WS_URL = 'ws://localhost:8080/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
 
 let stompClient = null;
 const subscriptions = new Map();
