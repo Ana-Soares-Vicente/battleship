@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { register } from '../../services/api';
+import { useTranslation } from '../../i18n/useTranslation';
 import styles from './Register.module.css';
 
 export default function Register() {
@@ -10,6 +11,7 @@ export default function Register() {
     const [erro, setErro] = useState('');
     const [carregando, setCarregando] = useState(false);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const token = localStorage.getItem('token');
     if (token) {
@@ -19,7 +21,7 @@ export default function Register() {
     async function handleRegister(e) {
         e.preventDefault();
         if (!nome.trim() || !email.trim() || !password.trim()) {
-            setErro('Preencha todos os campos');
+            setErro(t('register.fillAll'));
             return;
         }
         setErro('');
@@ -47,7 +49,7 @@ export default function Register() {
                                 <span className={styles.microsoftText}>Minecraft</span>
                             </div>
 
-                <h1 className={styles.title}>Create account</h1>
+                <h1 className={styles.title}>{t('register.title')}</h1>
 
                 <form className={styles.form} onSubmit={handleRegister}>
                     {erro && <p className={styles.erro}>{erro}</p>}
@@ -57,7 +59,7 @@ export default function Register() {
                         id="nome"
                         value={nome}
                         onChange={e => setNome(e.target.value)}
-                        placeholder="Name"
+                        placeholder={t('register.placeholder.name')}
                         autoComplete="name"
                         disabled={carregando}
                         required
@@ -69,7 +71,7 @@ export default function Register() {
                         type="email"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        placeholder="Email"
+                        placeholder={t('register.placeholder.email')}
                         autoComplete="email"
                         disabled={carregando}
                         required
@@ -81,22 +83,22 @@ export default function Register() {
                         type="password"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
-                        placeholder="Password"
+                        placeholder={t('register.placeholder.password')}
                         autoComplete="new-password"
                         disabled={carregando}
                         required
                     />
 
                     <p className={styles.noAccount}>
-                        Already have an account? <Link to="/" className={styles.createLink}>Sign in!</Link>
+                        {t('register.alreadyHave')} <Link to="/" className={styles.createLink}>{t('register.signIn')}</Link>
                     </p>
 
                     <div className={styles.buttons}>
                         <Link to="/" className={styles.btnBack}>
-                            Back
+                            {t('register.back')}
                         </Link>
                         <button type="submit" className={styles.btnNext} disabled={carregando}>
-                            {carregando ? 'Loading...' : 'Next'}
+                            {carregando ? t('register.loading') : t('register.next')}
                         </button>
                     </div>
                 </form>
@@ -104,7 +106,7 @@ export default function Register() {
 
             <div className={styles.signInOptions}>
                 <span className={styles.keyIcon}>🔑</span>
-                <span>Sign-in options</span>
+                <span>{t('login.signInOptions')}</span>
             </div>
         </div>
     );
