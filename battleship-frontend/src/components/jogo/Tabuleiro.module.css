@@ -49,21 +49,21 @@
 /* ========================= */
 
 .headerCell {
-    width: clamp(24px, 2.8vw, 34px);
-    height: clamp(16px, 1.8vw, 22px);
+    width: clamp(20px, 3.2vh, 34px);
+    height: clamp(14px, 1.8vh, 20px);
     text-align: center;
     color: #c8a85c;
-    font-size: clamp(8px, 0.75vw, 11px);
+    font-size: clamp(7px, 1vh, 11px);
     font-weight: bold;
     text-shadow: 1px 1px 0 #000;
 }
 
 .rowHeader {
-    width: clamp(16px, 1.8vw, 22px);
-    height: clamp(24px, 2.8vw, 34px);
+    width: clamp(14px, 1.8vh, 20px);
+    height: clamp(20px, 3.2vh, 34px);
     text-align: center;
     color: #c8a85c;
-    font-size: clamp(8px, 0.75vw, 11px);
+    font-size: clamp(7px, 1vh, 11px);
     font-weight: bold;
     text-shadow: 1px 1px 0 #000;
 }
@@ -73,8 +73,8 @@
 /* ========================= */
 
 .celula {
-    width: clamp(24px, 2.8vw, 34px);
-    height: clamp(24px, 2.8vw, 34px);
+    width: clamp(20px, 3.2vh, 34px);
+    height: clamp(20px, 3.2vh, 34px);
     text-align: center;
     vertical-align: middle;
     transition: none;
