@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { conectarWebSocket } from '../../services/websocket';
+import { useTranslation } from '../../i18n/useTranslation';
 import styles from './Lobby.module.css';
 
 export default function Lobby() {
     const navigate = useNavigate();
     const username = localStorage.getItem('username');
+    const { t } = useTranslation();
 
     useEffect(() => {
         conectarWebSocket(() => {});
@@ -30,18 +32,18 @@ export default function Lobby() {
             {/* Botões centrais */}
             <div className={styles.menuButtons}>
                 <button className={styles.btn} onClick={() => navigate('/criar-partida')}>
-                    CREATE MATCH
+                    {t('lobby.createMatch')}
                 </button>
                 <button className={styles.btn} onClick={() => navigate('/entrar-partida')}>
-                    JOIN MATCH
+                    {t('lobby.joinMatch')}
                 </button>
 
                 <div className={styles.btnRow}>
                     <button className={styles.btnHalf} onClick={() => navigate('/options')}>
-                        OPÇÕES...
+                        {t('lobby.options')}
                     </button>
                     <button className={styles.btnHalf} onClick={handleLogout}>
-                        SAIR DO JOGO
+                        {t('lobby.logout')}
                     </button>
                 </div>
             </div>
@@ -51,7 +53,7 @@ export default function Lobby() {
                 <img src={localStorage.getItem('skinAtual') || '/img/pactw_skin.webp'} alt={username} className={styles.playerSkin} />
                 <div className={styles.playerInfo}>
                     <span className={styles.playerName}>{username || 'STEVE'}</span>
-                    <span className={styles.playerRank}>Level 99 Admiral</span>
+                    <span className={styles.playerRank}>{t('lobby.playerRank')}</span>
                 </div>
             </div>
 
