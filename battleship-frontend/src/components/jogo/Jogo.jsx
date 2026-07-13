@@ -235,7 +235,7 @@ export default function Jogo() {
                         }
 
                         if (evento.fimDeJogo) {
-                            setMsg(`Fim do Jogo! Vencedor: ${evento.vencedor}`);
+                            setMsg(`${t('game.gameEnd')} ${evento.vencedor}`);
                         } else if (evento.atirador === username) {
                             setMsg(`${evento.resultado}${evento.tipoAfundado ? ' - ' + evento.tipoAfundado : ''}`);
                         } else {
@@ -321,7 +321,7 @@ export default function Jogo() {
                         }
 
                         if (evento.fimDeJogo) {
-                            setMsg(`Fim do Jogo! Vencedor: ${evento.vencedor}`);
+                            setMsg(`${t('game.gameEnd')} ${evento.vencedor}`);
                         } else {
                             const acertosExp = evento.tiros.filter(t => t.resultado !== 'AGUA').length;
                             const errosExp = evento.tiros.filter(t => t.resultado === 'AGUA').length;
@@ -405,7 +405,7 @@ export default function Jogo() {
                 // Atualizar turno e estado do jogo imediatamente
                 if (res.fimDeJogo) {
                     setEstado(prev => prev ? { ...prev, status: 'FINALIZADO', vencedor: res.vencedor, turnoAtual: null } : prev);
-                    setMsg(`Fim do Jogo! Vencedor: ${res.vencedor}`);
+                    setMsg(`${t('game.gameEnd')} ${res.vencedor}`);
                 } else {
                     setEstado(prev => prev ? { ...prev, turnoAtual: res.turnoAtual } : prev);
                     setMsg(`${res.resultado}${res.tipoAfundado ? ' - ' + res.tipoAfundado : ''}`);
@@ -641,7 +641,7 @@ export default function Jogo() {
                         )}
 
                         {msg && (
-                            <p className={msg.includes('Fim do Jogo') ? styles.msgSucesso : styles.msgInfo}>{msg}</p>
+                            <p className={msg.includes(t('game.gameEnd')) ? styles.msgSucesso : styles.msgInfo}>{msg}</p>
                         )}
 
                         {estado.modo === 'EXPLOSAO' && ehMeuTurno && estado.status === 'JOGANDO' && (
