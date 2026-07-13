@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import audioManager from '../../services/audioManager';
+import { useTranslation } from '../../i18n/useTranslation';
 import styles from './Options.module.css';
 
 export default function Options() {
     const username = localStorage.getItem('username');
     const navigate = useNavigate();
     const [soundOn, setSoundOn] = useState(audioManager.isSoundOn());
+    const { t, language, setLanguage } = useTranslation();
 
     function handleToggleSound() {
         const newState = !soundOn;
@@ -26,24 +28,40 @@ export default function Options() {
             {/* Painel de opções */}
             <div className={styles.menuButtons}>
                 <button className={styles.btn} onClick={handleToggleSound}>
-                    SONS: {soundOn ? 'ON' : 'OFF'}
+                    {t('options.sounds')}: {soundOn ? t('options.on') : t('options.off')}
                 </button>
 
                 <button className={styles.btn} disabled>
-                    DIFICULDADE: NORMAL
+                    {t('options.difficulty')}
                 </button>
+
+                {/* Toggle de idioma */}
+                <div className={styles.languageSection}>
+                    <span className={styles.languageLabel}>{t('options.language').replace('...', '')}</span>
+                    <div className={styles.languageToggle}>
+                        <button
+                            className={`${styles.langBtn} ${language === 'pt-BR' ? styles.langBtnActive : ''}`}
+                            onClick={() => setLanguage('pt-BR')}
+                        >
+                            🇧🇷 Português
+                        </button>
+                        <button
+                            className={`${styles.langBtn} ${language === 'en-US' ? styles.langBtnActive : ''}`}
+                            onClick={() => setLanguage('en-US')}
+                        >
+                            🇺🇸 English
+                        </button>
+                    </div>
+                </div>
 
                 <div className={styles.btnRow}>
                     <button className={styles.btnHalf} onClick={() => navigate('/skins')}>
-                        SKIN...
-                    </button>
-                    <button className={styles.btnHalf} disabled>
-                        IDIOMA...
+                        {t('skins.title')}...
                     </button>
                 </div>
 
                 <button className={styles.btn} onClick={() => navigate('/lobby')}>
-                    VOLTAR
+                    {t('options.back')}
                 </button>
             </div>
 
@@ -52,7 +70,7 @@ export default function Options() {
                 <img src={localStorage.getItem('skinAtual') || '/img/pactw_skin.webp'} alt={username} className={styles.playerSkin} />
                 <div className={styles.playerInfo}>
                     <span className={styles.playerName}>{username || 'STEVE'}</span>
-                    <span className={styles.playerRank}>Level 99 Admiral</span>
+                    <span className={styles.playerRank}>{t('lobby.playerRank')}</span>
                 </div>
             </div>
 
