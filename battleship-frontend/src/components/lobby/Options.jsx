@@ -36,12 +36,12 @@ export default function Options() {
                 </button>
 
                 <button className={styles.btn} onClick={() => setLanguage(language === 'pt-BR' ? 'en-US' : 'pt-BR')}>
-                    {t('options.language').replace('...', '')}: {language === 'pt-BR' ? '🇧🇷 Português' : '🇺🇸 English'}
+                    {t('options.language').replace('...', '')}: {language === 'pt-BR' ? 'PORTUGUÊS' : 'ENGLISH'}
                 </button>
 
                 <div className={styles.btnRow}>
                     <button className={styles.btnHalf} onClick={() => navigate('/skins')}>
-                        {t('skins.title')}...
+                        {t('skins.title').toUpperCase()}...
                     </button>
                 </div>
 
