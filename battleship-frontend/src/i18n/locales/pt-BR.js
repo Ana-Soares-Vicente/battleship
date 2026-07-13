@@ -91,6 +91,13 @@ export default {
   'game.sendCode': 'Envie este código para seu oponente:',
   'game.copy': 'Copiar',
   'game.gameEnd': 'Fim do Jogo! Vencedor:',
+  'game.missed': 'errou',
+  'game.hitYourShip': 'acertou um navio seu!',
+  'game.sunkYour': 'afundou seu',
+  'game.hits': 'acerto(s)',
+  'game.misses': 'erro(s)',
+  'game.firedShots': 'disparou',
+  'game.shotsWord': 'tiros!',
 
   // Positioning
   'position.title': 'Posicionando Frota',

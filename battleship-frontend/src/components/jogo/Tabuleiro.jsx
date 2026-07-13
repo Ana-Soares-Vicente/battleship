@@ -7,27 +7,14 @@ import styles from './Tabuleiro.module.css';
 
 function IconeRespingo() {
     return (
-        <svg className={styles.iconeRespingo} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-            <rect x="7" y="4" width="2" height="2" fill="#5bc0de" />
-            <rect x="7" y="6" width="2" height="3" fill="#3aa7d0" />
-            <rect x="4" y="7" width="2" height="2" fill="#5bc0de" opacity="0.7" />
-            <rect x="10" y="7" width="2" height="2" fill="#5bc0de" opacity="0.7" />
-            <rect x="5" y="11" width="6" height="1" fill="#3aa7d0" opacity="0.5" />
-            <rect x="4" y="12" width="8" height="1" fill="#2990b8" opacity="0.4" />
-        </svg>
+        <img src="/img/balde_agua.png" alt="Água" className={styles.iconeRespingo} draggable={false} />
     );
 }
 
 function IconeTntPequena() {
     return (
         <div className={styles.tntContainer}>
-            <img src="/img/tnt_pequena.png" alt="Acerto" className={styles.iconeTntPequena} />
-            {/* Partículas ao redor da TNT */}
-            <div className={styles.tntParticulas}>
-                <span className={styles.tntSpark} />
-                <span className={styles.tntSpark} />
-                <span className={styles.tntSpark} />
-            </div>
+            <img src="/img/tnt-quadrado.png" alt="Acerto" className={styles.iconeTntPequena} />
         </div>
     );
 }
@@ -191,13 +178,27 @@ export default function Tabuleiro({
         if (!tiro) return null;
 
         if (ehNavioAfundado(linha, coluna) || tiro.resultado === 'AFUNDOU') {
-            // Explosão temporária + marcador permanente
-            return (
-                <>
-                    {ehRecenteAfundado(linha, coluna) && <ExplosaoAfundou />}
-                    <MarcadorDestruido />
-                </>
-            );
+            // Mostrar sprite do navio transparente na primeira célula
+            const navioAfundado = naviosAfundados.find(n => n.linhaInicial === linha && n.colunaInicial === coluna);
+            if (navioAfundado) {
+                const spriteMap = { 2: '/img/barquin_2.png', 3: '/img/barquin_3.png', 4: '/img/barquin_4.png', 5: '/img/barquin_5.png' };
+                const sprite = spriteMap[navioAfundado.tamanho];
+                const isVertical = navioAfundado.direcao === 'VERTICAL';
+                return (
+                    <>
+                        {ehRecenteAfundado(linha, coluna) && <ExplosaoAfundou />}
+                        <img
+                            src={sprite}
+                            alt={`Navio ${navioAfundado.tamanho}`}
+                            className={`${styles.spriteBarcoDefesa} ${isVertical ? styles.spriteVertical : ''} ${styles.spriteAfundadoAtaque}`}
+                            style={{ '--tamanho-navio': navioAfundado.tamanho }}
+                            draggable={false}
+                        />
+                    </>
+                );
+            }
+            // Células do meio/fim do navio afundado — não renderizar nada extra
+            return ehRecenteAfundado(linha, coluna) ? <ExplosaoAfundou /> : null;
         }
         if (tiro.resultado === 'ACERTO') return <IconeTntPequena />;
         if (tiro.resultado === 'AGUA') return <IconeRespingo />;

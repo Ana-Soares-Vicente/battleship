@@ -235,13 +235,13 @@ export default function Jogo() {
                         }
 
                         if (evento.fimDeJogo) {
-                            setMsg(`${t('game.gameEnd')} ${evento.vencedor}`);
+                            setMsg('');
                         } else if (evento.atirador === username) {
                             setMsg(`${evento.resultado}${evento.tipoAfundado ? ' - ' + evento.tipoAfundado : ''}`);
                         } else {
-                            const info = evento.resultado === 'AGUA' ? 'errou' :
-                                evento.resultado === 'ACERTO' ? 'acertou um navio seu!' :
-                                `afundou seu ${evento.tipoAfundado}!`;
+                            const info = evento.resultado === 'AGUA' ? t('game.missed') :
+                                evento.resultado === 'ACERTO' ? t('game.hitYourShip') :
+                                `${t('game.sunkYour')} ${evento.tipoAfundado}!`;
                             setMsg(`${evento.atirador} ${info}`);
                         }
                         break;
@@ -321,14 +321,14 @@ export default function Jogo() {
                         }
 
                         if (evento.fimDeJogo) {
-                            setMsg(`${t('game.gameEnd')} ${evento.vencedor}`);
+                            setMsg('');
                         } else {
                             const acertosExp = evento.tiros.filter(t => t.resultado !== 'AGUA').length;
                             const errosExp = evento.tiros.filter(t => t.resultado === 'AGUA').length;
                             if (evento.atirador === username) {
-                                setMsg(`${acertosExp} acerto(s), ${errosExp} erro(s)`);
+                                setMsg(`${acertosExp} ${t('game.hits')}, ${errosExp} ${t('game.misses')}`);
                             } else {
-                                setMsg(`${evento.atirador} disparou ${evento.tiros.length} tiros!`);
+                                setMsg(`${evento.atirador} ${t('game.firedShots')} ${evento.tiros.length} ${t('game.shotsWord')}`);
                             }
                         }
                         break;
@@ -405,7 +405,7 @@ export default function Jogo() {
                 // Atualizar turno e estado do jogo imediatamente
                 if (res.fimDeJogo) {
                     setEstado(prev => prev ? { ...prev, status: 'FINALIZADO', vencedor: res.vencedor, turnoAtual: null } : prev);
-                    setMsg(`${t('game.gameEnd')} ${res.vencedor}`);
+                    setMsg('');
                 } else {
                     setEstado(prev => prev ? { ...prev, turnoAtual: res.turnoAtual } : prev);
                     setMsg(`${res.resultado}${res.tipoAfundado ? ' - ' + res.tipoAfundado : ''}`);
@@ -491,7 +491,7 @@ export default function Jogo() {
                 }
                 const acertos = res.filter(t => t.resultado !== 'AGUA').length;
                 const erros = res.filter(t => t.resultado === 'AGUA').length;
-                setMsg(`${acertos} acerto(s), ${erros} erro(s)`);
+                setMsg(`${acertos} ${t('game.hits')}, ${erros} ${t('game.misses')}`);
                 setAlvosExplosao([]);
                 // Fetch updated tiros disponiveis
                 try {
@@ -542,11 +542,14 @@ export default function Jogo() {
 
     return (
         <div className={styles.container}>
-            {/* Background oceano */}
-            <div className={`${styles.bgOverlay} ${estado?.modo === 'EXPLOSAO' ? styles.bgExplosao : ''}`} />
+            {/* Background */}
+            {estado?.modo === 'EXPLOSAO' ? (
+                <div className={`${styles.bgOverlay} ${styles.bgExplosao}`} />
+            ) : (
+                <video className={styles.bgVideo} src="/img/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+            )}
 
-            {/* Minimapa decorativo — HUD top-left */}
-            <img src="/img/mapa_base.png" alt="" className={styles.minimapa} />
+
 
             {/* ===== HEADER ===== */}
             {estado.status !== 'POSICIONANDO' && (
@@ -622,16 +625,14 @@ export default function Jogo() {
                         {estado.status === 'FINALIZADO' && (
                             <div className={styles.resultadoBar}>
                                 {estado.vencedor === username ? (
-                                    <span className={styles.vitoria}>🏆 {t('game.youWon')}</span>
+                                    <span className={styles.vitoria}>🏆 {t('game.youWon')} @{username}</span>
                                 ) : (
-                                    <span className={styles.derrota}>💀 {t('game.gameOver')}</span>
+                                    <span className={styles.derrota}>💀 {t('game.gameOver')} @{username}</span>
                                 )}
                             </div>
                         )}
 
-                        {msg && (
-                            <p className={msg.includes(t('game.gameEnd')) ? styles.msgSucesso : styles.msgInfo}>{msg}</p>
-                        )}
+                        <p className={styles.msgInfo} style={{ visibility: msg ? 'visible' : 'hidden' }}>{msg || '\u00A0'}</p>
 
                         {estado.modo === 'EXPLOSAO' && ehMeuTurno && estado.status === 'JOGANDO' && (
                             <div className={styles.explosaoBar}>
@@ -656,6 +657,16 @@ export default function Jogo() {
                             <div className={styles.bannerAfundou}>💥 {t('game.shipSunk')}</div>
                         )}
 
+                        {/* MINHA FROTA (lateral esquerda) */}
+                        <div className={styles.frotaLateral}>
+                            <span className={styles.frotaLabel}>{t('game.myFleet')}</span>
+                            <FrotaInimiga
+                                naviosAfundados={naviosAfundadosMeus}
+                                tiros={tirosRecebidos}
+                                layout="vertical"
+                            />
+                        </div>
+
                         {/* MEU PORTO */}
                         <div className={styles.tabuleiroBloco}>
                             <div className={styles.tabHeader}>
@@ -675,44 +686,38 @@ export default function Jogo() {
                                     desabilitado={true}
                                 />
                             </div>
-                            <div className={styles.frotaAbaixo}>
-                                <span className={styles.frotaLabel}>{t('game.myFleet')}</span>
-                                <FrotaInimiga
-                                    naviosAfundados={naviosAfundadosMeus}
-                                    tiros={tirosRecebidos}
+                        </div>
+
+                        {/* OCEANO INIMIGO */}
+                        <div className={`${styles.tabuleiroBloco} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.tabuleiroAtivo : ''}`}>
+                            <div className={styles.tabHeader}>
+                                <div className={styles.tabHeaderText}>
+                                    <h3 className={styles.tabTitulo}>{t('game.enemyOcean')}</h3>
+                                    <span className={styles.tabNome}>{(adversario || '...').toUpperCase()}</span>
+                                </div>
+                                {skinAdversario && <img src={skinAdversario} alt={adversario} className={styles.tabSkin} />}
+                            </div>
+                            <div className={`${styles.boardFrame} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.boardFrameAtivo : ''}`}>
+                                <Tabuleiro
+                                    modo="ataque"
+                                    tiros={tiros}
+                                    naviosAfundados={naviosAfundados}
+                                    onCelulaClick={estado.modo === 'EXPLOSAO' ? handleCelulaClickExplosao : handleAtirar}
+                                    desabilitado={!ehMeuTurno || estado.status === 'FINALIZADO' || processandoExplosao}
+                                    alvosExplosao={estado.modo === 'EXPLOSAO' ? alvosExplosao : []}
                                 />
                             </div>
                         </div>
 
-                        {/* OCEANO INIMIGO + FROTA LATERAL */}
-                        <div className={styles.tabuleiroComFrota}>
-                            <div className={`${styles.tabuleiroBloco} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.tabuleiroAtivo : ''}`}>
-                                <div className={styles.tabHeader}>
-                                    <div className={styles.tabHeaderText}>
-                                        <h3 className={styles.tabTitulo}>{t('game.enemyOcean')}</h3>
-                                        <span className={styles.tabNome}>{(adversario || '...').toUpperCase()}</span>
-                                    </div>
-                                    {skinAdversario && <img src={skinAdversario} alt={adversario} className={styles.tabSkin} />}
-                                </div>
-                                <div className={`${styles.boardFrame} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.boardFrameAtivo : ''}`}>
-                                    <Tabuleiro
-                                        modo="ataque"
-                                        tiros={tiros}
-                                        naviosAfundados={naviosAfundados}
-                                        onCelulaClick={estado.modo === 'EXPLOSAO' ? handleCelulaClickExplosao : handleAtirar}
-                                        desabilitado={!ehMeuTurno || estado.status === 'FINALIZADO' || processandoExplosao}
-                                        alvosExplosao={estado.modo === 'EXPLOSAO' ? alvosExplosao : []}
-                                    />
-                                </div>
-                            </div>
-                            <div className={styles.frotaLateral}>
-                                <span className={styles.frotaLabel}>{t('game.enemyFleet')}</span>
-                                <FrotaInimiga
-                                    naviosAfundados={naviosAfundados}
-                                    tiros={tiros}
-                                    ehInimigo={true}
-                                />
-                            </div>
+                        {/* FROTA INIMIGA (lateral direita) */}
+                        <div className={styles.frotaLateral}>
+                            <span className={styles.frotaLabel}>{t('game.enemyFleet')}</span>
+                            <FrotaInimiga
+                                naviosAfundados={naviosAfundados}
+                                tiros={tiros}
+                                ehInimigo={true}
+                                layout="vertical"
+                            />
                         </div>
                     </div>
 
@@ -721,6 +726,7 @@ export default function Jogo() {
                             {t('game.backToMenu')}
                         </button>
                     )}
+
                 </div>
             )}
         </div>

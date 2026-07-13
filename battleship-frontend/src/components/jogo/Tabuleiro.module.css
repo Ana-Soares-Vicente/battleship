@@ -49,21 +49,21 @@
 /* ========================= */
 
 .headerCell {
-    width: clamp(24px, min(3vh, 2.8vw), 34px);
-    height: clamp(16px, min(2vh, 1.6vw), 22px);
+    width: clamp(26px, min(3.4vh, 3vw), 38px);
+    height: clamp(18px, min(2.2vh, 1.8vw), 22px);
     text-align: center;
     color: #c8a85c;
-    font-size: clamp(8px, min(1.2vh, 0.9vw), 11px);
+    font-size: clamp(8px, min(1.3vh, 1vw), 11px);
     font-weight: bold;
     text-shadow: 1px 1px 0 #000;
 }
 
 .rowHeader {
-    width: clamp(16px, min(2vh, 1.6vw), 22px);
-    height: clamp(24px, min(3vh, 2.8vw), 34px);
+    width: clamp(18px, min(2.2vh, 1.8vw), 22px);
+    height: clamp(26px, min(3.4vh, 3vw), 38px);
     text-align: center;
     color: #c8a85c;
-    font-size: clamp(8px, min(1.2vh, 0.9vw), 11px);
+    font-size: clamp(8px, min(1.3vh, 1vw), 11px);
     font-weight: bold;
     text-shadow: 1px 1px 0 #000;
 }
@@ -73,8 +73,8 @@
 /* ========================= */
 
 .celula {
-    width: clamp(24px, min(3vh, 2.8vw), 34px);
-    height: clamp(24px, min(3vh, 2.8vw), 34px);
+    width: clamp(26px, min(3.4vh, 3vw), 38px);
+    height: clamp(26px, min(3.4vh, 3vw), 38px);
     text-align: center;
     vertical-align: middle;
     transition: none;
@@ -135,7 +135,10 @@
 }
 
 .celulaAgua {
-    background: #1a5a8a;
+    background-image: url('/img/agua_textura.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.7;
     border: 1px solid #0a4a7a;
 }
 
@@ -164,15 +167,18 @@
 /* ========================= */
 
 .celulaMarDefesa {
-    background: #1a5a8a;
+    background-image: url('/img/agua_textura.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.8;
     border: 1px solid #0a4a7a;
     cursor: default;
 }
 
-/* Barco intacto — fundo neutro, sprite cobre */
+/* Barco intacto — fundo azul escuro, sprite cobre */
 .celulaMeuNavio {
-    background: #155070;
-    border: 1px solid #0a4060;
+    background: #0d3a5a;
+    border: 1px solid #082a4a;
 }
 
 /* Barco atingido — overlay vermelho translúcido ~35% */
@@ -187,9 +193,12 @@
     border: 1px solid rgba(255, 200, 50, 0.5);
 }
 
-/* Tiro recebido na água — azul mais escuro que o oceano */
+/* Tiro recebido na água — textura de água mais escura */
 .celulaTiroRecebidoAgua {
-    background: #0e3a5a;
+    background-image: url('/img/agua_textura.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.6;
     border: 1px solid #082a4a;
 }
 
@@ -211,13 +220,13 @@
 /* ============================================= */
 
 .iconeRespingo {
-    width: 55%;
-    height: 55%;
+    width: 70%;
+    height: 70%;
     display: block;
     margin: auto;
     image-rendering: pixelated;
     animation: respingoAppear 0.1s ease-out;
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 @keyframes respingoAppear {
@@ -303,8 +312,8 @@
     position: absolute;
     top: 2px;
     left: 2px;
-    width: calc(var(--tamanho-navio) * (clamp(24px, 2.8vw, 34px) + 2px) - 2px);
-    height: calc(clamp(24px, 2.8vw, 34px) - 4px);
+    width: calc(var(--tamanho-navio) * (clamp(26px, min(3.4vh, 3vw), 38px) + 2px) - 2px);
+    height: calc(clamp(26px, min(3.4vh, 3vw), 38px) - 4px);
     object-fit: fill;
     image-rendering: auto;
     z-index: 2;
@@ -314,8 +323,8 @@
 
 /* Rotação 90° para vertical */
 .spriteVertical {
-    width: calc(var(--tamanho-navio) * (clamp(24px, 2.8vw, 34px) + 2px) - 2px);
-    height: calc(clamp(24px, 2.8vw, 34px) - 4px);
+    width: calc(var(--tamanho-navio) * (clamp(26px, min(3.4vh, 3vw), 38px) + 2px) - 2px);
+    height: calc(clamp(26px, min(3.4vh, 3vw), 38px) - 4px);
     transform-origin: top left;
     transform: rotate(90deg) translateY(-100%);
 }
@@ -324,6 +333,12 @@
 .spriteAfundado {
     filter: brightness(0.85) drop-shadow(0 0 3px rgba(218, 165, 32, 0.5));
     opacity: 0.9;
+}
+
+/* Barco afundado no tabuleiro de ataque — transparente */
+.spriteAfundadoAtaque {
+    opacity: 0.5;
+    filter: brightness(0.7) drop-shadow(0 0 4px rgba(255, 50, 50, 0.4));
 }
 
 /* ============================================= */

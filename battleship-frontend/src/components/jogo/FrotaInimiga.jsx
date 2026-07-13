@@ -13,7 +13,7 @@ const FROTA_PADRAO = [
  * Inventário Naval — HUD estilo Minecraft
  * Sem nomes, só ícone + corações
  */
-export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimigo = false }) {
+export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimigo = false, layout = 'horizontal' }) {
 
     function contarAfundadosPorTamanho() {
         const contagem = {};
@@ -72,7 +72,7 @@ export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimi
     const navios = buildListaNavios();
 
     return (
-        <div className={styles.inventario}>
+        <div className={`${styles.inventario} ${layout === 'vertical' ? styles.inventarioVertical : ''}`}>
             {navios.map((navio, index) => {
                 const oculto = ehInimigo && !navio.afundado;
 

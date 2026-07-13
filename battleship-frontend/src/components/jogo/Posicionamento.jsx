@@ -173,7 +173,11 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
     return (
         <div className={styles.container}>
             {/* Background overlay */}
-            <div className={`${styles.bgOverlay} ${modo === 'EXPLOSAO' ? styles.bgOverlayNether : ''}`} />
+            {modo === 'EXPLOSAO' ? (
+                <div className={`${styles.bgOverlay} ${styles.bgOverlayNether}`} />
+            ) : (
+                <video className={styles.bgVideo} src="/img/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+            )}
 
             {/* Header com jogadores e skins */}
             <header className={styles.header}>

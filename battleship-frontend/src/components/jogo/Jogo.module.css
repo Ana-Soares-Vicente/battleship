@@ -16,11 +16,11 @@
     min-height: 100vh;
     width: 100vw;
     margin-left: calc(-50vw + 50%);
-    padding: clamp(8px, 1.5vh, 20px) clamp(8px, 1vw, 16px);
+    padding: clamp(4px, 0.8vh, 10px) clamp(8px, 1vw, 16px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(6px, 1vh, 14px);
+    gap: clamp(2px, 0.4vh, 6px);
     position: relative;
     overflow-y: auto;
     overflow-x: hidden;
@@ -35,12 +35,23 @@
     z-index: 0;
 }
 
+.bgVideo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+}
+
 .bgExplosao {
     background: url('/img/fundo_nether.jpg') center/cover no-repeat;
 }
 
 /* Todos os filhos acima do fundo */
-.container > *:not(.bgOverlay):not(.minimapa) {
+.container > *:not(.bgOverlay):not(.bgVideo):not(.minimapa) {
     position: relative;
     z-index: 1;
 }
@@ -58,11 +69,12 @@
     align-items: center;
     gap: clamp(2px, 0.4vh, 6px);
     flex-shrink: 0;
+    margin-bottom: clamp(2px, 0.4vh, 8px);
 }
 
 .title {
     font-family: 'Silkscreen', monospace;
-    font-size: clamp(12px, 1.8vh, 20px);
+    font-size: clamp(16px, 2.5vh, 24px);
     color: var(--text-primary);
     text-shadow:
         2px 2px 0 #3f3f3f,
@@ -177,15 +189,15 @@
 /* ========================= */
 
 .statusArea {
-    height: clamp(50px, 8vh, 80px);
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: clamp(3px, 0.5vh, 8px);
     flex-shrink: 0;
     position: relative;
+    margin-bottom: clamp(2px, 0.3vh, 4px);
 }
 
 /* ========================= */
@@ -233,6 +245,7 @@
 
 .resultadoBar {
     padding: clamp(8px, 1vh, 14px) clamp(16px, 2vw, 36px);
+    margin-top: clamp(10px, 1.5vh, 20px);
     background:
         linear-gradient(135deg, #2a1a08 0%, #1a1008 50%, #2a1a08 100%);
     border: 3px solid var(--frame-outer);
@@ -274,28 +287,30 @@
     font-family: 'Silkscreen', monospace;
     color: #ffaa00;
     font-size: 11px;
-    padding: 4px 16px;
+    padding: 6px 18px;
     background: rgba(255, 170, 0, 0.1);
     border: 1px solid rgba(255, 170, 0, 0.4);
     text-align: center;
     text-shadow: 1px 1px 0 #000;
-    margin: 0;
-    min-height: 22px;
-    line-height: 22px;
+    margin: 4px auto 0 auto;
+    width: fit-content;
+    max-width: 90%;
+    white-space: nowrap;
 }
 
 .msgSucesso {
     font-family: 'Silkscreen', monospace;
     color: var(--green-mc);
     font-size: 11px;
-    padding: 4px 16px;
+    padding: 6px 18px;
     background: rgba(85, 255, 85, 0.1);
     border: 1px solid rgba(85, 255, 85, 0.4);
     text-align: center;
     text-shadow: 1px 1px 0 #000;
-    margin: 0;
-    min-height: 22px;
-    line-height: 22px;
+    margin: 4px auto 0 auto;
+    width: fit-content;
+    max-width: 90%;
+    white-space: nowrap;
 }
 
 .bannerAfundou {
@@ -330,7 +345,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    gap: clamp(12px, 2vw, 28px);
+    gap: clamp(8px, 1.2vw, 18px);
     flex-wrap: nowrap;
     position: relative;
 }
@@ -345,7 +360,7 @@
 .tabTitulo {
     font-family: 'Silkscreen', monospace;
     color: #c8a85c;
-    font-size: clamp(9px, 1.2vh, 12px);
+    font-size: clamp(11px, 1.5vh, 14px);
     text-transform: uppercase;
     margin: 0;
     letter-spacing: 1.5px;
@@ -357,7 +372,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: clamp(4px, 0.6vh, 8px);
+    margin-bottom: clamp(2px, 0.3vh, 4px);
     padding: clamp(4px, 0.6vh, 8px) clamp(10px, 1vw, 16px);
     background: rgba(20, 20, 20, 0.9);
     border: 2px solid #4a4a4a;
@@ -369,8 +384,8 @@
 }
 
 .tabSkin {
-    width: clamp(32px, 4.5vh, 48px);
-    height: clamp(32px, 4.5vh, 48px);
+    width: clamp(48px, 7vh, 72px);
+    height: clamp(48px, 7vh, 72px);
     image-rendering: pixelated;
     object-fit: contain;
     border: 2px solid #5a5a5a;
@@ -380,30 +395,32 @@
 .tabHeaderText {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 2px;
 }
 
 .tabNome {
     font-family: 'Silkscreen', monospace;
     color: var(--text-primary);
-    font-size: clamp(9px, 1.1vh, 12px);
+    font-size: clamp(11px, 1.5vh, 14px);
     text-shadow: 1px 1px 0 #000;
     letter-spacing: 1px;
 }
 
-/* === Tabuleiro + Frota Lateral (oceano inimigo) === */
+/* === Tabuleiro + Frota Lateral (não mais usado) === */
 .tabuleiroComFrota {
-    display: flex;
-    align-items: flex-start;
-    gap: clamp(8px, 1vw, 14px);
+    display: none;
+}
+
+.frotaAbaixo {
+    display: none;
 }
 
 .frotaLateral {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: clamp(6px, 0.8vh, 10px) clamp(6px, 0.6vw, 10px);
+    gap: 2px;
+    padding: clamp(4px, 0.5vh, 8px) clamp(4px, 0.4vw, 8px);
     background:
         linear-gradient(135deg, #2a1a08 0%, #1a1008 50%, #2a1a08 100%);
     border: 3px solid var(--frame-outer);
@@ -415,8 +432,14 @@
         inset 2px 2px 0 var(--frame-highlight),
         inset -2px -2px 0 rgba(0, 0, 0, 0.4),
         0 4px 12px rgba(0, 0, 0, 0.5);
-    min-width: 70px;
+    width: clamp(70px, 6vw, 95px);
     align-self: stretch;
+}
+
+/* Forçar layout vertical dentro da frotaLateral */
+.frotaLateral .frotaLabel {
+    font-size: clamp(11px, 1.5vh, 14px);
+    margin-bottom: 4px;
 }
 
 /* Board frame — Dark Oak (igual posicionamento) */
@@ -555,7 +578,7 @@
 .frotaLabel {
     font-family: 'Silkscreen', monospace;
     color: #c8a85c;
-    font-size: clamp(8px, 1vh, 10px);
+    font-size: clamp(11px, 1.5vh, 14px);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin-bottom: clamp(2px, 0.4vh, 6px);
@@ -578,7 +601,7 @@
     transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
     text-shadow: 1px 1px 0 #1a1a1a;
-    margin-top: clamp(4px, 0.5vh, 10px);
+    margin-top: clamp(8px, 1.2vh, 16px);
 }
 
 .btnVoltar:hover {

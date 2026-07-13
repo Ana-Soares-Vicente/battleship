@@ -1,14 +1,21 @@
 .heartBar {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    gap: 3px;
+    gap: 1px;
     padding: 2px 0;
 }
 
+.heartRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+}
+
 .heart {
-    width: 16px;
-    height: 16px;
+    width: clamp(14px, 1.4vw, 20px);
+    height: clamp(14px, 1.4vw, 20px);
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;

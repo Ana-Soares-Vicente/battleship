@@ -91,6 +91,13 @@ export default {
   'game.sendCode': 'Send this code to your opponent:',
   'game.copy': 'Copy',
   'game.gameEnd': 'Game Over! Winner:',
+  'game.missed': 'missed',
+  'game.hitYourShip': 'hit your ship!',
+  'game.sunkYour': 'sunk your',
+  'game.hits': 'hit(s)',
+  'game.misses': 'miss(es)',
+  'game.firedShots': 'fired',
+  'game.shotsWord': 'shots!',
 
   // Positioning
   'position.title': 'Positioning Fleet',

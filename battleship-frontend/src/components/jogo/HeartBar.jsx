@@ -38,9 +38,24 @@ export default function HeartBar({ maxHp, currentHp }) {
         );
     }
 
+    // Layout: 5→3+2, 4→2+2, 3→3, 2→2
+    let perRow;
+    if (maxHp === 5) perRow = 3;
+    else if (maxHp === 4) perRow = 2;
+    else perRow = maxHp;
+
+    const rows = [];
+    for (let i = 0; i < hearts.length; i += perRow) {
+        rows.push(
+            <div key={i} className={styles.heartRow}>
+                {hearts.slice(i, i + perRow)}
+            </div>
+        );
+    }
+
     return (
         <div className={styles.heartBar}>
-            {hearts}
+            {rows}
         </div>
     );
 }
