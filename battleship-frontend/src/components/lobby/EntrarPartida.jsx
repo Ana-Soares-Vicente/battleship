@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { entrarJogoPorToken, getLobby, entrarJogo } from '../../services/api';
 import { conectarWebSocket } from '../../services/websocket';
+import { useTranslation } from '../../i18n/useTranslation';
 import styles from './EntrarPartida.module.css';
 
 export default function EntrarPartida() {
@@ -13,6 +14,7 @@ export default function EntrarPartida() {
     const [salaSelecionada, setSalaSelecionada] = useState(null);
     const [carregandoSalas, setCarregandoSalas] = useState(false);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (aba === 'SALAS') {
@@ -38,7 +40,7 @@ export default function EntrarPartida() {
         e.preventDefault();
         const tokenLimpo = token.trim().toUpperCase();
         if (!tokenLimpo) {
-            setErro('Digite o código da sala.');
+            setErro(t('joinMatch.enterCode'));
             return;
         }
         setErro('');
@@ -77,7 +79,7 @@ export default function EntrarPartida() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Entrar em uma Partida</h1>
+            <h1 className={styles.title}>{t('joinMatch.title')}</h1>
 
             {/* Abas */}
             <div className={styles.tabs}>
@@ -85,13 +87,13 @@ export default function EntrarPartida() {
                     className={`${styles.tab} ${aba === 'TOKEN' ? styles.tabAtiva : ''}`}
                     onClick={() => { setAba('TOKEN'); setErro(''); }}
                 >
-                    TOKEN
+                    {t('joinMatch.byToken')}
                 </button>
                 <button
                     className={`${styles.tab} ${aba === 'SALAS' ? styles.tabAtiva : ''}`}
                     onClick={() => { setAba('SALAS'); setErro(''); }}
                 >
-                    SALAS DISPONÍVEIS
+                    {t('joinMatch.byRooms')}
                 </button>
             </div>
 
@@ -100,7 +102,7 @@ export default function EntrarPartida() {
                 {aba === 'TOKEN' && (
                     <form className={styles.tokenForm} onSubmit={handleEntrarToken}>
                         <div className={styles.section}>
-                            <label className={styles.label}>Código da Sala</label>
+                            <label className={styles.label}>{t('joinMatch.placeholder')}</label>
                             <input
                                 className={styles.input}
                                 type="text"
@@ -120,13 +122,13 @@ export default function EntrarPartida() {
                         {carregandoSalas && (
                             <div className={styles.loadingRow}>
                                 <div className={styles.spinner}></div>
-                                <span className={styles.loadingText}>Buscando servidores...</span>
+                                <span className={styles.loadingText}>{t('game.loading')}</span>
                             </div>
                         )}
 
                         {!carregandoSalas && salas.length === 0 && (
                             <div className={styles.semSalas}>
-                                <span>Nenhuma sala disponível no momento.</span>
+                                <span>{t('joinMatch.noRooms')}</span>
                             </div>
                         )}
 
@@ -168,10 +170,10 @@ export default function EntrarPartida() {
                             onClick={handleEntrarToken}
                             disabled={carregando || !token.trim()}
                         >
-                            {carregando ? 'Conectando...' : 'ENTRAR'}
+                            {carregando ? t('joinMatch.loading') : t('joinMatch.join')}
                         </button>
                         <button className={`${styles.btn} ${styles.btnCancel}`} onClick={() => navigate('/lobby')}>
-                            VOLTAR
+                            {t('joinMatch.back')}
                         </button>
                     </>
                 )}
@@ -184,15 +186,15 @@ export default function EntrarPartida() {
                                 onClick={handleEntrarSala}
                                 disabled={!salaSelecionada || carregando}
                             >
-                                {carregando ? 'Entrando...' : 'ENTRAR NA SALA'}
+                                {carregando ? t('joinMatch.loading') : t('joinMatch.join')}
                             </button>
                         </div>
                         <div className={styles.footerRow}>
                             <button className={`${styles.btnHalf}`} onClick={carregarSalas} disabled={carregandoSalas}>
-                                ATUALIZAR
+                                {t('joinMatch.refresh')}
                             </button>
                             <button className={`${styles.btnHalf} ${styles.btnCancel}`} onClick={() => navigate('/lobby')}>
-                                VOLTAR
+                                {t('joinMatch.back')}
                             </button>
                         </div>
                     </>
