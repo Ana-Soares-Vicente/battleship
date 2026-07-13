@@ -1,0 +1,117 @@
+export default {
+  // Login
+  'login.title': 'Sign in',
+  'login.placeholder.username': 'Email, phone, or Skype',
+  'login.placeholder.password': 'Password',
+  'login.noAccount': 'No account?',
+  'login.createOne': 'Create one!',
+  'login.back': 'Back',
+  'login.next': 'Next',
+  'login.loading': 'Loading...',
+  'login.signInOptions': 'Sign-in options',
+  'login.fillAll': 'Fill in all fields',
+
+  // Register
+  'register.title': 'Create account',
+  'register.placeholder.name': 'Name',
+  'register.placeholder.email': 'Email',
+  'register.placeholder.password': 'Password',
+  'register.alreadyHave': 'Already have an account?',
+  'register.signIn': 'Sign in!',
+  'register.back': 'Back',
+  'register.next': 'Next',
+  'register.loading': 'Loading...',
+  'register.fillAll': 'Fill in all fields',
+
+  // Lobby
+  'lobby.createMatch': 'CREATE MATCH',
+  'lobby.joinMatch': 'JOIN MATCH',
+  'lobby.options': 'OPTIONS...',
+  'lobby.logout': 'QUIT GAME',
+  'lobby.playerRank': 'Level 99 Admiral',
+
+  // Options
+  'options.sounds': 'SOUNDS',
+  'options.on': 'ON',
+  'options.off': 'OFF',
+  'options.difficulty': 'DIFFICULTY: NORMAL',
+  'options.skin': 'SKIN...',
+  'options.language': 'LANGUAGE...',
+  'options.back': 'BACK',
+
+  // Create Match
+  'createMatch.title': 'Create Match',
+  'createMatch.waiting': 'Waiting for opponent...',
+  'createMatch.code': 'ROOM CODE',
+  'createMatch.copied': 'Copied!',
+  'createMatch.copy': 'COPY',
+  'createMatch.cancel': 'CANCEL',
+  'createMatch.modeStandard': 'standard',
+  'createMatch.modeExplosion': 'explosion',
+  'createMatch.modeStandardDesc': 'Search for resources, craft tools,\nlevel up and eat to stay alive',
+  'createMatch.modeExplosionDesc': 'Alternative mode with explosion\nmechanics and special rules',
+
+  // Join Match
+  'joinMatch.title': 'Join a Match',
+  'joinMatch.byToken': 'BY CODE',
+  'joinMatch.byRooms': 'ROOMS',
+  'joinMatch.placeholder': 'ROOM CODE',
+  'joinMatch.join': 'JOIN',
+  'joinMatch.loading': 'Joining...',
+  'joinMatch.refresh': 'REFRESH',
+  'joinMatch.noRooms': 'No rooms available',
+  'joinMatch.back': 'BACK',
+  'joinMatch.enterCode': 'Enter the room code.',
+
+  // Game
+  'game.myPort': 'My Port',
+  'game.enemyOcean': 'Enemy Ocean',
+  'game.myFleet': 'My Fleet',
+  'game.enemyFleet': 'Enemy Fleet',
+  'game.yourTurn': 'Your Turn — Attack!',
+  'game.waitTurn': 'Wait for your turn',
+  'game.youWon': 'You Won!',
+  'game.gameOver': 'Game Over',
+  'game.shipSunk': 'SHIP SUNK!',
+  'game.shots': 'SHOTS',
+  'game.confirmAttack': 'CONFIRM ATTACK',
+  'game.firing': 'FIRING...',
+  'game.backToMenu': 'Back to Menu',
+  'game.loading': 'Loading...',
+  'game.waitingOpponent': 'WAITING FOR OPPONENT',
+  'game.gameEnd': 'Game Over! Winner:',
+
+  // Positioning
+  'position.title': 'Positioning Fleet',
+  'position.horizontal': '→ Horizontal',
+  'position.vertical': '↓ Vertical',
+  'position.allPositioned': 'All positioned!',
+  'position.controls': 'Left: place • Right: rotate',
+  'position.reset': '🔄 Reset',
+  'position.confirm': '✓ Confirm',
+
+  // Ships
+  'ships.portaAvioes': 'Merchant Ship',
+  'ships.encouracado': 'Warship',
+  'ships.cruzador': 'Fishing Boat',
+  'ships.submarino': 'Explorer Ship',
+  'ships.destroier': 'Canoe',
+
+  // Skins
+  'skins.title': 'Skins',
+  'skins.equip': 'EQUIP',
+  'skins.equipped': 'EQUIPPED',
+  'skins.back': 'BACK',
+
+  // Tips
+  'tips.0': 'You can only attack one cell per turn.',
+  'tips.1': 'A sunk ship reveals that all its positions were destroyed.',
+  'tips.2': 'Place large ships away from edges to confuse your opponent.',
+  'tips.3': 'Spreading ships makes it harder for the enemy to find your fleet.',
+  'tips.4': 'In Explosion mode, a shot can hit nearby cells.',
+  'tips.5': 'Ships cannot overlap.',
+  'tips.6': 'Watch your opponent\'s shot patterns.',
+  'tips.7': 'After both finish positioning, the match starts automatically.',
+  'tips.8': 'Use strategy, not just luck.',
+  'tips.9': 'Each ship has a different number of blocks.',
+};

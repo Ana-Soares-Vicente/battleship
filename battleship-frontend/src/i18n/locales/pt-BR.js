@@ -1,0 +1,117 @@
+export default {
+  // Login
+  'login.title': 'Entrar',
+  'login.placeholder.username': 'Email, telefone ou Skype',
+  'login.placeholder.password': 'Senha',
+  'login.noAccount': 'Não tem conta?',
+  'login.createOne': 'Crie uma!',
+  'login.back': 'Voltar',
+  'login.next': 'Avançar',
+  'login.loading': 'Carregando...',
+  'login.signInOptions': 'Opções de login',
+  'login.fillAll': 'Preencha todos os campos',
+
+  // Register
+  'register.title': 'Criar conta',
+  'register.placeholder.name': 'Nome',
+  'register.placeholder.email': 'Email',
+  'register.placeholder.password': 'Senha',
+  'register.alreadyHave': 'Já tem uma conta?',
+  'register.signIn': 'Entre!',
+  'register.back': 'Voltar',
+  'register.next': 'Avançar',
+  'register.loading': 'Carregando...',
+  'register.fillAll': 'Preencha todos os campos',
+
+  // Lobby
+  'lobby.createMatch': 'CRIAR PARTIDA',
+  'lobby.joinMatch': 'ENTRAR NA PARTIDA',
+  'lobby.options': 'OPÇÕES...',
+  'lobby.logout': 'SAIR DO JOGO',
+  'lobby.playerRank': 'Level 99 Admiral',
+
+  // Options
+  'options.sounds': 'SONS',
+  'options.on': 'ON',
+  'options.off': 'OFF',
+  'options.difficulty': 'DIFICULDADE: NORMAL',
+  'options.skin': 'SKIN...',
+  'options.language': 'IDIOMA...',
+  'options.back': 'VOLTAR',
+
+  // Create Match
+  'createMatch.title': 'Criar Partida',
+  'createMatch.waiting': 'Aguardando oponente...',
+  'createMatch.code': 'CÓDIGO DA SALA',
+  'createMatch.copied': 'Copiado!',
+  'createMatch.copy': 'COPIAR',
+  'createMatch.cancel': 'CANCELAR',
+  'createMatch.modeStandard': 'padrão',
+  'createMatch.modeExplosion': 'explosão',
+  'createMatch.modeStandardDesc': 'Busque recursos, fabrique ferramentas,\nsuba de nível e coma para se manter vivo',
+  'createMatch.modeExplosionDesc': 'Modo alternativo com mecânicas\nde explosão e regras especiais',
+
+  // Join Match
+  'joinMatch.title': 'Entrar em uma Partida',
+  'joinMatch.byToken': 'POR CÓDIGO',
+  'joinMatch.byRooms': 'SALAS',
+  'joinMatch.placeholder': 'CÓDIGO DA SALA',
+  'joinMatch.join': 'ENTRAR',
+  'joinMatch.loading': 'Entrando...',
+  'joinMatch.refresh': 'ATUALIZAR',
+  'joinMatch.noRooms': 'Nenhuma sala disponível',
+  'joinMatch.back': 'VOLTAR',
+  'joinMatch.enterCode': 'Digite o código da sala.',
+
+  // Game
+  'game.myPort': 'Meu Porto',
+  'game.enemyOcean': 'Oceano Inimigo',
+  'game.myFleet': 'Minha Frota',
+  'game.enemyFleet': 'Frota Inimiga',
+  'game.yourTurn': 'Sua vez — Ataque!',
+  'game.waitTurn': 'Aguarde seu turno',
+  'game.youWon': 'Você Venceu!',
+  'game.gameOver': 'Game Over',
+  'game.shipSunk': 'BARCO AFUNDADO!',
+  'game.shots': 'TIROS',
+  'game.confirmAttack': 'CONFIRMAR ATAQUE',
+  'game.firing': 'DISPARANDO...',
+  'game.backToMenu': 'Voltar ao Menu',
+  'game.loading': 'Carregando...',
+  'game.waitingOpponent': 'AGUARDANDO OPONENTE',
+  'game.gameEnd': 'Fim do Jogo! Vencedor:',
+
+  // Positioning
+  'position.title': 'Posicionando Frota',
+  'position.horizontal': '→ Horizontal',
+  'position.vertical': '↓ Vertical',
+  'position.allPositioned': 'Todos posicionados!',
+  'position.controls': 'Esquerdo: posicionar • Direito: rotacionar',
+  'position.reset': '🔄 Resetar',
+  'position.confirm': '✓ Confirmar',
+
+  // Ships
+  'ships.portaAvioes': 'Barco Mercante',
+  'ships.encouracado': 'Barco de Guerra',
+  'ships.cruzador': 'Barco Pesqueiro',
+  'ships.submarino': 'Barco Explorador',
+  'ships.destroier': 'Canoa',
+
+  // Skins
+  'skins.title': 'Skins',
+  'skins.equip': 'EQUIPAR',
+  'skins.equipped': 'EQUIPADA',
+  'skins.back': 'VOLTAR',
+
+  // Tips
+  'tips.0': 'Você só pode atacar uma casa por turno.',
+  'tips.1': 'Um barco afundado revela que todas as suas posições foram destruídas.',
+  'tips.2': 'Posicione barcos grandes longe das bordas para confundir o adversário.',
+  'tips.3': 'Espalhar os barcos dificulta que o inimigo encontre toda sua frota.',
+  'tips.4': 'No modo Explosão, um disparo pode atingir casas vizinhas.',
+  'tips.5': 'Os barcos não podem se sobrepor.',
+  'tips.6': 'Observe os padrões dos tiros do adversário.',
+  'tips.7': 'Após ambos terminarem o posicionamento, a partida começa automaticamente.',
+  'tips.8': 'Utilize estratégia, não apenas sorte.',
+  'tips.9': 'Cada barco possui uma quantidade diferente de blocos.',
+};
