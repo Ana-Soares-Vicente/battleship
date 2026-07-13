@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { posicionarNavios } from '../../services/api';
+import { useTranslation } from '../../i18n/useTranslation';
 import styles from './Posicionamento.module.css';
 
 const FROTA = [
-    { tipo: 'PORTA_AVIOES', tamanho: 5, nome: 'Barco Mercante' },
-    { tipo: 'ENCOURACADO', tamanho: 4, nome: 'Barco de Guerra' },
-    { tipo: 'CRUZADOR', tamanho: 3, nome: 'Barco Pesqueiro' },
-    { tipo: 'SUBMARINO', tamanho: 3, nome: 'Barco Explorador' },
-    { tipo: 'DESTROIER', tamanho: 2, nome: 'Canoa' },
+    { tipo: 'PORTA_AVIOES', tamanho: 5, nomeKey: 'ships.portaAvioes' },
+    { tipo: 'ENCOURACADO', tamanho: 4, nomeKey: 'ships.encouracado' },
+    { tipo: 'CRUZADOR', tamanho: 3, nomeKey: 'ships.cruzador' },
+    { tipo: 'SUBMARINO', tamanho: 3, nomeKey: 'ships.submarino' },
+    { tipo: 'DESTROIER', tamanho: 2, nomeKey: 'ships.destroier' },
 ];
 
 const SPRITE_POR_TAMANHO = {
@@ -24,6 +25,7 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
     const [hover, setHover] = useState(null);
     const [erro, setErro] = useState('');
     const [enviando, setEnviando] = useState(false);
+    const { t } = useTranslation();
 
     // FONTE DE VERDADE: sempre ler a skin do localStorage
     const skinEquipada = localStorage.getItem('skinAtual');
@@ -187,7 +189,7 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                         {skinAdversario && <img src={skinAdversario} alt={jogador2} className={styles.playerSkin} />}
                     </div>
                 </div>
-                <p className={styles.subtitle}>Posicionando Frota</p>
+                <p className={styles.subtitle}>{t('position.title')}</p>
             </header>
 
             {/* Progress bar */}
@@ -207,18 +209,18 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
             <div className={styles.infoPanel}>
                 {navioAtual ? (
                     <>
-                        <span className={styles.infoPanelName}>{navioAtual.nome}</span>
+                        <span className={styles.infoPanelName}>{t(navioAtual.nomeKey)}</span>
                         <span className={styles.infoPanelBlocks}>
                             {Array.from({ length: navioAtual.tamanho }, (_, i) => (
                                 <span key={i} className={styles.block} />
                             ))}
                         </span>
                         <span className={styles.infoPanelDir}>
-                            {direcao === 'HORIZONTAL' ? '→ Horizontal' : '↓ Vertical'}
+                            {direcao === 'HORIZONTAL' ? t('position.horizontal') : t('position.vertical')}
                         </span>
                     </>
                 ) : (
-                    <span className={styles.infoPanelReady}>Todos posicionados!</span>
+                    <span className={styles.infoPanelReady}>{t('position.allPositioned')}</span>
                 )}
             </div>
 
@@ -226,7 +228,7 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
             {erro && <p className={styles.erro}>{erro}</p>}
 
             {/* Dica de controles */}
-            <p className={styles.dica}>Esquerdo: posicionar &nbsp;•&nbsp; Direito: rotacionar</p>
+            <p className={styles.dica}>{t('position.controls')}</p>
 
             {/* Board + Inventário lateral */}
             <div className={styles.boardArea}>
@@ -328,7 +330,7 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                                         e.preventDefault();
                                     }
                                 }}
-                                title={posicionado ? 'Botão direito para remover' : f.nome}
+                                title={posicionado ? 'Botão direito para remover' : t(f.nomeKey)}
                             >
                                 <img
                                     src={SPRITE_POR_TAMANHO[f.tamanho]}
@@ -351,7 +353,7 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                     onClick={handleResetar}
                     disabled={naviosPosicionados.length === 0 || enviando}
                 >
-                    🔄 Resetar
+                    {t('position.reset')}
                 </button>
                 <button
                     className={`${styles.btnConfirmar} ${todosPosicionados ? styles.btnConfirmarPulse : ''}`}
@@ -359,7 +361,7 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                     onClick={handleConfirmar}
                     disabled={!todosPosicionados || enviando}
                 >
-                    {enviando ? '...' : '✓ Confirmar'}
+                    {enviando ? '...' : t('position.confirm')}
                 </button>
             </div>
         </div>
