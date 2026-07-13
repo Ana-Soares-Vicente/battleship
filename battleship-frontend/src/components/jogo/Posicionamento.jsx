@@ -17,7 +17,7 @@ const SPRITE_POR_TAMANHO = {
     5: '/img/barquin_5.png',
 };
 
-export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, minhaSkin, skinAdversario }) {
+export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, minhaSkin, skinAdversario, modo }) {
     const [naviosPosicionados, setNaviosPosicionados] = useState([]);
     const [navioSelecionado, setNavioSelecionado] = useState('PORTA_AVIOES');
     const [direcao, setDirecao] = useState('HORIZONTAL');
@@ -171,7 +171,7 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
     return (
         <div className={styles.container}>
             {/* Background overlay */}
-            <div className={styles.bgOverlay} />
+            <div className={`${styles.bgOverlay} ${modo === 'EXPLOSAO' ? styles.bgOverlayNether : ''}`} />
 
             {/* Header com jogadores e skins */}
             <header className={styles.header}>
