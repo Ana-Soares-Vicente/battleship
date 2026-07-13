@@ -37,6 +37,8 @@ export default function Jogo() {
     const unsubscribeRef = useRef(null);
     const loadingJaMostrouRef = useRef(false);
     const estadoRef = useRef(null);
+    // Rastrear tiros que já tiveram som tocado (evita duplicação HTTP + WebSocket)
+    const tirosComSomRef = useRef(new Set());
 
     // Manter ref sincronizada para uso em setInterval
     useEffect(() => { estadoRef.current = estado; }, [estado]);
@@ -199,11 +201,21 @@ export default function Jogo() {
                                     if (jaTemEsse) return prev;
                                     return [...prev, evento.navioAfundado];
                                 });
-                            }
-                            if (evento.resultado === 'AFUNDOU') {
-                                setBannerAfundou(true);
-                                audioManager.playExplosion();
-                                setTimeout(() => setBannerAfundou(false), 2500);
+                                const chave = `${evento.linha},${evento.coluna}`;
+                                if (!tirosComSomRef.current.has(chave)) {
+                                    tirosComSomRef.current.add(chave);
+                                    setBannerAfundou(true);
+                                    audioManager.playTntHit();
+                                    setTimeout(() => setBannerAfundou(false), 2500);
+                                }
+                            } else {
+                                const chave = `${evento.linha},${evento.coluna}`;
+                                if (!tirosComSomRef.current.has(chave)) {
+                                    tirosComSomRef.current.add(chave);
+                                    if (evento.resultado === 'AGUA') {
+                                        audioManager.playSplash();
+                                    }
+                                }
                             }
                         } else {
                             setTirosRecebidos(prev => [...prev, {
@@ -214,7 +226,9 @@ export default function Jogo() {
                             }]);
                             if (evento.navioAfundado) {
                                 setNaviosAfundadosMeus(prev => [...prev, evento.navioAfundado]);
-                                audioManager.playExplosion();
+                                audioManager.playTntHit();
+                            } else if (evento.resultado === 'AGUA') {
+                                audioManager.playSplash();
                             }
                         }
 
@@ -259,9 +273,22 @@ export default function Jogo() {
                                     return [...prev, ...novos];
                                 });
                                 setBannerAfundou(true);
-                                audioManager.playExplosion();
                                 setTimeout(() => setBannerAfundou(false), 2500);
                             }
+                            // Feedback sonoro — evita duplicação com HTTP
+                            evento.tiros.forEach((t, i) => {
+                                setTimeout(() => {
+                                    const chave = `${t.linha},${t.coluna}`;
+                                    if (!tirosComSomRef.current.has(chave)) {
+                                        tirosComSomRef.current.add(chave);
+                                        if (t.navioAfundado) {
+                                            audioManager.playTntHit();
+                                        } else if (t.resultado === 'AGUA') {
+                                            audioManager.playSplash();
+                                        }
+                                    }
+                                }, i * 150);
+                            });
                             setAlvosExplosao([]);
                             setProcessandoExplosao(false);
                         } else {
@@ -274,8 +301,17 @@ export default function Jogo() {
                             const afundadosExp = evento.tiros.filter(t => t.navioAfundado).map(t => t.navioAfundado);
                             if (afundadosExp.length > 0) {
                                 setNaviosAfundadosMeus(prev => [...prev, ...afundadosExp]);
-                                audioManager.playExplosion();
                             }
+                            // Feedback sonoro para tiros recebidos no modo explosão
+                            evento.tiros.forEach((t, i) => {
+                                setTimeout(() => {
+                                    if (t.navioAfundado) {
+                                        audioManager.playTntHit();
+                                    } else if (t.resultado === 'AGUA') {
+                                        audioManager.playSplash();
+                                    }
+                                }, i * 150);
+                            });
                         }
 
                         if (!evento.fimDeJogo) {
@@ -380,9 +416,13 @@ export default function Jogo() {
                         return [...prev, res.navioAfundado];
                     });
                     setBannerAfundou(true);
-                    audioManager.playExplosion();
+                    audioManager.playTntHit();
                     setTimeout(() => setBannerAfundou(false), 2500);
+                } else if (res.resultado === 'AGUA') {
+                    audioManager.playSplash();
                 }
+                // Marcar tiro como já tocado (evitar duplicação com WebSocket)
+                tirosComSomRef.current.add(`${res.linha},${res.coluna}`);
             }
         } catch (e) {
             // Reverter tiro pendente em caso de erro
@@ -426,9 +466,19 @@ export default function Jogo() {
                         return [...prev, ...novos];
                     });
                     setBannerAfundou(true);
-                    audioManager.playExplosion();
                     setTimeout(() => setBannerAfundou(false), 2500);
                 }
+                // Feedback sonoro para cada tiro do modo explosão
+                res.forEach((t, i) => {
+                    setTimeout(() => {
+                        tirosComSomRef.current.add(`${t.linha},${t.coluna}`);
+                        if (t.navioAfundado) {
+                            audioManager.playTntHit();
+                        } else if (t.resultado === 'AGUA') {
+                            audioManager.playSplash();
+                        }
+                    }, i * 150);
+                });
                 const ultimoResultado = res[res.length - 1];
                 if (ultimoResultado) {
                     if (ultimoResultado.fimDeJogo) {
@@ -533,12 +583,12 @@ export default function Jogo() {
             )}
 
             {estado.status === 'POSICIONANDO' && !jaPositionei && (
-                <Posicionamento jogoId={id} onPronto={handlePronto} jogador1={username} jogador2={adversario} minhaSkin={minhaSkin} skinAdversario={skinAdversario} />
+                <Posicionamento jogoId={id} onPronto={handlePronto} jogador1={username} jogador2={adversario} minhaSkin={minhaSkin} skinAdversario={skinAdversario} modo={estado.modo} />
             )}
 
             {estado.status === 'POSICIONANDO' && jaPositionei && (
                 <div className={styles.aguardandoContainer}>
-                    <div className={styles.aguardandoBg} />
+                    <div className={`${styles.aguardandoBg} ${estado?.modo === 'EXPLOSAO' ? styles.aguardandoBgNether : ''}`} />
                     <div className={styles.aguardandoContent}>
                         <h1 className={styles.aguardandoTitle}>MINECRAFT BATTLESHIP</h1>
                         <div className={styles.aguardandoPainel}>
