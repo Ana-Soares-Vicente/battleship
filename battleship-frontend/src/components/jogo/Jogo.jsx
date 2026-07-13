@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getEstadoJogo, getMeusTiros, atirar, getMinhaFrota, getTirosRecebidos, getNaviosAfundadosInimigo, atirarExplosao, getTirosDisponiveis } from '../../services/api';
 import { conectarWebSocket, inscrever } from '../../services/websocket';
 import audioManager from '../../services/audioManager';
+import { useTranslation } from '../../i18n/useTranslation';
 import Posicionamento from './Posicionamento';
 import Tabuleiro from './Tabuleiro';
 import FrotaInimiga from './FrotaInimiga';
@@ -34,6 +35,7 @@ export default function Jogo() {
     const [processandoExplosao, setProcessandoExplosao] = useState(false);
     const username = localStorage.getItem('username');
     const minhaSkin = getMinhaSkinEquipada();
+    const { t } = useTranslation();
     const unsubscribeRef = useRef(null);
     const loadingJaMostrouRef = useRef(false);
     const estadoRef = useRef(null);
@@ -527,7 +529,7 @@ export default function Jogo() {
         );
     }
 
-    if (!estado) return <div className={styles.container}><p className={styles.aguardando}>Carregando...</p></div>;
+    if (!estado) return <div className={styles.container}><p className={styles.aguardando}>{t('game.loading')}</p></div>;
 
     const ehMeuTurno = estado.turnoAtual === username;
     const adversario = estado.jogador1 === username ? estado.jogador2 : estado.jogador1;
@@ -593,21 +595,13 @@ export default function Jogo() {
                         <h1 className={styles.aguardandoTitle}>MINECRAFT BATTLESHIP</h1>
                         <div className={styles.aguardandoPainel}>
                             <div className={styles.painelHeader}>
-                                <span>AGUARDANDO OPONENTE<span className={styles.dots}>...</span></span>
+                                <span>{t('game.waitingOpponent')}<span className={styles.dots}>...</span></span>
                             </div>
                             <div className={styles.painelBody}>
                                 <p className={styles.dicaTexto}>
                                     {[
-                                        'Você só pode atacar uma casa por turno.',
-                                        'Um barco afundado revela que todas as suas posições foram destruídas.',
-                                        'Posicione barcos grandes longe das bordas para confundir o adversário.',
-                                        'Espalhar os barcos dificulta que o inimigo encontre toda sua frota.',
-                                        'No modo Explosão, um disparo pode atingir casas vizinhas.',
-                                        'Os barcos não podem se sobrepor.',
-                                        'Observe os padrões dos tiros do adversário.',
-                                        'Após ambos terminarem o posicionamento, a partida começa automaticamente.',
-                                        'Utilize estratégia, não apenas sorte.',
-                                        'Cada barco possui uma quantidade diferente de blocos.',
+                                        t('tips.0'), t('tips.1'), t('tips.2'), t('tips.3'), t('tips.4'),
+                                        t('tips.5'), t('tips.6'), t('tips.7'), t('tips.8'), t('tips.9'),
                                     ][Math.floor(Math.random() * 10)]}
                                 </p>
                             </div>
@@ -629,9 +623,9 @@ export default function Jogo() {
                         {estado.status === 'JOGANDO' && (
                             <div className={styles.turnoBar}>
                                 {ehMeuTurno ? (
-                                    <span className={styles.meuTurno}>⚔️ Sua vez — Ataque!</span>
+                                    <span className={styles.meuTurno}>⚔️ {t('game.yourTurn')}</span>
                                 ) : (
-                                    <span className={styles.aguardeTurno}>⏳ Aguarde seu turno</span>
+                                    <span className={styles.aguardeTurno}>⏳ {t('game.waitTurn')}</span>
                                 )}
                             </div>
                         )}
@@ -639,9 +633,9 @@ export default function Jogo() {
                         {estado.status === 'FINALIZADO' && (
                             <div className={styles.resultadoBar}>
                                 {estado.vencedor === username ? (
-                                    <span className={styles.vitoria}>🏆 Você Venceu!</span>
+                                    <span className={styles.vitoria}>🏆 {t('game.youWon')}</span>
                                 ) : (
-                                    <span className={styles.derrota}>💀 Game Over</span>
+                                    <span className={styles.derrota}>💀 {t('game.gameOver')}</span>
                                 )}
                             </div>
                         )}
@@ -652,14 +646,14 @@ export default function Jogo() {
 
                         {estado.modo === 'EXPLOSAO' && ehMeuTurno && estado.status === 'JOGANDO' && (
                             <div className={styles.explosaoBar}>
-                                <span className={styles.explosaoLabel}>💣 TIROS: {alvosExplosao.length}/{tirosDisponiveis}</span>
+                                <span className={styles.explosaoLabel}>💣 {t('game.shots')}: {alvosExplosao.length}/{tirosDisponiveis}</span>
                                 {alvosExplosao.length === tirosDisponiveis && tirosDisponiveis > 0 && (
                                     <button
                                         className={styles.btnConfirmar}
                                         onClick={handleConfirmarExplosao}
                                         disabled={processandoExplosao}
                                     >
-                                        {processandoExplosao ? 'DISPARANDO...' : 'CONFIRMAR ATAQUE'}
+                                        {processandoExplosao ? t('game.firing') : t('game.confirmAttack')}
                                     </button>
                                 )}
                             </div>
@@ -670,10 +664,10 @@ export default function Jogo() {
                     <div className={styles.tabuleiros}>
                         {/* Banner afundou — overlay absoluto, não empurra nada */}
                         {bannerAfundou && (
-                            <div className={styles.bannerAfundou}>💥 BARCO AFUNDADO!</div>
+                            <div className={styles.bannerAfundou}>💥 {t('game.shipSunk')}</div>
                         )}
                         <div className={styles.tabuleiroBloco}>
-                            <h3 className={styles.tabTitulo}>Meu Porto</h3>
+                            <h3 className={styles.tabTitulo}>{t('game.myPort')}</h3>
                             <div className={styles.boardFrame}>
                                 <Tabuleiro
                                     modo="defesa"
@@ -685,7 +679,7 @@ export default function Jogo() {
                                 />
                             </div>
                             <div className={styles.frotaAbaixo}>
-                                <span className={styles.frotaLabel}>Minha Frota</span>
+                                <span className={styles.frotaLabel}>{t('game.myFleet')}</span>
                                 <FrotaInimiga
                                     naviosAfundados={naviosAfundadosMeus}
                                     tiros={tirosRecebidos}
@@ -694,7 +688,7 @@ export default function Jogo() {
                         </div>
 
                         <div className={`${styles.tabuleiroBloco} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.tabuleiroAtivo : ''}`}>
-                            <h3 className={styles.tabTitulo}>Oceano Inimigo</h3>
+                            <h3 className={styles.tabTitulo}>{t('game.enemyOcean')}</h3>
                             <div className={`${styles.boardFrame} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.boardFrameAtivo : ''}`}>
                                 <Tabuleiro
                                     modo="ataque"
@@ -706,7 +700,7 @@ export default function Jogo() {
                                 />
                             </div>
                             <div className={styles.frotaAbaixo}>
-                                <span className={styles.frotaLabel}>Frota Inimiga</span>
+                                <span className={styles.frotaLabel}>{t('game.enemyFleet')}</span>
                                 <FrotaInimiga
                                     naviosAfundados={naviosAfundados}
                                     tiros={tiros}
@@ -718,7 +712,7 @@ export default function Jogo() {
 
                     {estado.status === 'FINALIZADO' && (
                         <button className={styles.btnVoltar} onClick={() => navigate('/lobby')}>
-                            Voltar ao Menu
+                            {t('game.backToMenu')}
                         </button>
                     )}
                 </div>
