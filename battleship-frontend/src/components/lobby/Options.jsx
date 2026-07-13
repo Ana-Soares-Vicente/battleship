@@ -35,24 +35,9 @@ export default function Options() {
                     {t('options.difficulty')}
                 </button>
 
-                {/* Toggle de idioma */}
-                <div className={styles.languageSection}>
-                    <span className={styles.languageLabel}>{t('options.language').replace('...', '')}</span>
-                    <div className={styles.languageToggle}>
-                        <button
-                            className={`${styles.langBtn} ${language === 'pt-BR' ? styles.langBtnActive : ''}`}
-                            onClick={() => setLanguage('pt-BR')}
-                        >
-                            🇧🇷 Português
-                        </button>
-                        <button
-                            className={`${styles.langBtn} ${language === 'en-US' ? styles.langBtnActive : ''}`}
-                            onClick={() => setLanguage('en-US')}
-                        >
-                            🇺🇸 English
-                        </button>
-                    </div>
-                </div>
+                <button className={styles.btn} onClick={() => setLanguage(language === 'pt-BR' ? 'en-US' : 'pt-BR')}>
+                    {t('options.language').replace('...', '')}: {language === 'pt-BR' ? '🇧🇷 Português' : '🇺🇸 English'}
+                </button>
 
                 <div className={styles.btnRow}>
                     <button className={styles.btnHalf} onClick={() => navigate('/skins')}>
