@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateSkin } from '../../services/api';
+import { useTranslation } from '../../i18n/useTranslation';
 import styles from './Skins.module.css';
 
 const SKINS_DISPONIVEIS = [
@@ -21,6 +22,7 @@ export default function Skins() {
     const username = localStorage.getItem('username');
     const navigate = useNavigate();
     const [skinAtual, setSkinAtual] = useState(getSkinAtual());
+    const { t } = useTranslation();
 
     function handleTrocarSkin(novaSkin) {
         localStorage.setItem('skinAtual', novaSkin.img);
@@ -34,7 +36,7 @@ export default function Skins() {
     return (
         <div className={styles.container}>
             <div className={styles.inventoryWindow}>
-                <div className={styles.windowTitle}>Skins</div>
+                <div className={styles.windowTitle}>{t('skins.title')}</div>
 
                 {/* Área superior: skin atual */}
                 <div className={styles.topArea}>
@@ -57,7 +59,7 @@ export default function Skins() {
                     <div className={styles.playerInfo}>
                         <span className={styles.playerName}>{username || 'STEVE'}</span>
                         <span className={styles.playerRank}>Level 99 Admiral</span>
-                        <span className={styles.skinAtualLabel}>Skin Equipada</span>
+                        <span className={styles.skinAtualLabel}>{t('skins.equipped')}</span>
                     </div>
                 </div>
 
@@ -84,7 +86,7 @@ export default function Skins() {
 
                 {/* Botão voltar */}
                 <button className={styles.btnVoltar} onClick={() => navigate('/options')}>
-                    VOLTAR
+                    {t('skins.back')}
                 </button>
             </div>
         </div>
