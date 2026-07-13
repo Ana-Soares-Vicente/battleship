@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { criarJogo, getEstadoJogo } from '../../services/api';
 import { conectarWebSocket, inscrever } from '../../services/websocket';
+import { useTranslation } from '../../i18n/useTranslation';
 import styles from './CriarPartida.module.css';
 
 const MODOS = [
@@ -29,6 +30,7 @@ export default function CriarPartida() {
     const modoAtual = MODOS[modoIndex];
     const dificuldadeAtual = DIFICULDADES[dificuldadeIndex];
     const criadoRef = useRef(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         conectarWebSocket(() => {});
@@ -125,12 +127,12 @@ export default function CriarPartida() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Criar uma nova partida</h1>
+            <h1 className={styles.title}>{t('createMatch.title')}</h1>
 
             <div className={styles.content}>
                 {/* Token do servidor */}
                 <div className={styles.field}>
-                    <label className={styles.label}>token do servidor</label>
+                    <label className={styles.label}>{t('createMatch.code')}</label>
                     <input
                         className={styles.input}
                         value={jogoCriado?.token || ''}
@@ -142,7 +144,7 @@ export default function CriarPartida() {
                         onClick={handleCopiar}
                         disabled={!jogoCriado}
                     >
-                        {copiado ? '✓ Código copiado!' : 'copiar codigo'}
+                        {copiado ? `✓ ${t('createMatch.copied')}` : t('createMatch.copy')}
                     </button>
                 </div>
 
@@ -174,14 +176,14 @@ export default function CriarPartida() {
                 {/* Aguardando jogador — sempre presente para evitar layout shift */}
                 <div className={styles.waitingRow} style={{ visibility: jogoCriado ? 'visible' : 'hidden' }}>
                     <div className={styles.spinner}></div>
-                    <span className={styles.waitingText}>Aguardando jogador entrar...</span>
+                    <span className={styles.waitingText}>{t('createMatch.waiting')}</span>
                 </div>
             </div>
 
             {/* Rodapé */}
             <div className={styles.footer}>
                 <button className={`${styles.btnFooter} ${styles.btnCancel}`} onClick={handleCancelar}>
-                    Cancelar
+                    {t('createMatch.cancel')}
                 </button>
             </div>
         </div>
