@@ -13,9 +13,8 @@
     --text-primary: #ffffff;
     --text-secondary: #aaaaaa;
 
-    min-height: 100vh;
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
+    min-height: 100%;
+    width: 100%;
     padding: clamp(4px, 0.8vh, 10px) clamp(8px, 1vw, 16px);
     display: flex;
     flex-direction: column;
@@ -23,6 +22,7 @@
     gap: clamp(2px, 0.4vh, 6px);
     position: relative;
     overflow-y: auto;
+    overflow-x: hidden;
     overflow-x: hidden;
 }
 
@@ -41,7 +41,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.35;
     z-index: 0;
     pointer-events: none;
 }
@@ -372,6 +371,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
     margin-bottom: clamp(2px, 0.3vh, 4px);
     padding: clamp(4px, 0.6vh, 8px) clamp(10px, 1vw, 16px);
     background: rgba(20, 20, 20, 0.9);
@@ -381,6 +381,7 @@
     border-bottom-color: #2a2a2a;
     border-right-color: #2a2a2a;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
 }
 
 .tabSkin {
@@ -419,27 +420,26 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    padding: clamp(4px, 0.5vh, 8px) clamp(4px, 0.4vw, 8px);
-    background:
-        linear-gradient(135deg, #2a1a08 0%, #1a1008 50%, #2a1a08 100%);
-    border: 3px solid var(--frame-outer);
-    border-top-color: var(--frame-highlight);
-    border-left-color: var(--frame-inner);
-    border-bottom-color: #1a0f03;
-    border-right-color: #2a1808;
-    box-shadow:
-        inset 2px 2px 0 var(--frame-highlight),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.4),
-        0 4px 12px rgba(0, 0, 0, 0.5);
-    width: clamp(70px, 6vw, 95px);
-    align-self: stretch;
+    gap: 4px;
+    padding: 0;
+    /* Compensar altura do tabHeader para alinhar com o boardFrame */
+    margin-top: calc(clamp(48px, 7vh, 72px) + clamp(8px, 1.2vh, 16px) + 4px + clamp(2px, 0.3vh, 4px));
+    background: none;
+    border: none;
+    box-shadow: none;
+    width: auto;
+    align-self: flex-start;
 }
 
 /* Forçar layout vertical dentro da frotaLateral */
 .frotaLateral .frotaLabel {
-    font-size: clamp(11px, 1.5vh, 14px);
-    margin-bottom: 4px;
+    font-family: 'Silkscreen', monospace;
+    font-size: clamp(9px, 1.2vh, 12px);
+    color: #ffffff;
+    text-shadow: 1px 1px 0 #3f3f3f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
 }
 
 /* Board frame — Dark Oak (igual posicionamento) */
@@ -483,40 +483,40 @@
 
 /* ========================= */
 /* OCEANO INIMIGO — ATIVO    */
-/* Glow dourado no meu turno */
+/* Glow azul oceano no turno */
 /* ========================= */
 
 .tabuleiroAtivo .tabTitulo {
-    color: #ffd700;
-    text-shadow: 1px 1px 0 #000, 0 0 8px rgba(255, 215, 0, 0.5);
+    color: #80eeff;
+    text-shadow: 1px 1px 0 #000, 0 0 10px rgba(100, 230, 255, 0.7);
 }
 
 .boardFrameAtivo {
-    border-color: #c8a020 !important;
+    border-color: #50d4ff !important;
     box-shadow:
         inset 2px 2px 0 var(--frame-highlight),
         inset -2px -2px 0 rgba(0, 0, 0, 0.5),
-        0 0 16px rgba(255, 215, 0, 0.4),
-        0 0 32px rgba(255, 200, 0, 0.15),
+        0 0 18px rgba(80, 212, 255, 0.6),
+        0 0 40px rgba(60, 200, 255, 0.3),
         0 6px 20px rgba(0, 0, 0, 0.7) !important;
-    animation: goldPulse 2.5s ease-in-out infinite;
+    animation: bluePulse 2.5s ease-in-out infinite;
 }
 
-@keyframes goldPulse {
+@keyframes bluePulse {
     0%, 100% {
         box-shadow:
             inset 2px 2px 0 var(--frame-highlight),
             inset -2px -2px 0 rgba(0, 0, 0, 0.5),
-            0 0 12px rgba(255, 215, 0, 0.3),
-            0 0 24px rgba(255, 200, 0, 0.1),
+            0 0 14px rgba(80, 212, 255, 0.5),
+            0 0 30px rgba(60, 200, 255, 0.2),
             0 6px 20px rgba(0, 0, 0, 0.7);
     }
     50% {
         box-shadow:
             inset 2px 2px 0 var(--frame-highlight),
             inset -2px -2px 0 rgba(0, 0, 0, 0.5),
-            0 0 20px rgba(255, 215, 0, 0.5),
-            0 0 40px rgba(255, 200, 0, 0.2),
+            0 0 24px rgba(80, 230, 255, 0.7),
+            0 0 50px rgba(60, 210, 255, 0.35),
             0 6px 20px rgba(0, 0, 0, 0.7);
     }
 }
@@ -619,16 +619,156 @@
 /* RESPONSIVO                */
 /* ========================= */
 
-@media (max-width: 700px) {
+@media (max-width: 1024px) {
     .tabuleiros {
-        flex-wrap: wrap;
-        flex-direction: column;
-        align-items: center;
+        gap: clamp(4px, 1vw, 10px);
     }
 
-    .inventarioSection {
+    .frotaLateral {
+        gap: 2px;
+    }
+
+    .tabSkin {
+        width: clamp(36px, 5vh, 52px);
+        height: clamp(36px, 5vh, 52px);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        --cell-size: clamp(20px, 4.2vw, 30px);
+        padding: 4px;
+        gap: 2px;
+    }
+
+    .tabuleiros {
         flex-direction: column;
         align-items: center;
+        gap: 12px;
+    }
+
+    .frotaLateral {
+        flex-direction: row;
+        align-self: auto;
+        margin-top: 0;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tabHeader {
+        padding: 4px 8px;
+        gap: 6px;
+    }
+
+    .tabSkin {
+        width: 36px;
+        height: 36px;
+    }
+
+    .tabNome {
+        font-size: 10px;
+    }
+
+    .tabTitulo {
+        font-size: 10px;
+    }
+
+    .title {
+        font-size: 16px;
+    }
+
+    .turnoBar {
+        padding: 6px 12px;
+    }
+
+    .meuTurno,
+    .aguardeTurno {
+        font-size: 10px;
+    }
+
+    .explosaoBar {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        padding: 4px 8px;
+    }
+
+    .statusArea {
+        margin-bottom: 2px;
+    }
+
+    .msgInfo {
+        font-size: 9px;
+        padding: 4px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        --cell-size: clamp(26px, 8vw, 34px);
+        padding: 2px;
+    }
+
+    .tabuleiros {
+        gap: 8px;
+    }
+
+    .frotaLateral {
+        flex-direction: row;
+        order: 1;
+    }
+
+    .tabuleiroBloco {
+        order: 0;
+    }
+
+    .tabHeader {
+        padding: 3px 6px;
+        gap: 4px;
+    }
+
+    .tabSkin {
+        width: 28px;
+        height: 28px;
+    }
+
+    .tabNome {
+        font-size: 9px;
+    }
+
+    .tabTitulo {
+        font-size: 9px;
+    }
+
+    .turnoBar {
+        padding: 5px 10px;
+    }
+
+    .resultadoBar {
+        padding: 6px 12px;
+    }
+
+    .vitoria,
+    .derrota {
+        font-size: 12px;
+    }
+
+    .header {
+        margin-bottom: 2px;
+    }
+
+    .title {
+        font-size: 14px;
+    }
+
+    .bannerAfundou {
+        font-size: 12px;
+        padding: 6px 14px;
+    }
+
+    .btnVoltar {
+        font-size: 10px;
+        padding: 6px 14px;
     }
 }
 
@@ -639,10 +779,7 @@
 
 .loadingScreen {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
     z-index: 9999;
     background: #000000;
     display: flex;
@@ -669,14 +806,14 @@
 /* ========================= */
 
 .aguardandoContainer {
-    width: 100vw;
-    min-height: 100vh;
-    margin-left: calc(-50vw + 50%);
+    position: fixed;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
     overflow: hidden;
+    z-index: 10;
+    background: #000000;
 }
 
 .aguardandoBg {
@@ -685,6 +822,16 @@
     background: url('/img/oceano_fundo.jpg') center/cover no-repeat;
     filter: brightness(0.6) blur(1px);
     z-index: 0;
+}
+
+.aguardandoVideo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
 }
 
 .aguardandoBgNether {

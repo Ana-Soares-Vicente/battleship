@@ -29,3 +29,27 @@
 .heart:hover {
     transform: scale(1.15);
 }
+
+
+
+/* ============================================= */
+/* RESPONSIVE                                    */
+/* ============================================= */
+
+@media (max-width: 768px) {
+    .heart {
+        width: clamp(10px, 2vw, 14px);
+        height: clamp(10px, 2vw, 14px);
+    }
+}
+
+@media (max-width: 480px) {
+    .heart {
+        width: 10px;
+        height: 10px;
+    }
+
+    .heartRow {
+        gap: 0;
+    }
+}

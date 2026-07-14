@@ -236,8 +236,9 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
 
             {/* Board + Inventário lateral */}
             <div className={styles.boardArea}>
-                {/* Board */}
-                <div className={styles.boardFrame}>
+                {/* Board + Buttons column */}
+                <div className={styles.boardColumn}>
+                    <div className={styles.boardFrame}>
                     <table className={styles.tabuleiro} onContextMenu={handleContextMenu}>
                         <thead>
                             <tr>
@@ -316,6 +317,27 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                     </table>
                 </div>
 
+                {/* Action buttons — inside boardColumn, centered to board */}
+                <div className={styles.botoes}>
+                    <button
+                        className={styles.btnResetar}
+                        type="button"
+                        onClick={handleResetar}
+                        disabled={naviosPosicionados.length === 0 || enviando}
+                    >
+                        {t('position.reset')}
+                    </button>
+                    <button
+                        className={`${styles.btnConfirmar} ${todosPosicionados ? styles.btnConfirmarPulse : ''}`}
+                        type="button"
+                        onClick={handleConfirmar}
+                        disabled={!todosPosicionados || enviando}
+                    >
+                        {enviando ? '...' : t('position.confirm')}
+                    </button>
+                </div>
+                </div>
+
                 {/* Inventário lateral */}
                 <div className={styles.inventarioLateral}>
                     {FROTA.map((f) => {
@@ -347,26 +369,6 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                         );
                     })}
                 </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className={styles.botoes}>
-                <button
-                    className={styles.btnResetar}
-                    type="button"
-                    onClick={handleResetar}
-                    disabled={naviosPosicionados.length === 0 || enviando}
-                >
-                    {t('position.reset')}
-                </button>
-                <button
-                    className={`${styles.btnConfirmar} ${todosPosicionados ? styles.btnConfirmarPulse : ''}`}
-                    type="button"
-                    onClick={handleConfirmar}
-                    disabled={!todosPosicionados || enviando}
-                >
-                    {enviando ? '...' : t('position.confirm')}
-                </button>
             </div>
         </div>
     );

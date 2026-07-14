@@ -1,19 +1,21 @@
 import styles from './FrotaInimiga.module.css';
 import HeartBar from './HeartBar';
+import { useTranslation } from '../../i18n/useTranslation';
 
 const FROTA_PADRAO = [
-    { tipo: 'PORTA_AVIOES', tamanho: 5, img: '/img/barquin_5.png' },
-    { tipo: 'ENCOURACADO', tamanho: 4, img: '/img/barquin_4.png' },
-    { tipo: 'CRUZADOR', tamanho: 3, img: '/img/barquin_3.png' },
-    { tipo: 'SUBMARINO', tamanho: 3, img: '/img/barquin_3.png' },
-    { tipo: 'DESTROYER', tamanho: 2, img: '/img/barquin_2.png' },
+    { tipo: 'PORTA_AVIOES', tamanho: 5, img: '/img/barquin_5.png', nomeKey: 'ships.portaAvioes' },
+    { tipo: 'ENCOURACADO', tamanho: 4, img: '/img/barquin_4.png', nomeKey: 'ships.encouracado' },
+    { tipo: 'CRUZADOR', tamanho: 3, img: '/img/barquin_3.png', nomeKey: 'ships.cruzador' },
+    { tipo: 'SUBMARINO', tamanho: 3, img: '/img/barquin_3.png', nomeKey: 'ships.submarino' },
+    { tipo: 'DESTROYER', tamanho: 2, img: '/img/barquin_2.png', nomeKey: 'ships.destroier' },
 ];
 
 /**
- * Inventário Naval — HUD estilo Minecraft
- * Sem nomes, só ícone + corações
+ * Inventário Naval — Hotbar estilo Minecraft
+ * Slots quadrados com sprite do barco como ícone + corações ao lado
  */
-export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimigo = false, layout = 'horizontal' }) {
+export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimigo = false }) {
+    const { t } = useTranslation();
 
     function contarAfundadosPorTamanho() {
         const contagem = {};
@@ -72,7 +74,7 @@ export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimi
     const navios = buildListaNavios();
 
     return (
-        <div className={`${styles.inventario} ${layout === 'vertical' ? styles.inventarioVertical : ''}`}>
+        <div className={styles.inventario}>
             {navios.map((navio, index) => {
                 const oculto = ehInimigo && !navio.afundado;
 
@@ -91,7 +93,7 @@ export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimi
                             ) : (
                                 <img
                                     src={navio.img}
-                                    alt={`Barco ${navio.tamanho}`}
+                                    alt={t(navio.nomeKey)}
                                     className={styles.barcoImg}
                                     draggable={false}
                                 />
@@ -105,6 +107,7 @@ export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimi
                                 <HeartBar maxHp={navio.tamanho} currentHp={navio.currentHp} />
                             )}
                         </div>
+                        <span className={styles.tooltip}>{t(navio.nomeKey)}</span>
                     </div>
                 );
             })}

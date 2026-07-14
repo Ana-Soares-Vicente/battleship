@@ -1,136 +1,255 @@
-/* ========================= */
-/* INVENTÁRIO — HUD MC       */
-/* ========================= */
+/* ============================================= */
+/* MINECRAFT HOTBAR — FLEET PANEL                */
+/* Referência: hotbar escura do Minecraft        */
+/* ============================================= */
 
 .inventario {
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    image-rendering: pixelated;
-    width: 100%;
-}
-
-.inventarioVertical {
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    flex-wrap: nowrap;
-    width: auto;
-}
-
-.inventarioVertical .slot {
+    gap: 0;
+    image-rendering: pixelated;
+    /* Hotbar background — semi-transparent dark like MC inventory overlay */
+    background: rgba(10, 10, 10, 0.75);
+    border: 3px solid;
+    border-color: rgba(60, 60, 60, 0.8) rgba(10, 10, 10, 0.9) rgba(10, 10, 10, 0.9) rgba(60, 60, 60, 0.8);
+    outline: 2px solid rgba(0, 0, 0, 0.8);
     padding: 3px;
-    gap: 2px;
+    justify-content: space-evenly;
+    box-sizing: border-box;
 }
 
-.inventarioVertical .slotIcone {
-    width: clamp(44px, 3.5vw, 54px);
-    height: clamp(32px, 2.5vw, 40px);
-}
-
-.inventarioVertical .barcoImg {
-    width: clamp(34px, 2.8vw, 44px);
-    height: clamp(20px, 1.6vw, 28px);
-}
-
-/* ========================= */
-/* SLOT — ÍCONE + CORAÇÕES   */
-/* Barco em cima, vidas baixo */
-/* ========================= */
+/* ============================================= */
+/* SLOT — MINECRAFT HOTBAR SQUARE                */
+/* ============================================= */
 
 .slot {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 4px;
+    gap: 6px;
+    padding: 2px;
+    width: 100%;
+    position: relative;
+    transition: background 0.1s;
 }
 
-/* ========================= */
-/* SLOT AFUNDADO             */
-/* ========================= */
-
-.slotAfundado .slotIcone {
-    background: #5a2020;
-    box-shadow:
-        inset 1px 1px 0 #3a0a0a,
-        inset -1px -1px 0 #7a4a4a;
+.slot:hover {
+    background: rgba(255, 255, 255, 0.08);
 }
 
-.slotAfundado .barcoImg {
-    filter: grayscale(100%) brightness(0.4);
-    opacity: 0.5;
-}
-
-/* ========================= */
-/* SLOT OCULTO               */
-/* ========================= */
-
-.slotOculto .slotIcone {
-    background: #5a5a5a;
-    box-shadow:
-        inset 1px 1px 0 #3a3a3a,
-        inset -1px -1px 0 #7a7a7a;
-}
-
-/* ========================= */
-/* ÍCONE (SLOT QUADRADO MC)  */
-/* ========================= */
+/* ============================================= */
+/* SLOT ICON — DARK SQUARE WITH INSET BORDER     */
+/* ============================================= */
 
 .slotIcone {
-    width: clamp(48px, 4vw, 60px);
-    height: clamp(36px, 3vw, 46px);
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    background: #8b8b8b;
-    border: 2px solid #000000;
-    box-shadow:
-        inset 1px 1px 0 #555555,
-        inset -1px -1px 0 #ffffff;
+    /* Minecraft slot — fundo escuro com borda inset */
+    background: rgba(30, 30, 30, 0.7);
+    border: 2px solid;
+    border-color: #0f0f0f #4a4a4a #4a4a4a #0f0f0f;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
+/* Hover glow — igual MC quando seleciona slot */
+.slot:hover .slotIcone {
+    border-color: #6a6a6a #2a2a2a #2a2a2a #6a6a6a;
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================= */
+/* SHIP IMAGE — ITEM INSIDE SLOT                 */
+/* ============================================= */
+
 .barcoImg {
-    width: clamp(38px, 3.2vw, 50px);
-    height: clamp(24px, 2vw, 34px);
+    width: 38px;
+    height: 38px;
     object-fit: contain;
     image-rendering: pixelated;
     -webkit-user-drag: none;
+    user-select: none;
+    filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.5));
 }
 
+/* ============================================= */
+/* MYSTERY ICON (ENEMY NOT DISCOVERED)           */
+/* ============================================= */
+
 .misterio {
-    color: #3a3a3a;
-    font-size: 16px;
+    color: #5a5a5a;
+    font-family: 'Silkscreen', monospace;
+    font-size: 20px;
     font-weight: bold;
+    text-shadow: 1px 1px 0 #000;
+    user-select: none;
 }
+
+/* ============================================= */
+/* X MARK — SUNK INDICATOR                       */
+/* ============================================= */
 
 .xMark {
     position: absolute;
-    bottom: 0;
-    right: 1px;
-    color: #ff2222;
-    font-size: 10px;
+    bottom: 1px;
+    right: 2px;
+    color: #ff3333;
+    font-size: 13px;
     font-weight: bold;
     line-height: 1;
     text-shadow: 1px 1px 0 #000;
+    pointer-events: none;
 }
 
-/* ========================= */
-/* CORAÇÕES (EMBAIXO)        */
-/* ========================= */
+/* ============================================= */
+/* HEARTS (RIGHT SIDE OF SLOT)                   */
+/* ============================================= */
 
 .hearts {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 16px;
+    flex: 1;
 }
 
 .hpOculto {
-    color: #555555;
+    color: #4a4a4a;
+    font-family: 'Silkscreen', monospace;
     font-size: 8px;
     letter-spacing: 1px;
+}
+
+/* ============================================= */
+/* SLOT STATES                                   */
+/* ============================================= */
+
+/* Sunk ship — red tint */
+.slotAfundado .slotIcone {
+    background: #3a1010;
+    border-color: #1a0505 #5a2020 #5a2020 #1a0505;
+}
+
+.slotAfundado .barcoImg {
+    filter: grayscale(100%) brightness(0.35);
+    opacity: 0.5;
+}
+
+/* Hidden ship (enemy) — darker */
+.slotOculto .slotIcone {
+    background: #222222;
+    border-color: #0a0a0a #3a3a3a #3a3a3a #0a0a0a;
+}
+
+/* ============================================= */
+/* TOOLTIP — MINECRAFT PURPLE STYLE              */
+/* ============================================= */
+
+.tooltip {
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #100010;
+    border: 1px solid #2d0060;
+    padding: 4px 8px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 10px;
+    color: #ffffff;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow:
+        0 0 0 1px #100010,
+        inset 0 0 0 1px #2d0060;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.slot:hover .tooltip {
+    opacity: 1;
+}
+
+/* ============================================= */
+/* SELECTED SLOT — WHITE BORDER HIGHLIGHT        */
+/* ============================================= */
+
+.slotSelecionado .slotIcone {
+    border-color: #ffffff #ffffff #ffffff #ffffff;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+
+
+/* ============================================= */
+/* RESPONSIVE                                    */
+/* ============================================= */
+
+@media (max-width: 768px) {
+    .inventario {
+        flex-direction: row;
+        height: auto;
+        width: 100%;
+        justify-content: center;
+        gap: 2px;
+        padding: 4px 6px;
+    }
+
+    .slot {
+        flex-direction: column;
+        gap: 2px;
+        width: auto;
+        padding: 2px;
+    }
+
+    .slotIcone {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    .barcoImg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .misterio {
+        font-size: 16px;
+    }
+
+    .tooltip {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .inventario {
+        padding: 3px 4px;
+    }
+
+    .slotIcone {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+    }
+
+    .barcoImg {
+        width: 26px;
+        height: 26px;
+    }
+
+    .misterio {
+        font-size: 14px;
+    }
+
+    .xMark {
+        font-size: 10px;
+    }
 }

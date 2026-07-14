@@ -41,7 +41,7 @@ export default function Options() {
 
                 <div className={styles.btnRow}>
                     <button className={styles.btnHalf} onClick={() => navigate('/skins')}>
-                        {t('skins.title').toUpperCase()}...
+                        {t('skins.title').toUpperCase()}
                     </button>
                 </div>
 

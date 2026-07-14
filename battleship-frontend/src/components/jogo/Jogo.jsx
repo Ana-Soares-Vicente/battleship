@@ -541,6 +541,38 @@ export default function Jogo() {
     console.log('[SKINS] Adversário:', adversario);
 
     return (
+        <>
+            {estado.status === 'POSICIONANDO' && jaPositionei && (
+                <div className={styles.aguardandoContainer}>
+                    {estado?.modo === 'EXPLOSAO' ? (
+                        <div className={`${styles.aguardandoBg} ${styles.aguardandoBgNether}`} />
+                    ) : (
+                        <video className={styles.aguardandoVideo} src="/img/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+                    )}
+                    <div className={styles.aguardandoContent}>
+                        <h1 className={styles.aguardandoTitle}>MINECRAFT BATTLESHIP</h1>
+                        <div className={styles.aguardandoPainel}>
+                            <div className={styles.painelHeader}>
+                                <span>{t('game.waitingOpponent')}<span className={styles.dots}>...</span></span>
+                            </div>
+                            <div className={styles.painelBody}>
+                                <p className={styles.dicaTexto}>
+                                    {[
+                                        t('tips.0'), t('tips.1'), t('tips.2'), t('tips.3'), t('tips.4'),
+                                        t('tips.5'), t('tips.6'), t('tips.7'), t('tips.8'), t('tips.9'),
+                                    ][Math.floor(Math.random() * 10)]}
+                                </p>
+                            </div>
+                            <div className={styles.painelFooter}>
+                                <div className={styles.loadBar}>
+                                    <div className={styles.loadBarFill} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         <div className={styles.container}>
             {/* Background */}
             {estado?.modo === 'EXPLOSAO' ? (
@@ -578,33 +610,6 @@ export default function Jogo() {
 
             {estado.status === 'POSICIONANDO' && !jaPositionei && (
                 <Posicionamento jogoId={id} onPronto={handlePronto} jogador1={username} jogador2={adversario} minhaSkin={minhaSkin} skinAdversario={skinAdversario} modo={estado.modo} />
-            )}
-
-            {estado.status === 'POSICIONANDO' && jaPositionei && (
-                <div className={styles.aguardandoContainer}>
-                    <div className={`${styles.aguardandoBg} ${estado?.modo === 'EXPLOSAO' ? styles.aguardandoBgNether : ''}`} />
-                    <div className={styles.aguardandoContent}>
-                        <h1 className={styles.aguardandoTitle}>MINECRAFT BATTLESHIP</h1>
-                        <div className={styles.aguardandoPainel}>
-                            <div className={styles.painelHeader}>
-                                <span>{t('game.waitingOpponent')}<span className={styles.dots}>...</span></span>
-                            </div>
-                            <div className={styles.painelBody}>
-                                <p className={styles.dicaTexto}>
-                                    {[
-                                        t('tips.0'), t('tips.1'), t('tips.2'), t('tips.3'), t('tips.4'),
-                                        t('tips.5'), t('tips.6'), t('tips.7'), t('tips.8'), t('tips.9'),
-                                    ][Math.floor(Math.random() * 10)]}
-                                </p>
-                            </div>
-                            <div className={styles.painelFooter}>
-                                <div className={styles.loadBar}>
-                                    <div className={styles.loadBarFill} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             )}
 
             {/* ===== JOGO ===== */}
@@ -663,7 +668,6 @@ export default function Jogo() {
                             <FrotaInimiga
                                 naviosAfundados={naviosAfundadosMeus}
                                 tiros={tirosRecebidos}
-                                layout="vertical"
                             />
                         </div>
 
@@ -716,7 +720,6 @@ export default function Jogo() {
                                 naviosAfundados={naviosAfundados}
                                 tiros={tiros}
                                 ehInimigo={true}
-                                layout="vertical"
                             />
                         </div>
                     </div>
@@ -730,5 +733,6 @@ export default function Jogo() {
                 </div>
             )}
         </div>
+        </>
     );
 }

@@ -8,6 +8,19 @@ class AudioManager {
         this.bgMusic = null;
         this.bgMusicInitialized = false;
         this.soundOn = this._loadSoundState();
+
+        // Pré-carregar sons de efeito para evitar delay
+        this._tntHitAudio = new Audio('/img/tnt-explodindo.mp3');
+        this._tntHitAudio.preload = 'auto';
+        this._tntHitAudio.volume = 0.8;
+
+        this._tntExplosionAudio = new Audio('/img/tnt-explosao.mp3');
+        this._tntExplosionAudio.preload = 'auto';
+        this._tntExplosionAudio.volume = 0.8;
+
+        this._splashAudio = new Audio('/img/splash-agua.mp3');
+        this._splashAudio.preload = 'auto';
+        this._splashAudio.volume = 0.6;
     }
 
     // ========================= //
@@ -104,32 +117,26 @@ class AudioManager {
     /** Água — tiro que não acertou nenhum navio */
     playSplash() {
         if (!this.soundOn) return;
-        const audio = new Audio('/img/splash-agua.mp3');
+        const audio = this._splashAudio.cloneNode();
         audio.volume = 0.6;
-        audio.play().catch((e) => {
-            console.warn('Erro ao tocar splash:', e);
-        });
+        audio.play().catch(() => {});
     }
 
     /** Acerto parcial — navio atingido mas ainda não afundou */
     playTntHit() {
         if (!this.soundOn) return;
-        console.log('[AUDIO] Tocando tnt-explodindo.mp3');
-        const audio = new Audio('/img/tnt-explodindo.mp3');
+        const audio = this._tntHitAudio.cloneNode();
         audio.volume = 0.8;
-        audio.play().catch((e) => {
-            console.warn('Erro ao tocar tnt-explodindo:', e);
-        });
+        audio.currentTime = 1.0;
+        audio.play().catch(() => {});
     }
 
     /** Navio afundado — último pedaço destruído */
     playTntExplosion() {
         if (!this.soundOn) return;
-        const audio = new Audio('/img/tnt-explosao.mp3');
+        const audio = this._tntExplosionAudio.cloneNode();
         audio.volume = 0.8;
-        audio.play().catch((e) => {
-            console.warn('Erro ao tocar tnt-explosao:', e);
-        });
+        audio.play().catch(() => {});
     }
 
     // ========================= //
