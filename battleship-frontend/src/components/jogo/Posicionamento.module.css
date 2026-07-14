@@ -418,21 +418,24 @@
 /* === Ship sprite (placed) === */
 .spriteBarco {
     position: absolute;
-    top: 1px;
+    top: 50%;
     left: 0px;
-    width: calc(var(--tamanho-navio) * (var(--cell-size) + 2px));
-    height: calc(var(--cell-size) - 2px);
-    object-fit: fill;
+    width: calc(var(--tamanho-navio) * (var(--cell-size) + 2px) - 2px);
+    height: auto;
+    object-fit: contain;
     image-rendering: auto;
     z-index: 2;
     pointer-events: none;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+    transform: translateY(-50%);
 }
 
 /* Vertical rotation */
 .spriteVertical {
-    width: calc(var(--tamanho-navio) * (var(--cell-size) + 2px));
-    height: calc(var(--cell-size) - 2px);
+    width: calc(var(--tamanho-navio) * (var(--cell-size) + 2px) - 2px);
+    height: auto;
+    top: 0;
+    left: 0;
     transform-origin: top left;
     transform: rotate(90deg) translateY(-100%);
 }

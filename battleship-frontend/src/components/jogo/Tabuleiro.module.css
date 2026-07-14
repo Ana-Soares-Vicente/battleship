@@ -310,21 +310,24 @@
 /* Sprite do barco completo — posição absoluta a partir da primeira célula */
 .spriteBarcoDefesa {
     position: absolute;
-    top: 2px;
+    top: 50%;
     left: 2px;
     width: calc(var(--tamanho-navio) * (clamp(26px, min(3.4vh, 3vw), 38px) + 2px) - 2px);
-    height: calc(clamp(26px, min(3.4vh, 3vw), 38px) - 4px);
-    object-fit: fill;
+    height: auto;
+    object-fit: contain;
     image-rendering: auto;
     z-index: 2;
     pointer-events: none;
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+    transform: translateY(-50%);
 }
 
 /* Rotação 90° para vertical */
 .spriteVertical {
     width: calc(var(--tamanho-navio) * (clamp(26px, min(3.4vh, 3vw), 38px) + 2px) - 2px);
-    height: calc(clamp(26px, min(3.4vh, 3vw), 38px) - 4px);
+    height: auto;
+    top: 0;
+    left: 0;
     transform-origin: top left;
     transform: rotate(90deg) translateY(-100%);
 }
