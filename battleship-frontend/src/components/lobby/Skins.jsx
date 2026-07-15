@@ -5,17 +5,23 @@ import { useTranslation } from '../../i18n/useTranslation';
 import styles from './Skins.module.css';
 
 const SKINS_DISPONIVEIS = [
-    { id: 'authentic', nome: 'Authentic', img: '/img/authentic_skin.png' },
-    { id: 'jvnq', nome: 'JVNQ', img: '/img/jvnq_skin.png' },
-    { id: 'venom', nome: 'Venom', img: '/img/venom_skin.png' },
-    { id: 'mike', nome: 'Mike', img: '/img/mike_skin.png' },
-    { id: 'moonkase', nome: 'Moonkase', img: '/img/moonkase_skin.png' },
-    { id: 'pactw', nome: 'PacTw', img: '/img/pactw_skin.webp' },
-    { id: 'rezende', nome: 'Rezende', img: '/img/rezende_skin.png' },
+    { id: 'authentic', nome: 'Authentic', img: '/img/skins/authentic_skin.png' },
+    { id: 'jvnq', nome: 'JVNQ', img: '/img/skins/jvnq_skin.png' },
+    { id: 'venom', nome: 'Venom', img: '/img/skins/venom_skin.png' },
+    { id: 'mike', nome: 'Mike', img: '/img/skins/mike_skin.png' },
+    { id: 'moonkase', nome: 'Moonkase', img: '/img/skins/moonkase_skin.png' },
+    { id: 'pactw', nome: 'PacTw', img: '/img/skins/pactw_skin.webp' },
+    { id: 'rezende', nome: 'Rezende', img: '/img/skins/rezende_skin.png' },
+    { id: 'afrem', nome: 'Afrem', img: '/img/skins/afrem_skin.png' },
+    { id: 'cellbit', nome: 'Cellbit', img: '/img/skins/cellbit_skin.png' },
+    { id: 'jazzghost', nome: 'JazzGhost', img: '/img/skins/jazzghost_skin.png' },
+    { id: 'nenha', nome: 'Nenha', img: '/img/skins/nenha_skin.png' },
+    { id: 'puppy', nome: 'Puppy', img: '/img/skins/puppy_skin.png' },
+    { id: 'vini13', nome: 'Vini13', img: '/img/skins/vini13_skin.png' },
 ];
 
 function getSkinAtual() {
-    return localStorage.getItem('skinAtual') || '/img/pactw_skin.webp';
+    return localStorage.getItem('skinAtual') || '/img/skins/pactw_skin.webp';
 }
 
 export default function Skins() {

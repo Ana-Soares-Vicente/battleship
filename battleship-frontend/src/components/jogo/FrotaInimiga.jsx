@@ -3,11 +3,11 @@ import HeartBar from './HeartBar';
 import { useTranslation } from '../../i18n/useTranslation';
 
 const FROTA_PADRAO = [
-    { tipo: 'PORTA_AVIOES', tamanho: 5, img: '/img/barquin_5.png', nomeKey: 'ships.portaAvioes' },
-    { tipo: 'ENCOURACADO', tamanho: 4, img: '/img/barquin_4.png', nomeKey: 'ships.encouracado' },
-    { tipo: 'CRUZADOR', tamanho: 3, img: '/img/barquin_3.png', nomeKey: 'ships.cruzador' },
-    { tipo: 'SUBMARINO', tamanho: 3, img: '/img/barquin_3.png', nomeKey: 'ships.submarino' },
-    { tipo: 'DESTROYER', tamanho: 2, img: '/img/barquin_2.png', nomeKey: 'ships.destroier' },
+    { tipo: 'PORTA_AVIOES', tamanho: 5, img: '/img/barcos/barquin_5.png', nomeKey: 'ships.portaAvioes' },
+    { tipo: 'ENCOURACADO', tamanho: 4, img: '/img/barcos/barquin_4.png', nomeKey: 'ships.encouracado' },
+    { tipo: 'CRUZADOR', tamanho: 3, img: '/img/barcos/barquin_3.png', nomeKey: 'ships.cruzador' },
+    { tipo: 'SUBMARINO', tamanho: 3, img: '/img/barcos/barquin_3.png', nomeKey: 'ships.submarino' },
+    { tipo: 'DESTROYER', tamanho: 2, img: '/img/barcos/barquin_2.png', nomeKey: 'ships.destroier' },
 ];
 
 /**

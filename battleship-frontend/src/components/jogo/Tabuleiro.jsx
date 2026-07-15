@@ -7,14 +7,28 @@ import styles from './Tabuleiro.module.css';
 
 function IconeRespingo() {
     return (
-        <img src="/img/balde_agua.png" alt="Água" className={styles.iconeRespingo} draggable={false} />
+        <img src="/img/tabuleiro/balde_agua.png" alt="Água" className={styles.iconeRespingo} draggable={false} />
+    );
+}
+
+function IconeRespingoLava() {
+    return (
+        <img src="/img/tabuleiro/balde_lava.png" alt="Lava" className={styles.iconeRespingo} draggable={false} />
     );
 }
 
 function IconeTntPequena() {
     return (
         <div className={styles.tntContainer}>
-            <img src="/img/tnt-quadrado.png" alt="Acerto" className={styles.iconeTntPequena} />
+            <img src="/img/tabuleiro/tnt-quadrado.png" alt="Acerto" className={styles.iconeTntPequena} />
+        </div>
+    );
+}
+
+function IconePoBlaze() {
+    return (
+        <div className={styles.tntContainer}>
+            <img src="/img/tabuleiro/pó_blaze.png" alt="Acerto" className={styles.iconeTntPequena} />
         </div>
     );
 }
@@ -23,7 +37,7 @@ function IconeTntPequena() {
 function MarcadorDestruido() {
     return (
         <div className={styles.marcadorContainer}>
-            <img src="/img/tnt_pequena.png" alt="Destruído" className={styles.tntDestruida} />
+            <img src="/img/tabuleiro/tnt_pequena.png" alt="Destruído" className={styles.tntDestruida} />
         </div>
     );
 }
@@ -47,10 +61,10 @@ function ExplosaoAfundou() {
 
 // Mapeamento tamanho → sprite
 const SPRITE_POR_TAMANHO = {
-    2: '/img/barquin_2.png',
-    3: '/img/barquin_3.png',
-    4: '/img/barquin_4.png',
-    5: '/img/barquin_5.png',
+    2: '/img/barcos/barquin_2.png',
+    3: '/img/barcos/barquin_3.png',
+    4: '/img/barcos/barquin_4.png',
+    5: '/img/barcos/barquin_5.png',
 };
 
 const COLUNAS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
@@ -63,6 +77,7 @@ export default function Tabuleiro({
     modo = 'ataque',
     meusNavios = [],
     alvosExplosao = [],
+    modoJogo = 'PADRAO',
 }) {
     // Track quais células acabaram de afundar (para mostrar explosão uma vez)
     const [celulasRecentementeAfundadas, setCelulasRecentementeAfundadas] = useState(new Set());
@@ -162,8 +177,8 @@ export default function Tabuleiro({
             if (tiro.resultado === 'PENDENTE') return styles.celulaPendente;
             if (ehNavioAfundado(linha, coluna)) return styles.celulaAfundou;
             if (tiro.resultado === 'AFUNDOU') return styles.celulaAfundou;
-            if (tiro.resultado === 'ACERTO') return styles.celulaAcerto;
-            if (tiro.resultado === 'AGUA') return styles.celulaAgua;
+            if (tiro.resultado === 'ACERTO') return modoJogo === 'EXPLOSAO' ? styles.celulaAcertoExplosao : styles.celulaAcerto;
+            if (tiro.resultado === 'AGUA') return modoJogo === 'EXPLOSAO' ? styles.celulaAguaExplosao : styles.celulaAgua;
         }
         if (ehAlvoExplosao(linha, coluna)) return styles.celulaAlvo;
         if (desabilitado) return styles.celulaDesabilitada;
@@ -173,7 +188,7 @@ export default function Tabuleiro({
     function getConteudoAtaque(linha, coluna) {
         const tiro = getTiro(linha, coluna);
         if (!tiro && ehAlvoExplosao(linha, coluna)) {
-            return <span className={styles.miraAlvo}>🎯</span>;
+            return <img src="/img/tabuleiro/alvo.png" alt="Alvo" className={styles.miraAlvo} draggable={false} />;
         }
         if (!tiro) return null;
 
@@ -181,27 +196,31 @@ export default function Tabuleiro({
             // Mostrar sprite do navio transparente na primeira célula
             const navioAfundado = naviosAfundados.find(n => n.linhaInicial === linha && n.colunaInicial === coluna);
             if (navioAfundado) {
-                const spriteMap = { 2: '/img/barquin_2.png', 3: '/img/barquin_3.png', 4: '/img/barquin_4.png', 5: '/img/barquin_5.png' };
+                const spriteMap = { 2: '/img/barcos/barquin_2.png', 3: '/img/barcos/barquin_3.png', 4: '/img/barcos/barquin_4.png', 5: '/img/barcos/barquin_5.png' };
                 const sprite = spriteMap[navioAfundado.tamanho];
                 const isVertical = navioAfundado.direcao === 'VERTICAL';
                 return (
                     <>
                         {ehRecenteAfundado(linha, coluna) && <ExplosaoAfundou />}
-                        <img
-                            src={sprite}
-                            alt={`Navio ${navioAfundado.tamanho}`}
-                            className={`${styles.spriteBarcoDefesa} ${isVertical ? styles.spriteVertical : ''} ${styles.spriteAfundadoAtaque}`}
+                        <div
+                            className={`${styles.spriteContainer} ${isVertical ? styles.spriteContainerVertical : ''}`}
                             style={{ '--tamanho-navio': navioAfundado.tamanho }}
-                            draggable={false}
-                        />
+                        >
+                            <img
+                                src={sprite}
+                                alt={`Navio ${navioAfundado.tamanho}`}
+                                className={`${styles.spriteImg} ${isVertical ? styles.spriteImgVertical : ''} ${styles.spriteAfundadoAtaque}`}
+                                draggable={false}
+                            />
+                        </div>
                     </>
                 );
             }
             // Células do meio/fim do navio afundado — não renderizar nada extra
             return ehRecenteAfundado(linha, coluna) ? <ExplosaoAfundou /> : null;
         }
-        if (tiro.resultado === 'ACERTO') return <IconeTntPequena />;
-        if (tiro.resultado === 'AGUA') return <IconeRespingo />;
+        if (tiro.resultado === 'ACERTO') return modoJogo === 'EXPLOSAO' ? <IconePoBlaze /> : <IconeTntPequena />;
+        if (tiro.resultado === 'AGUA') return modoJogo === 'EXPLOSAO' ? <IconeRespingoLava /> : <IconeRespingo />;
         return null;
     }
 
@@ -246,13 +265,17 @@ export default function Tabuleiro({
         const isAfundado = ehNavioAfundado(linha, coluna);
 
         return (
-            <img
-                src={sprite}
-                alt={`Barco ${navio.tamanho}`}
-                className={`${styles.spriteBarcoDefesa} ${isVertical ? styles.spriteVertical : ''} ${isAfundado ? styles.spriteAfundado : ''}`}
+            <div
+                className={`${styles.spriteContainer} ${isVertical ? styles.spriteContainerVertical : ''}`}
                 style={{ '--tamanho-navio': navio.tamanho }}
-                draggable={false}
-            />
+            >
+                <img
+                    src={sprite}
+                    alt={`Barco ${navio.tamanho}`}
+                    className={`${styles.spriteImg} ${isVertical ? styles.spriteImgVertical : ''} ${isAfundado ? styles.spriteAfundado : ''}`}
+                    draggable={false}
+                />
+            </div>
         );
     }
 
@@ -294,7 +317,7 @@ export default function Tabuleiro({
     return (
         <div className={styles.tabuleiroContainer}>
             <table
-                className={`${styles.tabuleiro} ${modo === 'defesa' ? styles.tabuleiroDefesa : styles.tabuleiroAtaque}`}
+                className={`${styles.tabuleiro} ${modo === 'defesa' ? styles.tabuleiroDefesa : styles.tabuleiroAtaque} ${modoJogo === 'EXPLOSAO' ? styles.modoExplosao : ''}`}
             >
                 <thead>
                     <tr>

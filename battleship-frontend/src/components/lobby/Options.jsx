@@ -52,7 +52,7 @@ export default function Options() {
 
             {/* Skin do jogador no canto inferior esquerdo */}
             <div className={styles.playerCorner}>
-                <img src={localStorage.getItem('skinAtual') || '/img/pactw_skin.webp'} alt={username} className={styles.playerSkin} />
+                <img src={localStorage.getItem('skinAtual') || '/img/skins/pactw_skin.webp'} alt={username} className={styles.playerSkin} />
                 <div className={styles.playerInfo}>
                     <span className={styles.playerName}>{username || 'STEVE'}</span>
                     <span className={styles.playerRank}>{t('lobby.playerRank')}</span>

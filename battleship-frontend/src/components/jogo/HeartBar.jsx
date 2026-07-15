@@ -17,13 +17,13 @@ export default function HeartBar({ maxHp, currentHp }) {
         let alt;
 
         if (remaining >= 1) {
-            src = '/img/coracao_cheio.png';
+            src = '/img/coracoes/coracao_cheio.png';
             alt = 'Coração cheio';
         } else if (remaining >= 0.5) {
-            src = '/img/coracao_meio.png';
+            src = '/img/coracoes/coracao_meio.png';
             alt = 'Meio coração';
         } else {
-            src = '/img/coracao_vazio.png';
+            src = '/img/coracoes/coracao_vazio.png';
             alt = 'Coração vazio';
         }
 

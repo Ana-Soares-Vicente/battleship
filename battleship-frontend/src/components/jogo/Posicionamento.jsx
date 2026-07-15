@@ -12,10 +12,10 @@ const FROTA = [
 ];
 
 const SPRITE_POR_TAMANHO = {
-    2: '/img/barquin_2.png',
-    3: '/img/barquin_3.png',
-    4: '/img/barquin_4.png',
-    5: '/img/barquin_5.png',
+    2: '/img/barcos/barquin_2.png',
+    3: '/img/barcos/barquin_3.png',
+    4: '/img/barcos/barquin_4.png',
+    5: '/img/barcos/barquin_5.png',
 };
 
 export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, minhaSkin, skinAdversario, modo }) {
@@ -174,9 +174,9 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
         <div className={styles.container}>
             {/* Background overlay */}
             {modo === 'EXPLOSAO' ? (
-                <div className={`${styles.bgOverlay} ${styles.bgOverlayNether}`} />
+                <video className={styles.bgVideo} src="/img/fundos/nether_video_modoexplosao.mp4" autoPlay loop muted playsInline ref={el => { if (el) el.playbackRate = 0.6; }} />
             ) : (
-                <video className={styles.bgVideo} src="/img/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+                <video className={styles.bgVideo} src="/img/fundos/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
             )}
 
             {/* Header com jogadores e skins */}
@@ -268,15 +268,19 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                                             const sprite = SPRITE_POR_TAMANHO[navioNaCelula.tamanho];
                                             const isVertical = navioNaCelula.direcao === 'VERTICAL';
                                             spriteElement = (
-                                                <img
-                                                    src={sprite}
-                                                    alt={`Barco ${navioNaCelula.tamanho}`}
-                                                    className={`${styles.spriteBarco} ${isVertical ? styles.spriteVertical : ''}`}
+                                                <div
+                                                    className={`${styles.spriteContainer} ${isVertical ? styles.spriteContainerVertical : ''}`}
                                                     style={{
                                                         '--tamanho-navio': navioNaCelula.tamanho,
                                                     }}
-                                                    draggable={false}
-                                                />
+                                                >
+                                                    <img
+                                                        src={sprite}
+                                                        alt={`Barco ${navioNaCelula.tamanho}`}
+                                                        className={`${styles.spriteImg} ${isVertical ? styles.spriteImgVertical : ''}`}
+                                                        draggable={false}
+                                                    />
+                                                </div>
                                             );
                                         }
 
@@ -285,15 +289,19 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                                             const sprite = SPRITE_POR_TAMANHO[navioAtual.tamanho];
                                             const isVertical = direcao === 'VERTICAL';
                                             previewSprite = (
-                                                <img
-                                                    src={sprite}
-                                                    alt={`Preview ${navioAtual.tamanho}`}
-                                                    className={`${styles.spriteBarco} ${styles.spritePreview} ${isVertical ? styles.spriteVertical : ''} ${!previewValido ? styles.spriteInvalid : ''}`}
+                                                <div
+                                                    className={`${styles.spriteContainer} ${isVertical ? styles.spriteContainerVertical : ''} ${styles.spritePreview} ${!previewValido ? styles.spriteInvalid : ''}`}
                                                     style={{
                                                         '--tamanho-navio': navioAtual.tamanho,
                                                     }}
-                                                    draggable={false}
-                                                />
+                                                >
+                                                    <img
+                                                        src={sprite}
+                                                        alt={`Preview ${navioAtual.tamanho}`}
+                                                        className={`${styles.spriteImg} ${isVertical ? styles.spriteImgVertical : ''}`}
+                                                        draggable={false}
+                                                    />
+                                                </div>
                                             );
                                         }
 

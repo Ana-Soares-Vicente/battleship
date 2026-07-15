@@ -18,7 +18,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: url('/img/lobby_page.png') center/cover no-repeat;
+    background: url('/img/ui/lobby_page.png') center/cover no-repeat;
     filter: brightness(0.3);
     opacity: 0.85;
     z-index: 0;
@@ -270,4 +270,114 @@
 
 .btnCancel:hover:not(:disabled) {
     background: linear-gradient(180deg, #7a7a7a, #5a5a5a);
+}
+
+
+
+/* ========================= */
+/* MONITORES GRANDES         */
+/* ========================= */
+
+@media (min-width: 1600px) {
+    .title {
+        font-size: 24px;
+        margin-bottom: 32px;
+    }
+
+    .content {
+        max-width: 680px;
+        gap: 20px;
+    }
+
+    .label {
+        font-size: 14px;
+    }
+
+    .input {
+        padding: 14px 16px;
+        font-size: 16px;
+    }
+
+    .linkBtn {
+        font-size: 13px;
+    }
+
+    .btnOption {
+        padding: 14px 18px;
+        font-size: 14px;
+    }
+
+    .modoDesc {
+        font-size: 13px;
+    }
+
+    .imgContainer {
+        max-width: 540px;
+    }
+
+    .footer {
+        max-width: 680px;
+        margin-top: 32px;
+    }
+
+    .btnFooter {
+        padding: 14px 24px;
+        font-size: 15px;
+    }
+
+    .waitingText {
+        font-size: 13px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .title {
+        font-size: 28px;
+        margin-bottom: 36px;
+    }
+
+    .content {
+        max-width: 760px;
+        gap: 24px;
+    }
+
+    .label {
+        font-size: 15px;
+    }
+
+    .input {
+        padding: 16px 18px;
+        font-size: 18px;
+    }
+
+    .linkBtn {
+        font-size: 14px;
+    }
+
+    .btnOption {
+        padding: 16px 20px;
+        font-size: 16px;
+    }
+
+    .modoDesc {
+        font-size: 14px;
+    }
+
+    .imgContainer {
+        max-width: 620px;
+    }
+
+    .footer {
+        max-width: 760px;
+        margin-top: 40px;
+    }
+
+    .btnFooter {
+        padding: 16px 28px;
+        font-size: 17px;
+    }
+
+    .waitingText {
+        font-size: 14px;
+    }
 }

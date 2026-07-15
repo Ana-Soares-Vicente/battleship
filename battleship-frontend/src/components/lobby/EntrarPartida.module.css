@@ -18,7 +18,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: url('/img/lobby_page.png') center/cover no-repeat;
+    background: url('/img/ui/lobby_page.png') center/cover no-repeat;
     filter: brightness(0.3);
     opacity: 0.85;
     z-index: 0;

@@ -6,8 +6,8 @@ import { useTranslation } from '../../i18n/useTranslation';
 import styles from './CriarPartida.module.css';
 
 const MODOS = [
-    { id: 'PADRAO', labelKey: 'createMatch.modeStandard', descKey: 'createMatch.modeStandardDesc', img: '/img/modo_padrao.png' },
-    { id: 'EXPLOSAO', labelKey: 'createMatch.modeExplosion', descKey: 'createMatch.modeExplosionDesc', img: '/img/modo_explosao.png' },
+    { id: 'PADRAO', labelKey: 'createMatch.modeStandard', descKey: 'createMatch.modeStandardDesc', img: '/img/modos/modo_padrao.png' },
+    { id: 'EXPLOSAO', labelKey: 'createMatch.modeExplosion', descKey: 'createMatch.modeExplosionDesc', img: '/img/modos/modo_explosao.png' },
 ];
 
 const DIFICULDADES = [

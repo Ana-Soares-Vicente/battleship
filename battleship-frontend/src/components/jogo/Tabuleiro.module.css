@@ -5,6 +5,7 @@
 .tabuleiroContainer {
     position: relative;
     display: inline-block;
+    max-width: 100%;
 }
 
 /* ========================= */
@@ -90,7 +91,7 @@
 /* ========================= */
 
 .celulaLivre {
-    background-image: url('/img/mapa_vazio.png');
+    background-image: url('/img/tabuleiro/mapa_vazio.png');
     background-size: cover;
     background-position: center;
     border: 1px solid rgba(80, 60, 30, 0.4);
@@ -112,7 +113,7 @@
 /* ========================= */
 
 .celulaDesabilitada {
-    background-image: url('/img/mapa_vazio.png');
+    background-image: url('/img/tabuleiro/mapa_vazio.png');
     background-size: cover;
     background-position: center;
     border: 1px solid rgba(80, 60, 30, 0.3);
@@ -125,7 +126,7 @@
 /* ========================= */
 
 .celulaPendente {
-    background-image: url('/img/mapa_vazio.png');
+    background-image: url('/img/tabuleiro/mapa_vazio.png');
     background-size: cover;
     background-position: center;
     border: 1px solid rgba(255, 255, 255, 0.6);
@@ -135,7 +136,7 @@
 }
 
 .celulaAgua {
-    background-image: url('/img/agua_textura.jpg');
+    background-image: url('/img/tabuleiro/agua_textura.jpg');
     background-size: cover;
     background-position: center;
     opacity: 0.7;
@@ -167,7 +168,7 @@
 /* ========================= */
 
 .celulaMarDefesa {
-    background-image: url('/img/agua_textura.jpg');
+    background-image: url('/img/tabuleiro/agua_textura.jpg');
     background-size: cover;
     background-position: center;
     opacity: 0.8;
@@ -195,7 +196,7 @@
 
 /* Tiro recebido na água — textura de água mais escura */
 .celulaTiroRecebidoAgua {
-    background-image: url('/img/agua_textura.jpg');
+    background-image: url('/img/tabuleiro/agua_textura.jpg');
     background-size: cover;
     background-position: center;
     filter: brightness(0.4);
@@ -220,19 +221,24 @@
 /* ============================================= */
 
 .iconeRespingo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 70%;
     height: 70%;
-    display: block;
-    margin: auto;
+    max-width: 70%;
+    max-height: 70%;
+    object-fit: contain;
     image-rendering: pixelated;
     animation: respingoAppear 0.1s ease-out;
     opacity: 0.9;
 }
 
 @keyframes respingoAppear {
-    0% { transform: scale(0.3) translateY(-3px); opacity: 0; }
-    70% { transform: scale(1.1) translateY(0); opacity: 0.9; }
-    100% { transform: scale(1) translateY(0); opacity: 0.8; }
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    70% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
 }
 
 /* ============================================= */
@@ -240,17 +246,19 @@
 /* ============================================= */
 
 .tntContainer {
-    position: relative;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 .iconeTntPequena {
-    width: 60%;
-    height: 60%;
+    width: 75%;
+    height: 75%;
+    max-width: 75%;
+    max-height: 75%;
     object-fit: contain;
     image-rendering: pixelated;
     animation: tntAppear 0.1s ease-out;
@@ -307,29 +315,46 @@
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
 
-/* Sprite do barco completo — posição absoluta a partir da primeira célula */
-.spriteBarcoDefesa {
+/* ============================================= */
+/* CONTAINER DO SPRITE — posiciona sobre o grid  */
+/* ============================================= */
+
+/* HORIZONTAL: container ocupa N células na horizontal, 1 na vertical */
+.spriteContainer {
     position: absolute;
-    top: 50%;
-    left: 2px;
+    top: 0;
+    left: 0;
     width: calc(var(--tamanho-navio) * (clamp(26px, min(3.4vh, 3vw), 38px) + 2px) - 2px);
-    height: auto;
-    object-fit: contain;
-    image-rendering: auto;
+    height: clamp(26px, min(3.4vh, 3vw), 38px);
     z-index: 2;
     pointer-events: none;
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
-    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Rotação 90° para vertical */
-.spriteVertical {
-    width: calc(var(--tamanho-navio) * (clamp(26px, min(3.4vh, 3vw), 38px) + 2px) - 2px);
+/* VERTICAL: o container mantém dimensões horizontais (N×1),
+   mas é rotacionado 90deg e reposicionado para cobrir as N células verticais.
+   transform-origin: top left → rotaciona a partir do canto superior esquerdo,
+   depois translateY compensa o deslocamento. */
+.spriteContainerVertical {
+    transform: rotate(90deg) translateY(-100%);
+    transform-origin: top left;
+}
+
+/* IMG dentro do container — preenche largura, altura proporcional */
+.spriteImg {
+    width: 100%;
     height: auto;
-    top: 50%;
-    left: 50%;
-    transform-origin: center center;
-    transform: rotate(90deg) translate(-50%, -50%);
+    object-fit: contain;
+    object-position: center;
+    image-rendering: auto;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+
+/* IMG vertical — nenhum transform adicional na img, o container já rotou */
+.spriteImgVertical {
+    /* nada extra */
 }
 
 /* Barco afundado — leve dessaturação mas mantém visível */
@@ -349,11 +374,12 @@
 /* ============================================= */
 
 .marcadorContainer {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 .marcadorDestruido {
@@ -446,7 +472,7 @@
 /* ========================= */
 
 .celulaAlvo {
-    background-image: url('/img/mapa_vazio.png');
+    background-image: url('/img/tabuleiro/mapa_vazio.png');
     background-size: cover;
     background-position: center;
     border: 2px solid rgba(255, 100, 0, 0.8);
@@ -455,13 +481,15 @@
 }
 
 .miraAlvo {
-    font-size: clamp(14px, 1.8vw, 20px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
+    object-fit: contain;
+    padding: 2%;
+    image-rendering: pixelated;
     animation: miraAppear 0.15s ease-out;
+    pointer-events: none;
 }
 
 @keyframes miraAppear {
@@ -497,13 +525,9 @@
         padding: 4px;
     }
 
-    .spriteBarcoDefesa {
-        left: 1px;
+    .spriteContainer {
         width: calc(var(--tamanho-navio) * (clamp(22px, 4.2vw, 30px) + 1px) - 1px);
-    }
-
-    .spriteVertical {
-        width: calc(var(--tamanho-navio) * (clamp(22px, 4.2vw, 30px) + 1px) - 1px);
+        height: clamp(22px, 4.2vw, 30px);
     }
 }
 
@@ -530,12 +554,139 @@
         padding: 3px;
     }
 
-    .spriteBarcoDefesa {
-        left: 1px;
+    .spriteContainer {
         width: calc(var(--tamanho-navio) * (clamp(26px, 8.5vw, 32px) + 1px) - 1px);
+        height: clamp(26px, 8.5vw, 32px);
+    }
+}
+
+/* ========================= */
+/* MODO EXPLOSÃO — LAVA      */
+/* ========================= */
+
+.modoExplosao .celulaLivre {
+    background-image: url('/img/tabuleiro/lava_textura.jpg');
+    opacity: 0.8;
+    filter: brightness(0.75);
+}
+
+.modoExplosao .celulaDesabilitada {
+    background-image: url('/img/tabuleiro/lava_textura.jpg');
+    opacity: 0.8;
+    filter: brightness(0.75);
+}
+
+.modoExplosao .celulaPendente {
+    background-image: url('/img/tabuleiro/lava_textura.jpg');
+    opacity: 0.8;
+    filter: brightness(0.75);
+}
+
+.modoExplosao .celulaAgua {
+    background-image: url('/img/tabuleiro/lava_textura.jpg');
+    opacity: 0.8;
+    filter: brightness(0.75);
+}
+
+.modoExplosao .celulaMarDefesa {
+    background-image: url('/img/tabuleiro/lava_textura.jpg');
+    opacity: 0.8;
+    filter: brightness(0.75);
+}
+
+.modoExplosao .celulaMeuNavio {
+    background: #a85520;
+    border: 1px solid #8b4513;
+}
+
+/* Navio afundado no modo explosão — mesmo visual do modo padrão */
+.modoExplosao .celulaAfundou {
+    background: rgba(255, 220, 60, 0.35);
+    border: 1px solid rgba(255, 210, 50, 0.5);
+    box-shadow: inset 0 0 4px rgba(255, 200, 0, 0.2);
+    opacity: 1;
+    filter: none;
+}
+
+/* Acerto (pedaço do barco) no modo explosão — fundo laranja */
+.celulaAcertoExplosao {
+    background: hsl(33, 100%, 49%);
+    border: 1px solid rgba(255, 200, 0, 0.6);
+    box-shadow: inset 0 0 6px rgba(255, 200, 0, 0.3);
+}
+
+/* Água (errou) no modo explosão — fundo vermelho escuro */
+.celulaAguaExplosao {
+    background: rgb(151, 54, 13);
+    border: 1px solid rgba(120, 40, 10, 0.6);
+}
+
+/* Tiro recebido na água no meu porto — modo explosão */
+.modoExplosao .celulaTiroRecebidoAgua {
+    background-image: none;
+    background: rgb(151, 54, 13);
+    border: 1px solid rgba(120, 40, 10, 0.6);
+    filter: none;
+}
+
+/* Table do meu porto — fundo laranja claro no modo explosão */
+.modoExplosao.tabuleiroDefesa {
+    background: #7A2626;
+    border: 3px solid #5a1a1a;
+    box-shadow:
+        inset 0 0 0 2px #943030,
+        0 4px 0 #3a0f0f;
+}
+
+
+/* ========================= */
+/* MONITORES GRANDES         */
+/* ========================= */
+
+@media (min-width: 1600px) {
+    .celula {
+        width: 36px;
+        height: 36px;
     }
 
-    .spriteVertical {
-        width: calc(var(--tamanho-navio) * (clamp(26px, 8.5vw, 32px) + 1px) - 1px);
+    .headerCell {
+        width: 36px;
+        height: 20px;
+        font-size: 12px;
+    }
+
+    .rowHeader {
+        width: 20px;
+        height: 36px;
+        font-size: 12px;
+    }
+
+    .tabuleiro {
+        border-spacing: 2px;
+        padding: 10px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .celula {
+        width: 40px;
+        height: 40px;
+    }
+
+    .headerCell {
+        width: 40px;
+        height: 22px;
+        font-size: 13px;
+    }
+
+    .rowHeader {
+        width: 22px;
+        height: 40px;
+        font-size: 13px;
+    }
+
+    .tabuleiro {
+        border-spacing: 2px;
+        padding: 12px;
     }
 }

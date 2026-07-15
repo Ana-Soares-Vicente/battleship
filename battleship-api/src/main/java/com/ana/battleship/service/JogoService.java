@@ -4,6 +4,7 @@ import com.ana.battleship.model.*;
 import com.ana.battleship.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JogoService {
@@ -563,6 +565,49 @@ public class JogoService {
         r.put("tirosDisponiveis", (int) naviosVivos);
         r.put("modo", jogo.getModo());
         return r;
+    }
+
+    @Transactional
+    public void abandonarPartida(String username) {
+        Optional<Usuario> optUsuario = usuarioRepo.findByUsername(username);
+        if (optUsuario.isEmpty()) {
+            log.warn("Tentativa de abandonar partida para usuário inexistente: {}", username);
+            return;
+        }
+        Usuario jogador = optUsuario.get();
+        List<Jogo> jogosAtivos = jogoRepo.findJogosAtivosDoJogador(jogador);
+
+        for (Jogo jogo : jogosAtivos) {
+            if ("AGUARDANDO".equals(jogo.getStatus())) {
+                jogo.setStatus("EXPIRADO");
+                jogoRepo.save(jogo);
+                log.info("Jogo #{} expirado por desconexão do jogador {}", jogo.getId(), username);
+
+                Map<String, Object> evento = new HashMap<>();
+                evento.put("tipo", "ABANDONO");
+                evento.put("motivo", "desconexão");
+                evento.put("vencedor", null);
+                messagingTemplate.convertAndSend("/topic/jogo/" + jogo.getId(), (Object) evento);
+
+            } else if ("POSICIONANDO".equals(jogo.getStatus()) || "JOGANDO".equals(jogo.getStatus())) {
+                Usuario outroJogador = jogo.getJogador1().getId().equals(jogador.getId())
+                        ? jogo.getJogador2() : jogo.getJogador1();
+
+                jogo.setStatus("ABANDONADO");
+                if (outroJogador != null) {
+                    jogo.setVencedor(outroJogador);
+                }
+                jogoRepo.save(jogo);
+                log.info("Jogo #{} abandonado por desconexão do jogador {}. Vencedor: {}",
+                        jogo.getId(), username, outroJogador != null ? outroJogador.getUsername() : "nenhum");
+
+                Map<String, Object> evento = new HashMap<>();
+                evento.put("tipo", "ABANDONO");
+                evento.put("motivo", "desconexão");
+                evento.put("vencedor", outroJogador != null ? outroJogador.getUsername() : null);
+                messagingTemplate.convertAndSend("/topic/jogo/" + jogo.getId(), (Object) evento);
+            }
+        }
     }
 
     private Usuario buscarUsuario(String username) {

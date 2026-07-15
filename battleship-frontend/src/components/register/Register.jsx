@@ -42,7 +42,7 @@ export default function Register() {
             <div className={styles.card}>
                             <div className={styles.cardHeader}>
                                 <span className={styles.microsoftIcon}><img
-                            src="/img/bloco_logo.png"
+                            src="/img/ui/bloco_logo.png"
                             alt="Minecraft"
                             className={styles.logo}
                         /></span>

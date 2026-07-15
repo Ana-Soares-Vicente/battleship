@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getEstadoJogo, getMeusTiros, atirar, getMinhaFrota, getTirosRecebidos, getNaviosAfundadosInimigo, atirarExplosao, getTirosDisponiveis } from '../../services/api';
-import { conectarWebSocket, inscrever } from '../../services/websocket';
+import { conectarWebSocket, inscrever, desconectarWebSocket } from '../../services/websocket';
 import audioManager from '../../services/audioManager';
 import { useTranslation } from '../../i18n/useTranslation';
 import Posicionamento from './Posicionamento';
@@ -33,6 +33,7 @@ export default function Jogo() {
     const [alvosExplosao, setAlvosExplosao] = useState([]); // [{linha, coluna}]
     const [tirosDisponiveis, setTirosDisponiveis] = useState(0);
     const [processandoExplosao, setProcessandoExplosao] = useState(false);
+    const [abandonou, setAbandonou] = useState(null);
     const username = localStorage.getItem('username');
     const minhaSkin = getMinhaSkinEquipada();
     const { t } = useTranslation();
@@ -333,6 +334,11 @@ export default function Jogo() {
                         }
                         break;
 
+                    case 'ABANDONO':
+                        setAbandonou(evento);
+                        setEstado(prev => prev ? {...prev, status: 'FINALIZADO', vencedor: evento.vencedor} : prev);
+                        break;
+
                     default:
                         break;
                 }
@@ -348,6 +354,12 @@ export default function Jogo() {
             inscreverNoJogo();
             carregarEstado();
         }, 1500);
+
+        // Listener para desconectar WebSocket ao sair da página
+        const handleBeforeUnload = () => {
+            desconectarWebSocket();
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
 
         // Polling como fallback de segurança caso WebSocket falhe
         // Pré-jogo: cada 3s (precisa detectar mudanças de status)
@@ -368,6 +380,7 @@ export default function Jogo() {
             clearTimeout(fallbackTimeout);
             clearInterval(interval);
             if (unsubscribeRef.current) unsubscribeRef.current();
+            window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, [id, username, carregarEstado]);
 
@@ -514,7 +527,7 @@ export default function Jogo() {
             <div className={`${styles.loadingScreen} ${fadeOut ? styles.loadingFadeOut : ''}`}>
                 <video
                     className={styles.loadingVideo}
-                    src="/img/loading_page.mp4"
+                    src="/img/ui/loading_page.mp4"
                     autoPlay
                     muted
                     playsInline
@@ -545,9 +558,9 @@ export default function Jogo() {
             {estado.status === 'POSICIONANDO' && jaPositionei && (
                 <div className={styles.aguardandoContainer}>
                     {estado?.modo === 'EXPLOSAO' ? (
-                        <div className={`${styles.aguardandoBg} ${styles.aguardandoBgNether}`} />
+                        <video className={styles.aguardandoVideo} src="/img/fundos/nether_video_modoexplosao.mp4" autoPlay loop muted playsInline ref={el => { if (el) el.playbackRate = 0.6; }} />
                     ) : (
-                        <video className={styles.aguardandoVideo} src="/img/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+                        <video className={styles.aguardandoVideo} src="/img/fundos/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
                     )}
                     <div className={styles.aguardandoContent}>
                         <h1 className={styles.aguardandoTitle}>MINECRAFT BATTLESHIP</h1>
@@ -574,11 +587,13 @@ export default function Jogo() {
             )}
 
         <div className={styles.container}>
-            {/* Background */}
-            {estado?.modo === 'EXPLOSAO' ? (
-                <div className={`${styles.bgOverlay} ${styles.bgExplosao}`} />
-            ) : (
-                <video className={styles.bgVideo} src="/img/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+            {/* Background — não renderiza durante posicionamento (Posicionamento.jsx tem o seu próprio) */}
+            {!(estado.status === 'POSICIONANDO' && !jaPositionei) && (
+                estado?.modo === 'EXPLOSAO' ? (
+                    <video className={styles.bgVideo} src="/img/fundos/nether_video_modoexplosao.mp4" autoPlay loop muted playsInline ref={el => { if (el) el.playbackRate = 0.6; }} />
+                ) : (
+                    <video className={styles.bgVideo} src="/img/fundos/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+                )
             )}
 
 
@@ -639,8 +654,8 @@ export default function Jogo() {
 
                         <p className={styles.msgInfo} style={{ visibility: msg ? 'visible' : 'hidden' }}>{msg || '\u00A0'}</p>
 
-                        {estado.modo === 'EXPLOSAO' && ehMeuTurno && estado.status === 'JOGANDO' && (
-                            <div className={styles.explosaoBar}>
+                        {estado.modo === 'EXPLOSAO' && estado.status === 'JOGANDO' && (
+                            <div className={styles.explosaoBar} style={{ visibility: ehMeuTurno ? 'visible' : 'hidden' }}>
                                 <span className={styles.explosaoLabel}>💣 {t('game.shots')}: {alvosExplosao.length}/{tirosDisponiveis}</span>
                                 {alvosExplosao.length === tirosDisponiveis && tirosDisponiveis > 0 && (
                                     <button
@@ -688,12 +703,13 @@ export default function Jogo() {
                                     meusNavios={meusNavios}
                                     onCelulaClick={() => {}}
                                     desabilitado={true}
+                                    modoJogo={estado.modo}
                                 />
                             </div>
                         </div>
 
                         {/* OCEANO INIMIGO */}
-                        <div className={`${styles.tabuleiroBloco} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.tabuleiroAtivo : ''}`}>
+                        <div className={`${styles.tabuleiroBloco} ${ehMeuTurno && estado.status === 'JOGANDO' ? (estado.modo === 'EXPLOSAO' ? styles.tabuleiroAtivoExplosao : styles.tabuleiroAtivo) : ''}`}>
                             <div className={styles.tabHeader}>
                                 <div className={styles.tabHeaderText}>
                                     <h3 className={styles.tabTitulo}>{t('game.enemyOcean')}</h3>
@@ -701,7 +717,7 @@ export default function Jogo() {
                                 </div>
                                 {skinAdversario && <img src={skinAdversario} alt={adversario} className={styles.tabSkin} />}
                             </div>
-                            <div className={`${styles.boardFrame} ${ehMeuTurno && estado.status === 'JOGANDO' ? styles.boardFrameAtivo : ''}`}>
+                            <div className={`${styles.boardFrame} ${ehMeuTurno && estado.status === 'JOGANDO' ? (estado.modo === 'EXPLOSAO' ? styles.boardFrameAtivoExplosao : styles.boardFrameAtivo) : ''}`}>
                                 <Tabuleiro
                                     modo="ataque"
                                     tiros={tiros}
@@ -709,6 +725,7 @@ export default function Jogo() {
                                     onCelulaClick={estado.modo === 'EXPLOSAO' ? handleCelulaClickExplosao : handleAtirar}
                                     desabilitado={!ehMeuTurno || estado.status === 'FINALIZADO' || processandoExplosao}
                                     alvosExplosao={estado.modo === 'EXPLOSAO' ? alvosExplosao : []}
+                                    modoJogo={estado.modo}
                                 />
                             </div>
                         </div>
@@ -733,6 +750,17 @@ export default function Jogo() {
                 </div>
             )}
         </div>
+        {abandonou && (
+            <div className={styles.abandonouOverlay}>
+                <div className={styles.abandonouModal}>
+                    <h2 className={styles.abandonouTitulo}>⚠️ O adversário saiu da partida</h2>
+                    <p className={styles.abandonouMsg}>Você venceu por WO!</p>
+                    <button className={styles.btnVoltar} onClick={() => navigate('/lobby')}>
+                        Voltar ao Lobby
+                    </button>
+                </div>
+            </div>
+        )}
         </>
     );
 }

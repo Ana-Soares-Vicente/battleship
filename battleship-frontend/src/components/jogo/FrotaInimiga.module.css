@@ -253,3 +253,72 @@
         font-size: 10px;
     }
 }
+
+
+/* ========================= */
+/* MONITORES GRANDES         */
+/* ========================= */
+
+@media (min-width: 1600px) {
+    .slotIcone {
+        width: 52px;
+        height: 52px;
+        min-width: 52px;
+        min-height: 52px;
+    }
+
+    .barcoImg {
+        width: 44px;
+        height: 44px;
+    }
+
+    .misterio {
+        font-size: 24px;
+    }
+
+    .hpOculto {
+        font-size: 10px;
+    }
+
+    .xMark {
+        font-size: 15px;
+    }
+
+    .inventario {
+        padding: 4px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .slotIcone {
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+        min-height: 60px;
+    }
+
+    .barcoImg {
+        width: 52px;
+        height: 52px;
+    }
+
+    .misterio {
+        font-size: 28px;
+    }
+
+    .hpOculto {
+        font-size: 11px;
+    }
+
+    .xMark {
+        font-size: 16px;
+    }
+
+    .inventario {
+        padding: 5px;
+    }
+
+    .slot {
+        gap: 8px;
+    }
+}

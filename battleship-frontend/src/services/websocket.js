@@ -30,6 +30,9 @@ export function conectarWebSocket(onConnected) {
 
     stompClient = new Client({
         brokerURL: WS_URL,
+        connectHeaders: {
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
         reconnectDelay: 2000,
         heartbeatIncoming: 10000,
         heartbeatOutgoing: 10000,
@@ -110,3 +113,11 @@ export function desconectarWebSocket() {
     activeStompSubs.clear();
     pendingCallbacks = [];
 }
+
+// Listener global: ao fechar a aba, desconectar WebSocket de verdade (sem reconexão)
+window.addEventListener('beforeunload', () => {
+    if (stompClient) {
+        stompClient.deactivate();
+        stompClient = null;
+    }
+});

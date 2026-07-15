@@ -19,7 +19,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: url('/img/fundo_mine.jpg') center / cover no-repeat;
+    background: url('/img/fundos/fundo_mine.jpg') center / cover no-repeat;
     z-index: 0;
 }
 
@@ -321,5 +321,132 @@
     .versionCorner {
         bottom: 8px;
         right: 8px;
+    }
+}
+
+
+
+/* ========================= */
+/* MONITORES GRANDES         */
+/* ========================= */
+
+@media (min-width: 1600px) {
+    .title {
+        font-size: 64px;
+        letter-spacing: 5px;
+    }
+
+    .subtitle {
+        font-size: 38px;
+        letter-spacing: 3px;
+    }
+
+    .tagline {
+        font-size: 16px;
+    }
+
+    .menuButtons {
+        max-width: 480px;
+        gap: 12px;
+    }
+
+    .btn {
+        padding: 16px 24px;
+        font-size: 17px;
+    }
+
+    .btnHalf {
+        padding: 14px 16px;
+        font-size: 15px;
+    }
+
+    .playerCorner {
+        bottom: 24px;
+        left: 24px;
+        gap: 12px;
+        padding: 10px 16px;
+    }
+
+    .playerSkin {
+        width: 48px;
+        height: 48px;
+    }
+
+    .playerName {
+        font-size: 15px;
+    }
+
+    .playerRank {
+        font-size: 12px;
+    }
+
+    .versionCorner {
+        bottom: 24px;
+        right: 24px;
+        font-size: 12px;
+    }
+
+    .titleSection {
+        margin-bottom: 50px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .title {
+        font-size: 72px;
+        letter-spacing: 6px;
+    }
+
+    .subtitle {
+        font-size: 44px;
+    }
+
+    .tagline {
+        font-size: 18px;
+    }
+
+    .menuButtons {
+        max-width: 540px;
+        gap: 14px;
+    }
+
+    .btn {
+        padding: 18px 28px;
+        font-size: 19px;
+    }
+
+    .btnHalf {
+        padding: 16px 18px;
+        font-size: 16px;
+    }
+
+    .playerCorner {
+        bottom: 32px;
+        left: 32px;
+        gap: 14px;
+        padding: 12px 20px;
+    }
+
+    .playerSkin {
+        width: 56px;
+        height: 56px;
+    }
+
+    .playerName {
+        font-size: 17px;
+    }
+
+    .playerRank {
+        font-size: 13px;
+    }
+
+    .versionCorner {
+        bottom: 32px;
+        right: 32px;
+        font-size: 13px;
+    }
+
+    .titleSection {
+        margin-bottom: 60px;
     }
 }

@@ -29,4 +29,7 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Jogo j SET j.jogador2Pronto = true WHERE j.id = :id")
     void marcarJogador2Pronto(@Param("id") Long id);
+
+    @Query("SELECT j FROM Jogo j WHERE (j.jogador1 = :jogador OR j.jogador2 = :jogador) AND j.status IN ('AGUARDANDO', 'POSICIONANDO', 'JOGANDO')")
+    List<Jogo> findJogosAtivosDoJogador(@Param("jogador") Usuario jogador);
 }
