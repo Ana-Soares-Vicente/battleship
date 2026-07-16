@@ -17,7 +17,7 @@ const SKINS_DISPONIVEIS = [
     { id: 'jazzghost', nome: 'JazzGhost', img: '/img/skins/jazzghost_skin.png' },
     { id: 'nenha', nome: 'Nenha', img: '/img/skins/nenha_skin.png' },
     { id: 'puppy', nome: 'Puppy', img: '/img/skins/puppy_skin.png' },
-    { id: 'vini13', nome: 'Vini13', img: '/img/skins/vini13_skin.png' },
+    { id: 'vini13', nome: 'Vini14', img: '/img/skins/vini13_skin.png' },
 ];
 
 function getSkinAtual() {
