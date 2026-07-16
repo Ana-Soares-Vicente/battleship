@@ -90,7 +90,15 @@ public class JogoController {
     }
 
     @GetMapping("/lobby")
-    public List<Map<String, Object>> lobby() {
-        return jogoService.getLobby();
+    public List<Map<String, Object>> lobby(Principal principal) {
+        return jogoService.getLobby(principal.getName());
+    }
+
+    @PostMapping("/{id}/abandonar")
+    public Map<String, Object> abandonar(@PathVariable Long id, Principal principal) {
+        jogoService.abandonarPartidaPorId(id, principal.getName());
+        Map<String, Object> r = new HashMap<>();
+        r.put("status", "ok");
+        return r;
     }
 }

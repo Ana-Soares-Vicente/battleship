@@ -32,4 +32,7 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
 
     @Query("SELECT j FROM Jogo j WHERE (j.jogador1 = :jogador OR j.jogador2 = :jogador) AND j.status IN ('AGUARDANDO', 'POSICIONANDO', 'JOGANDO')")
     List<Jogo> findJogosAtivosDoJogador(@Param("jogador") Usuario jogador);
+
+    @Query("SELECT j FROM Jogo j WHERE j.status IN ('JOGANDO', 'POSICIONANDO') AND j.ultimaAtividade < :threshold")
+    List<Jogo> findJogosJogandoInativos(@Param("threshold") Instant threshold);
 }

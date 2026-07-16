@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getEstadoJogo, getMeusTiros, atirar, getMinhaFrota, getTirosRecebidos, getNaviosAfundadosInimigo, atirarExplosao, getTirosDisponiveis } from '../../services/api';
+import { getEstadoJogo, getMeusTiros, atirar, getMinhaFrota, getTirosRecebidos, getNaviosAfundadosInimigo, atirarExplosao, getTirosDisponiveis, abandonarJogoBeacon } from '../../services/api';
 import { conectarWebSocket, inscrever, desconectarWebSocket } from '../../services/websocket';
 import audioManager from '../../services/audioManager';
 import { useTranslation } from '../../i18n/useTranslation';
@@ -362,8 +362,12 @@ export default function Jogo() {
             }
         }, 5000);
 
-        // Listener para desconectar WebSocket ao sair da página
+        // Listener para abandonar e desconectar WebSocket ao sair da página
         const handleBeforeUnload = () => {
+            const atual = estadoRef.current;
+            if (atual && (atual.status === 'POSICIONANDO' || atual.status === 'JOGANDO')) {
+                abandonarJogoBeacon(id);
+            }
             desconectarWebSocket();
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
@@ -372,6 +376,11 @@ export default function Jogo() {
             clearTimeout(fallbackTimeout);
             if (unsubscribeRef.current) unsubscribeRef.current();
             window.removeEventListener('beforeunload', handleBeforeUnload);
+            // Abandono ao navegar para fora via React Router
+            const atual = estadoRef.current;
+            if (atual && (atual.status === 'POSICIONANDO' || atual.status === 'JOGANDO')) {
+                abandonarJogoBeacon(id);
+            }
         };
     }, [id, username, carregarEstado]);
 
@@ -546,6 +555,34 @@ export default function Jogo() {
 
     return (
         <>
+            {/* Resultado de abandono/inatividade durante posicionamento */}
+            {estado.status === 'FINALIZADO' && abandonou && (
+                <div className={styles.container}>
+                    {estado?.modo === 'EXPLOSAO' ? (
+                        <video className={styles.bgVideo} src="/img/fundos/nether_video_modoexplosao.mp4" autoPlay loop muted playsInline ref={el => { if (el) el.playbackRate = 0.6; }} />
+                    ) : (
+                        <video className={styles.bgVideo} src="/img/fundos/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+                    )}
+                    <header className={styles.header}>
+                        <h1 className={styles.title}>MINECRAFT BATTLESHIP</h1>
+                    </header>
+                    <div className={styles.jogoArea}>
+                        <div className={styles.statusArea}>
+                            <div className={styles.resultadoBar}>
+                                {estado.vencedor === username ? (
+                                    <span className={styles.vitoria}>🏆 {t('game.winByForfeit')}</span>
+                                ) : (
+                                    <span className={styles.derrota}>💀 {t('game.loseByInactivity')}</span>
+                                )}
+                            </div>
+                        </div>
+                        <button className={styles.btnVoltar} onClick={() => navigate('/lobby')}>
+                            {t('game.backToMenu')}
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {estado.status === 'POSICIONANDO' && jaPositionei && (
                 <div className={styles.aguardandoContainer}>
                     {estado?.modo === 'EXPLOSAO' ? (
@@ -619,7 +656,7 @@ export default function Jogo() {
             )}
 
             {/* ===== JOGO ===== */}
-            {(estado.status === 'JOGANDO' || estado.status === 'FINALIZADO') && (
+            {(estado.status === 'JOGANDO' || estado.status === 'FINALIZADO') && !abandonou && (
                 <div className={styles.jogoArea}>
                     {/* Status Area — altura fixa, nunca empurra os tabuleiros */}
                     <div className={styles.statusArea}>
@@ -636,9 +673,17 @@ export default function Jogo() {
                         {estado.status === 'FINALIZADO' && (
                             <div className={styles.resultadoBar}>
                                 {estado.vencedor === username ? (
-                                    <span className={styles.vitoria}>🏆 {t('game.youWon')} @{username}</span>
+                                    <span className={styles.vitoria}>
+                                        {abandonou ? '🏆 ' + t('game.winByForfeit') : `🏆 ${t('game.youWon')} @${username}`}
+                                    </span>
                                 ) : (
-                                    <span className={styles.derrota}>💀 {t('game.gameOver')} @{username}</span>
+                                    <span className={styles.derrota}>
+                                        {abandonou && abandonou.motivo === 'inatividade'
+                                            ? '💀 ' + t('game.loseByInactivity')
+                                            : abandonou && abandonou.motivo === 'abandono'
+                                            ? '💀 ' + t('game.loseByForfeit')
+                                            : `💀 ${t('game.gameOver')} @${username}`}
+                                    </span>
                                 )}
                             </div>
                         )}

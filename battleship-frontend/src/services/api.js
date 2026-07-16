@@ -147,3 +147,23 @@ export async function atirarExplosao(id, tiros) {
 export async function getTirosDisponiveis(id) {
     return request(`${API_URL}/jogos/${id}/tiros-disponiveis`, { headers: getHeaders() }, 'Erro ao buscar tiros disponíveis');
 }
+
+export async function abandonarJogo(id) {
+    return request(`${API_URL}/jogos/${id}/abandonar`, {
+        method: 'POST',
+        headers: getHeaders(),
+    }, 'Erro ao abandonar jogo');
+}
+
+// Abandono via sendBeacon (funciona em beforeunload)
+export function abandonarJogoBeacon(id) {
+    const token = localStorage.getItem('token');
+    const url = `${API_URL}/jogos/${id}/abandonar`;
+    const headers = { type: 'application/json', Authorization: `Bearer ${token}` };
+    // sendBeacon não suporta headers customizados, usar fetch com keepalive
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        keepalive: true,
+    }).catch(() => {});
+}

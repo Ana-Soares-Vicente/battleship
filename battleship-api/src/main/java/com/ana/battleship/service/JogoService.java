@@ -431,15 +431,17 @@ public class JogoService {
         }
     }
 
-    public List<Map<String, Object>> getLobby() {
+    public List<Map<String, Object>> getLobby(String username) {
         Instant threshold = Instant.now().minusSeconds(120); // 2 min
-        return jogoRepo.findByStatusAndUltimaAtividadeAfter("AGUARDANDO", threshold).stream().map(j -> {
-            Map<String, Object> m = new HashMap<>();
-            m.put("id", j.getId());
-            m.put("jogador1", j.getJogador1().getUsername());
-            m.put("token", j.getToken());
-            return m;
-        }).toList();
+        return jogoRepo.findByStatusAndUltimaAtividadeAfter("AGUARDANDO", threshold).stream()
+            .filter(j -> !j.getJogador1().getUsername().equals(username))
+            .map(j -> {
+                Map<String, Object> m = new HashMap<>();
+                m.put("id", j.getId());
+                m.put("jogador1", j.getJogador1().getUsername());
+                m.put("token", j.getToken());
+                return m;
+            }).toList();
     }
 
     @Transactional
@@ -593,7 +595,7 @@ public class JogoService {
                 Usuario outroJogador = jogo.getJogador1().getId().equals(jogador.getId())
                         ? jogo.getJogador2() : jogo.getJogador1();
 
-                jogo.setStatus("ABANDONADO");
+                jogo.setStatus("FINALIZADO");
                 if (outroJogador != null) {
                     jogo.setVencedor(outroJogador);
                 }
@@ -604,10 +606,48 @@ public class JogoService {
                 Map<String, Object> evento = new HashMap<>();
                 evento.put("tipo", "ABANDONO");
                 evento.put("motivo", "desconexão");
+                evento.put("jogadorQueAbandonou", username);
                 evento.put("vencedor", outroJogador != null ? outroJogador.getUsername() : null);
                 messagingTemplate.convertAndSend("/topic/jogo/" + jogo.getId(), (Object) evento);
             }
         }
+    }
+
+    @Transactional
+    public void abandonarPartidaPorId(Long jogoId, String username) {
+        Usuario jogador = buscarUsuario(username);
+        Jogo jogo = buscarJogo(jogoId);
+        validarJogadorNoJogo(jogo, jogador);
+
+        if ("FINALIZADO".equals(jogo.getStatus()) || "EXPIRADO".equals(jogo.getStatus()) || "ABANDONADO".equals(jogo.getStatus())) {
+            return; // já encerrado
+        }
+
+        if ("AGUARDANDO".equals(jogo.getStatus())) {
+            jogo.setStatus("EXPIRADO");
+            jogoRepo.save(jogo);
+            return;
+        }
+
+        // POSICIONANDO ou JOGANDO — adversário vence
+        Usuario outroJogador = jogo.getJogador1().getId().equals(jogador.getId())
+                ? jogo.getJogador2() : jogo.getJogador1();
+
+        jogo.setStatus("FINALIZADO");
+        if (outroJogador != null) {
+            jogo.setVencedor(outroJogador);
+        }
+        jogoRepo.save(jogo);
+
+        log.info("Jogo #{} abandonado voluntariamente por {}. Vencedor: {}",
+                jogo.getId(), username, outroJogador != null ? outroJogador.getUsername() : "nenhum");
+
+        Map<String, Object> evento = new HashMap<>();
+        evento.put("tipo", "ABANDONO");
+        evento.put("motivo", "abandono");
+        evento.put("jogadorQueAbandonou", username);
+        evento.put("vencedor", outroJogador != null ? outroJogador.getUsername() : null);
+        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
     }
 
     private Usuario buscarUsuario(String username) {

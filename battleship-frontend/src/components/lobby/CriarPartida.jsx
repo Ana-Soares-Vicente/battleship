@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { criarJogo } from '../../services/api';
+import { criarJogo, abandonarJogo } from '../../services/api';
 import { conectarWebSocket, inscrever } from '../../services/websocket';
 import { useTranslation } from '../../i18n/useTranslation';
 import styles from './CriarPartida.module.css';
@@ -17,7 +17,6 @@ const DIFICULDADES = [
 ];
 
 export default function CriarPartida() {
-    const [nomeServidor, setNomeServidor] = useState('');
     const [modoIndex, setModoIndex] = useState(0);
     const [dificuldadeIndex, setDificuldadeIndex] = useState(1);
     const [jogoCriado, setJogoCriado] = useState(null);
@@ -25,26 +24,25 @@ export default function CriarPartida() {
     const [criando, setCriando] = useState(false);
     const navigate = useNavigate();
     const unsubRef = useRef(null);
+    const { t } = useTranslation();
 
     const modoAtual = MODOS[modoIndex];
     const dificuldadeAtual = DIFICULDADES[dificuldadeIndex];
-    const criadoRef = useRef(false);
-    const { t } = useTranslation();
 
-    useEffect(() => {
-        conectarWebSocket(() => {});
-        if (!criadoRef.current) {
-            criadoRef.current = true;
-            criarPartidaAuto();
-        }
-        return () => {
-            if (unsubRef.current) unsubRef.current();
-        };
-    }, []);
+    function ciclarModo() {
+        if (criando || jogoCriado) return;
+        setModoIndex((prev) => (prev + 1) % MODOS.length);
+    }
 
-    async function criarPartidaAuto() {
+    function ciclarDificuldade() {
+        if (criando || jogoCriado) return;
+        setDificuldadeIndex((prev) => (prev + 1) % DIFICULDADES.length);
+    }
+
+    async function handleCriarPartida() {
         setCriando(true);
         try {
+            conectarWebSocket(() => {});
             const jogo = await criarJogo(MODOS[modoIndex].id);
             setJogoCriado({ id: jogo.id, token: jogo.token });
 
@@ -73,37 +71,10 @@ export default function CriarPartida() {
 
     function handleCancelar() {
         if (unsubRef.current) { unsubRef.current(); unsubRef.current = null; }
-        navigate('/lobby');
-    }
-
-    function ciclarModo() {
-        if (criando) return;
-        // Cancelar sala atual
-        if (unsubRef.current) { unsubRef.current(); unsubRef.current = null; }
-        // NÃO limpar jogoCriado para evitar layout shift — será substituído pelo novo
-        const novoIndex = (modoIndex + 1) % MODOS.length;
-        setModoIndex(novoIndex);
-        criarComModo(novoIndex);
-    }
-
-    async function criarComModo(idx) {
-        setCriando(true);
-        try {
-            const jogo = await criarJogo(MODOS[idx].id);
-            setJogoCriado({ id: jogo.id, token: jogo.token });
-
-            unsubRef.current = inscrever(`/topic/jogo/${jogo.id}`, (evento) => {
-                if (evento.tipo === 'JOGADOR_ENTROU') navegarParaJogo(jogo.id);
-            });
-        } catch (e) {
-            alert(e.message);
-        } finally {
-            setCriando(false);
+        if (jogoCriado) {
+            abandonarJogo(jogoCriado.id).catch(() => {});
         }
-    }
-
-    function ciclarDificuldade() {
-        setDificuldadeIndex((prev) => (prev + 1) % DIFICULDADES.length);
+        navigate('/lobby');
     }
 
     return (
@@ -111,32 +82,12 @@ export default function CriarPartida() {
             <h1 className={styles.title}>{t('createMatch.title')}</h1>
 
             <div className={styles.content}>
-                {/* Token do servidor */}
-                <div className={styles.field}>
-                    <label className={styles.label}>{t('createMatch.code')}</label>
-                    <input
-                        className={styles.input}
-                        value={jogoCriado?.token || ''}
-                        readOnly
-                        placeholder=""
-                    />
-                    <button
-                        className={styles.linkBtn}
-                        onClick={handleCopiar}
-                        disabled={!jogoCriado}
-                    >
-                        {copiado ? `✓ ${t('createMatch.copied')}` : t('createMatch.copy')}
-                    </button>
-                </div>
-
-            
-
                 {/* Modo de jogo + Dificuldade */}
                 <div className={styles.btnRow}>
-                    <button className={styles.btnOption} onClick={ciclarModo} disabled={criando}>
+                    <button className={styles.btnOption} onClick={ciclarModo} disabled={criando || !!jogoCriado}>
                         {t('createMatch.gameMode')}: {t(modoAtual.labelKey)}
                     </button>
-                    <button className={styles.btnOption} onClick={ciclarDificuldade} disabled={criando}>
+                    <button className={styles.btnOption} onClick={ciclarDificuldade} disabled={criando || !!jogoCriado}>
                         {t('createMatch.difficulty')}: {t(dificuldadeAtual.labelKey)}
                     </button>
                 </div>
@@ -154,11 +105,31 @@ export default function CriarPartida() {
                     />
                 </div>
 
-                {/* Aguardando jogador — sempre presente para evitar layout shift */}
-                <div className={styles.waitingRow} style={{ visibility: jogoCriado ? 'visible' : 'hidden' }}>
-                    <div className={styles.spinner}></div>
-                    <span className={styles.waitingText}>{t('createMatch.waiting')}</span>
-                </div>
+                {/* Token — só aparece após criar */}
+                {jogoCriado && (
+                    <div className={styles.field}>
+                        <label className={styles.label}>{t('createMatch.code')}</label>
+                        <input
+                            className={styles.input}
+                            value={jogoCriado.token}
+                            readOnly
+                        />
+                        <button
+                            className={styles.linkBtn}
+                            onClick={handleCopiar}
+                        >
+                            {copiado ? `✓ ${t('createMatch.copied')}` : t('createMatch.copy')}
+                        </button>
+                    </div>
+                )}
+
+                {/* Aguardando jogador — só aparece após criar */}
+                {jogoCriado && (
+                    <div className={styles.waitingRow}>
+                        <div className={styles.spinner}></div>
+                        <span className={styles.waitingText}>{t('createMatch.waiting')}</span>
+                    </div>
+                )}
             </div>
 
             {/* Rodapé */}
@@ -166,6 +137,15 @@ export default function CriarPartida() {
                 <button className={`${styles.btnFooter} ${styles.btnCancel}`} onClick={handleCancelar}>
                     {t('createMatch.cancel')}
                 </button>
+                {!jogoCriado && (
+                    <button
+                        className={`${styles.btnFooter} ${styles.btnCreate}`}
+                        onClick={handleCriarPartida}
+                        disabled={criando}
+                    >
+                        {criando ? t('createMatch.creating') : t('createMatch.create')}
+                    </button>
+                )}
             </div>
         </div>
     );
