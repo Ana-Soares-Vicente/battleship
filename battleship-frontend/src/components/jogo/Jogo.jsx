@@ -345,15 +345,22 @@ export default function Jogo() {
             });
         }
 
+        let wsConectou = false;
+
         conectarWebSocket(() => {
+            wsConectou = true;
             inscreverNoJogo();
             carregarEstado();
         });
 
+        // Fallback único: se WebSocket não conectou em 5s, carrega estado uma vez
         const fallbackTimeout = setTimeout(() => {
-            inscreverNoJogo();
-            carregarEstado();
-        }, 1500);
+            if (!wsConectou) {
+                console.warn('[WS] Fallback: WebSocket não conectou em 5s, carregando estado via GET');
+                inscreverNoJogo();
+                carregarEstado();
+            }
+        }, 5000);
 
         // Listener para desconectar WebSocket ao sair da página
         const handleBeforeUnload = () => {
@@ -361,24 +368,8 @@ export default function Jogo() {
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
 
-        // Polling como fallback de segurança caso WebSocket falhe
-        // Pré-jogo: cada 3s (precisa detectar mudanças de status)
-        // Em jogo: cada 2s (safety net para turno, WebSocket é a fonte primária)
-        const interval = setInterval(() => {
-            const atual = estadoRef.current;
-            if (!atual || atual.status === 'AGUARDANDO' || atual.status === 'POSICIONANDO') {
-                carregarEstado();
-            } else if (atual.status === 'JOGANDO') {
-                // Fallback leve: só busca o estado do jogo (1 request) para sincronizar turno
-                getEstadoJogo(id).then(e => {
-                    if (e) setEstado(prev => prev ? { ...prev, turnoAtual: e.turnoAtual, status: e.status, vencedor: e.vencedor } : prev);
-                }).catch(() => {});
-            }
-        }, 2000);
-
         return () => {
             clearTimeout(fallbackTimeout);
-            clearInterval(interval);
             if (unsubscribeRef.current) unsubscribeRef.current();
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
