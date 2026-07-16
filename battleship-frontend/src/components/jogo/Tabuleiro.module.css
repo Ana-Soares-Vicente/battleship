@@ -208,7 +208,8 @@
 /* ========================= */
 
 .ultimoTiro {
-    animation: mcHighlight 1.2s ease-in-out infinite;
+    outline: 2px solid rgba(255, 255, 255, 0.9);
+    outline-offset: -2px;
 }
 
 @keyframes mcHighlight {
@@ -608,11 +609,11 @@
     filter: none;
 }
 
-/* Acerto (pedaço do barco) no modo explosão — fundo laranja */
+/* Acerto (pedaço do barco) no modo explosão — fundo laranja escuro */
 .celulaAcertoExplosao {
-    background: hsl(33, 100%, 49%);
-    border: 1px solid rgba(255, 200, 0, 0.6);
-    box-shadow: inset 0 0 6px rgba(255, 200, 0, 0.3);
+    background: hsl(25, 90%, 35%);
+    border: 1px solid rgba(200, 120, 0, 0.6);
+    box-shadow: inset 0 0 6px rgba(200, 120, 0, 0.3);
 }
 
 /* Água (errou) no modo explosão — fundo vermelho escuro */
@@ -627,6 +628,18 @@
     background: rgb(151, 54, 13);
     border: 1px solid rgba(120, 40, 10, 0.6);
     filter: none;
+}
+
+/* Barco atingido no meu porto — modo explosão (laranja escuro) */
+.modoExplosao .celulaMeuNavioAtingido {
+    background: rgba(180, 90, 10, 0.45);
+    border: 1px solid rgba(200, 120, 0, 0.5);
+}
+
+/* Barco afundado no meu porto — modo explosão */
+.modoExplosao .celulaMeuNavioAfundado {
+    background: rgba(140, 60, 5, 0.45);
+    border: 1px solid rgba(180, 100, 0, 0.5);
 }
 
 /* Table do meu porto — fundo laranja claro no modo explosão */

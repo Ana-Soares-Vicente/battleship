@@ -220,7 +220,7 @@ export default function Tabuleiro({
             return ehRecenteAfundado(linha, coluna) ? <ExplosaoAfundou /> : null;
         }
         if (tiro.resultado === 'ACERTO') return modoJogo === 'EXPLOSAO' ? <IconePoBlaze /> : <IconeTntPequena />;
-        if (tiro.resultado === 'AGUA') return modoJogo === 'EXPLOSAO' ? <IconeRespingoLava /> : <IconeRespingo />;
+        if (tiro.resultado === 'AGUA') return modoJogo === 'EXPLOSAO' ? null : <IconeRespingo />;
         return null;
     }
 

@@ -14,7 +14,7 @@ const FROTA_PADRAO = [
  * Inventário Naval — Hotbar estilo Minecraft
  * Slots quadrados com sprite do barco como ícone + corações ao lado
  */
-export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimigo = false }) {
+export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimigo = false, modoJogo }) {
     const { t } = useTranslation();
 
     function contarAfundadosPorTamanho() {
@@ -83,7 +83,7 @@ export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimi
                         key={index}
                         className={`
                             ${styles.slot}
-                            ${navio.afundado ? styles.slotAfundado : ''}
+                            ${navio.afundado ? (modoJogo === 'EXPLOSAO' ? styles.slotAfundadoExplosao : styles.slotAfundado) : ''}
                             ${oculto ? styles.slotOculto : ''}
                         `}
                     >

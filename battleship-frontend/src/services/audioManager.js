@@ -21,6 +21,10 @@ class AudioManager {
         this._splashAudio = new Audio('/img/audio/splash-agua.mp3');
         this._splashAudio.preload = 'auto';
         this._splashAudio.volume = 0.6;
+
+        this._minecraftHitAudio = new Audio('/img/audio/minecraft_hit.mp3');
+        this._minecraftHitAudio.preload = 'auto';
+        this._minecraftHitAudio.volume = 0.7;
     }
 
     // ========================= //
@@ -119,6 +123,14 @@ class AudioManager {
         if (!this.soundOn) return;
         const audio = this._splashAudio.cloneNode();
         audio.volume = 0.6;
+        audio.play().catch(() => {});
+    }
+
+    /** Lava (modo explosão) — tiro que não acertou nenhum navio */
+    playMinecraftHit() {
+        if (!this.soundOn) return;
+        const audio = this._minecraftHitAudio.cloneNode();
+        audio.volume = 0.7;
         audio.play().catch(() => {});
     }
 

@@ -38,6 +38,8 @@ export async function login(username, password) {
     localStorage.setItem('username', data.username);
     if (data.skin) {
         localStorage.setItem('skinAtual', data.skin);
+    } else if (!localStorage.getItem('skinAtual')) {
+        localStorage.setItem('skinAtual', '/img/skins/pactw_skin.webp');
     }
     return data;
 }
@@ -50,6 +52,12 @@ export async function register(nome, email, password) {
     }, 'Falha ao cadastrar. Email pode já existir.');
     localStorage.setItem('token', data.token);
     localStorage.setItem('username', data.username || data.nome);
+    // Definir skin padrão se o backend não retornar uma
+    if (data.skin) {
+        localStorage.setItem('skinAtual', data.skin);
+    } else if (!localStorage.getItem('skinAtual')) {
+        localStorage.setItem('skinAtual', '/img/skins/pactw_skin.webp');
+    }
     return data;
 }
 

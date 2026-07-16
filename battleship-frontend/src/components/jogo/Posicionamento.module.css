@@ -67,7 +67,7 @@
 
 .title {
     font-family: 'Silkscreen', monospace;
-    font-size: clamp(14px, 2vw, 20px);
+    font-size: clamp(18px, 2.8vw, 28px);
     color: var(--text-primary);
     text-shadow:
         2px 2px 0 #3f3f3f,
@@ -93,8 +93,8 @@
 }
 
 .playerSkin {
-    width: clamp(36px, 5.5vh, 56px);
-    height: clamp(36px, 5.5vh, 56px);
+    width: clamp(64px, 9vh, 96px);
+    height: clamp(64px, 9vh, 96px);
     image-rendering: pixelated;
     object-fit: contain;
     border: 2px solid #5a5a5a;
@@ -593,12 +593,12 @@
     }
 
     .playerSkin {
-        width: clamp(28px, 4.5vh, 40px);
-        height: clamp(28px, 4.5vh, 40px);
+        width: clamp(56px, 8vh, 80px);
+        height: clamp(56px, 8vh, 80px);
     }
 
     .title {
-        font-size: clamp(12px, 2vh, 16px);
+        font-size: clamp(16px, 2.5vh, 22px);
     }
 
     .boardFrame {
@@ -643,8 +643,8 @@
     }
 
     .playerSkin {
-        width: 30px;
-        height: 30px;
+        width: 56px;
+        height: 56px;
     }
 
     .playerName {
@@ -656,7 +656,7 @@
     }
 
     .title {
-        font-size: 14px;
+        font-size: 18px;
     }
 
     .infoPanel {
@@ -710,8 +710,8 @@
     }
 
     .playerSkin {
-        width: 26px;
-        height: 26px;
+        width: 44px;
+        height: 44px;
     }
 
     .playerName {

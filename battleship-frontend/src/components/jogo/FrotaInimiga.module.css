@@ -140,6 +140,17 @@
     opacity: 0.5;
 }
 
+/* Sunk ship — explosion mode (dark orange) */
+.slotAfundadoExplosao .slotIcone {
+    background: hsl(25, 70%, 22%);
+    border-color: #2a1505 #6a3a10 #6a3a10 #2a1505;
+}
+
+.slotAfundadoExplosao .barcoImg {
+    filter: grayscale(100%) brightness(0.35);
+    opacity: 0.5;
+}
+
 /* Hidden ship (enemy) — darker */
 .slotOculto .slotIcone {
     background: #222222;

@@ -11,7 +11,7 @@ import styles from './Jogo.module.css';
 
 // Minha skin: SEMPRE lida do localStorage (fonte de verdade única da /skins)
 function getMinhaSkinEquipada() {
-    return localStorage.getItem('skinAtual');
+    return localStorage.getItem('skinAtual') || '/img/skins/pactw_skin.webp';
 }
 
 export default function Jogo() {
@@ -216,7 +216,7 @@ export default function Jogo() {
                                 if (!tirosComSomRef.current.has(chave)) {
                                     tirosComSomRef.current.add(chave);
                                     if (evento.resultado === 'AGUA') {
-                                        audioManager.playSplash();
+                                        estadoRef.current?.modo === 'EXPLOSAO' ? audioManager.playMinecraftHit() : audioManager.playSplash();
                                     }
                                 }
                             }
@@ -231,7 +231,7 @@ export default function Jogo() {
                                 setNaviosAfundadosMeus(prev => [...prev, evento.navioAfundado]);
                                 audioManager.playTntHit();
                             } else if (evento.resultado === 'AGUA') {
-                                audioManager.playSplash();
+                                estadoRef.current?.modo === 'EXPLOSAO' ? audioManager.playMinecraftHit() : audioManager.playSplash();
                             }
                         }
 
@@ -287,7 +287,7 @@ export default function Jogo() {
                                         if (t.navioAfundado) {
                                             audioManager.playTntHit();
                                         } else if (t.resultado === 'AGUA') {
-                                            audioManager.playSplash();
+                                            audioManager.playMinecraftHit();
                                         }
                                     }
                                 }, i * 150);
@@ -311,7 +311,7 @@ export default function Jogo() {
                                     if (t.navioAfundado) {
                                         audioManager.playTntHit();
                                     } else if (t.resultado === 'AGUA') {
-                                        audioManager.playSplash();
+                                        audioManager.playMinecraftHit();
                                     }
                                 }, i * 150);
                             });
@@ -425,7 +425,7 @@ export default function Jogo() {
                     audioManager.playTntHit();
                     setTimeout(() => setBannerAfundou(false), 2500);
                 } else if (res.resultado === 'AGUA') {
-                    audioManager.playSplash();
+                    estado?.modo === 'EXPLOSAO' ? audioManager.playMinecraftHit() : audioManager.playSplash();
                 }
                 // Marcar tiro como já tocado (evitar duplicação com WebSocket)
                 tirosComSomRef.current.add(`${res.linha},${res.coluna}`);
@@ -481,7 +481,7 @@ export default function Jogo() {
                         if (t.navioAfundado) {
                             audioManager.playTntHit();
                         } else if (t.resultado === 'AGUA') {
-                            audioManager.playSplash();
+                            audioManager.playMinecraftHit();
                         }
                     }, i * 150);
                 });
@@ -648,15 +648,14 @@ export default function Jogo() {
                         {estado.modo === 'EXPLOSAO' && estado.status === 'JOGANDO' && (
                             <div className={styles.explosaoBar} style={{ visibility: ehMeuTurno ? 'visible' : 'hidden' }}>
                                 <span className={styles.explosaoLabel}>💣 {t('game.shots')}: {alvosExplosao.length}/{tirosDisponiveis}</span>
-                                {alvosExplosao.length === tirosDisponiveis && tirosDisponiveis > 0 && (
-                                    <button
-                                        className={styles.btnConfirmar}
-                                        onClick={handleConfirmarExplosao}
-                                        disabled={processandoExplosao}
-                                    >
-                                        {processandoExplosao ? t('game.firing') : t('game.confirmAttack')}
-                                    </button>
-                                )}
+                                <button
+                                    className={styles.btnConfirmar}
+                                    onClick={handleConfirmarExplosao}
+                                    disabled={processandoExplosao || alvosExplosao.length !== tirosDisponiveis || tirosDisponiveis === 0}
+                                    style={{ visibility: (alvosExplosao.length === tirosDisponiveis && tirosDisponiveis > 0) ? 'visible' : 'hidden' }}
+                                >
+                                    {processandoExplosao ? t('game.firing') : t('game.confirmAttack')}
+                                </button>
                             </div>
                         )}
                     </div>
@@ -674,6 +673,7 @@ export default function Jogo() {
                             <FrotaInimiga
                                 naviosAfundados={naviosAfundadosMeus}
                                 tiros={tirosRecebidos}
+                                modoJogo={estado.modo}
                             />
                         </div>
 
@@ -728,6 +728,7 @@ export default function Jogo() {
                                 naviosAfundados={naviosAfundados}
                                 tiros={tiros}
                                 ehInimigo={true}
+                                modoJogo={estado.modo}
                             />
                         </div>
                     </div>
