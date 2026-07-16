@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { criarJogo, getEstadoJogo } from '../../services/api';
+import { criarJogo } from '../../services/api';
 import { conectarWebSocket, inscrever } from '../../services/websocket';
 import { useTranslation } from '../../i18n/useTranslation';
 import styles from './CriarPartida.module.css';
@@ -25,7 +25,6 @@ export default function CriarPartida() {
     const [criando, setCriando] = useState(false);
     const navigate = useNavigate();
     const unsubRef = useRef(null);
-    const pollingRef = useRef(null);
 
     const modoAtual = MODOS[modoIndex];
     const dificuldadeAtual = DIFICULDADES[dificuldadeIndex];
@@ -40,7 +39,6 @@ export default function CriarPartida() {
         }
         return () => {
             if (unsubRef.current) unsubRef.current();
-            if (pollingRef.current) clearInterval(pollingRef.current);
         };
     }, []);
 
@@ -53,13 +51,6 @@ export default function CriarPartida() {
             unsubRef.current = inscrever(`/topic/jogo/${jogo.id}`, (evento) => {
                 if (evento.tipo === 'JOGADOR_ENTROU') navegarParaJogo(jogo.id);
             });
-
-            pollingRef.current = setInterval(async () => {
-                try {
-                    const estado = await getEstadoJogo(jogo.id);
-                    if (estado.status !== 'AGUARDANDO') navegarParaJogo(jogo.id);
-                } catch (err) { console.error(err); }
-            }, 2000);
         } catch (e) {
             alert(e.message);
         } finally {
@@ -69,7 +60,6 @@ export default function CriarPartida() {
 
     function navegarParaJogo(jogoId) {
         if (unsubRef.current) { unsubRef.current(); unsubRef.current = null; }
-        if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
         navigate(`/jogo/${jogoId}`);
     }
 
@@ -83,7 +73,6 @@ export default function CriarPartida() {
 
     function handleCancelar() {
         if (unsubRef.current) { unsubRef.current(); unsubRef.current = null; }
-        if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
         navigate('/lobby');
     }
 
@@ -91,7 +80,6 @@ export default function CriarPartida() {
         if (criando) return;
         // Cancelar sala atual
         if (unsubRef.current) { unsubRef.current(); unsubRef.current = null; }
-        if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
         // NÃO limpar jogoCriado para evitar layout shift — será substituído pelo novo
         const novoIndex = (modoIndex + 1) % MODOS.length;
         setModoIndex(novoIndex);
@@ -107,13 +95,6 @@ export default function CriarPartida() {
             unsubRef.current = inscrever(`/topic/jogo/${jogo.id}`, (evento) => {
                 if (evento.tipo === 'JOGADOR_ENTROU') navegarParaJogo(jogo.id);
             });
-
-            pollingRef.current = setInterval(async () => {
-                try {
-                    const estado = await getEstadoJogo(jogo.id);
-                    if (estado.status !== 'AGUARDANDO') navegarParaJogo(jogo.id);
-                } catch (err) { console.error(err); }
-            }, 2000);
         } catch (e) {
             alert(e.message);
         } finally {
