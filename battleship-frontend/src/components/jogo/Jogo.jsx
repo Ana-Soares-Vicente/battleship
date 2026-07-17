@@ -7,6 +7,7 @@ import { useTranslation } from '../../i18n/useTranslation';
 import Posicionamento from './Posicionamento';
 import Tabuleiro from './Tabuleiro';
 import FrotaInimiga from './FrotaInimiga';
+import GameOverScreen from './GameOverScreen';
 import styles from './Jogo.module.css';
 
 // Minha skin: SEMPRE lida do localStorage (fonte de verdade única da /skins)
@@ -616,7 +617,7 @@ export default function Jogo() {
 
         <div className={styles.container}>
             {/* Background — não renderiza durante posicionamento (Posicionamento.jsx tem o seu próprio) */}
-            {!(estado.status === 'POSICIONANDO' && !jaPositionei) && (
+            {!(estado.status === 'POSICIONANDO' && !jaPositionei) && estado.status !== 'FINALIZADO' && (
                 estado?.modo === 'EXPLOSAO' ? (
                     <video className={styles.bgVideo} src="/img/fundos/nether_video_modoexplosao.mp4" autoPlay loop muted playsInline ref={el => { if (el) el.playbackRate = 0.6; }} />
                 ) : (
@@ -656,41 +657,21 @@ export default function Jogo() {
             )}
 
             {/* ===== JOGO ===== */}
-            {(estado.status === 'JOGANDO' || estado.status === 'FINALIZADO') && !abandonou && (
+            {estado.status === 'JOGANDO' && !abandonou && (
                 <div className={styles.jogoArea}>
                     {/* Status Area — altura fixa, nunca empurra os tabuleiros */}
                     <div className={styles.statusArea}>
-                        {estado.status === 'JOGANDO' && (
-                            <div className={styles.turnoBar}>
-                                {ehMeuTurno ? (
-                                    <span className={styles.meuTurno}>⚔️ {t('game.yourTurn')}</span>
-                                ) : (
-                                    <span className={styles.aguardeTurno}>⏳ {t('game.waitTurn')}</span>
-                                )}
-                            </div>
-                        )}
-
-                        {estado.status === 'FINALIZADO' && (
-                            <div className={styles.resultadoBar}>
-                                {estado.vencedor === username ? (
-                                    <span className={styles.vitoria}>
-                                        {abandonou ? '🏆 ' + t('game.winByForfeit') : `🏆 ${t('game.youWon')} @${username}`}
-                                    </span>
-                                ) : (
-                                    <span className={styles.derrota}>
-                                        {abandonou && abandonou.motivo === 'inatividade'
-                                            ? '💀 ' + t('game.loseByInactivity')
-                                            : abandonou && abandonou.motivo === 'abandono'
-                                            ? '💀 ' + t('game.loseByForfeit')
-                                            : `💀 ${t('game.gameOver')} @${username}`}
-                                    </span>
-                                )}
-                            </div>
-                        )}
+                        <div className={styles.turnoBar}>
+                            {ehMeuTurno ? (
+                                <span className={styles.meuTurno}>⚔️ {t('game.yourTurn')}</span>
+                            ) : (
+                                <span className={styles.aguardeTurno}>⏳ {t('game.waitTurn')}</span>
+                            )}
+                        </div>
 
                         <p className={styles.msgInfo} style={{ visibility: msg ? 'visible' : 'hidden' }}>{msg || '\u00A0'}</p>
 
-                        {estado.modo === 'EXPLOSAO' && estado.status === 'JOGANDO' && (
+                        {estado.modo === 'EXPLOSAO' && (
                             <div className={styles.explosaoBar} style={{ visibility: ehMeuTurno ? 'visible' : 'hidden' }}>
                                 <span className={styles.explosaoLabel}>💣 {t('game.shots')}: {alvosExplosao.length}/{tirosDisponiveis}</span>
                                 <button
@@ -745,7 +726,7 @@ export default function Jogo() {
                         </div>
 
                         {/* OCEANO INIMIGO */}
-                        <div className={`${styles.tabuleiroBloco} ${ehMeuTurno && estado.status === 'JOGANDO' ? (estado.modo === 'EXPLOSAO' ? styles.tabuleiroAtivoExplosao : styles.tabuleiroAtivo) : ''}`}>
+                        <div className={`${styles.tabuleiroBloco} ${ehMeuTurno ? (estado.modo === 'EXPLOSAO' ? styles.tabuleiroAtivoExplosao : styles.tabuleiroAtivo) : ''}`}>
                             <div className={styles.tabHeader}>
                                 <div className={styles.tabHeaderText}>
                                     <h3 className={styles.tabTitulo}>{t('game.enemyOcean')}</h3>
@@ -753,13 +734,13 @@ export default function Jogo() {
                                 </div>
                                 {skinAdversario && <img src={skinAdversario} alt={adversario} className={styles.tabSkin} />}
                             </div>
-                            <div className={`${styles.boardFrame} ${ehMeuTurno && estado.status === 'JOGANDO' ? (estado.modo === 'EXPLOSAO' ? styles.boardFrameAtivoExplosao : styles.boardFrameAtivo) : ''}`}>
+                            <div className={`${styles.boardFrame} ${ehMeuTurno ? (estado.modo === 'EXPLOSAO' ? styles.boardFrameAtivoExplosao : styles.boardFrameAtivo) : ''}`}>
                                 <Tabuleiro
                                     modo="ataque"
                                     tiros={tiros}
                                     naviosAfundados={naviosAfundados}
                                     onCelulaClick={estado.modo === 'EXPLOSAO' ? handleCelulaClickExplosao : handleAtirar}
-                                    desabilitado={!ehMeuTurno || estado.status === 'FINALIZADO' || processandoExplosao}
+                                    desabilitado={!ehMeuTurno || processandoExplosao}
                                     alvosExplosao={estado.modo === 'EXPLOSAO' ? alvosExplosao : []}
                                     modoJogo={estado.modo}
                                 />
@@ -778,15 +759,18 @@ export default function Jogo() {
                         </div>
                     </div>
 
-                    {estado.status === 'FINALIZADO' && (
-                        <button className={styles.btnVoltar} onClick={() => navigate('/lobby')}>
-                            {t('game.backToMenu')}
-                        </button>
-                    )}
-
                 </div>
             )}
         </div>
+        {/* TELA DE FIM DE JOGO — estilo Minecraft (fullscreen, fora do container) */}
+        {estado.status === 'FINALIZADO' && !abandonou && (
+            <GameOverScreen
+                venceu={estado.vencedor === username}
+                pontuacao={naviosAfundados.length}
+                modo={estado.modo}
+                onVoltar={() => navigate('/lobby')}
+            />
+        )}
         {abandonou && (
             <div className={styles.abandonouOverlay}>
                 <div className={styles.abandonouModal}>

@@ -127,6 +127,12 @@ export default {
   'skins.available': 'Available Skins',
   'skins.back': 'BACK',
 
+  // Game End Screen
+  'gameEnd.gameOver': 'GAME OVER!',
+  'gameEnd.youWin': 'YOU WIN!',
+  'gameEnd.score': 'Score',
+  'gameEnd.backToMenu': 'BACK TO MENU',
+
   // Tips
   'tips.0': 'You can only attack one cell per turn.',
   'tips.1': 'A sunk ship reveals that all its positions were destroyed.',

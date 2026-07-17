@@ -127,6 +127,12 @@ export default {
   'skins.available': 'Skins Disponíveis',
   'skins.back': 'VOLTAR',
 
+  // Game End Screen
+  'gameEnd.gameOver': 'VOCÊ PERDEU!',
+  'gameEnd.youWin': 'VOCÊ VENCEU!',
+  'gameEnd.score': 'Pontuação',
+  'gameEnd.backToMenu': 'VOLTAR AO MENU',
+
   // Tips
   'tips.0': 'Você só pode atacar uma casa por turno.',
   'tips.1': 'Um barco afundado revela que todas as suas posições foram destruídas.',
