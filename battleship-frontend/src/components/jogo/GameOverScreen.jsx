@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
+import audioManager from '../../services/audioManager';
 import styles from './GameOverScreen.module.css';
 
 /**
@@ -8,24 +9,62 @@ import styles from './GameOverScreen.module.css';
  * - Vídeo do modo atual ao fundo, visível por trás do overlay
  * - Apenas UM texto conforme idioma selecionado
  * - Pontuação = quantidade de navios afundados
+ * - Som de vitória (minecraft-exp) ou derrota (blaze-morrendo) ao exibir
+ * - Mensagem de inatividade/abandono quando aplicável
  */
-export default function GameOverScreen({ venceu, pontuacao, modo, onVoltar }) {
+export default function GameOverScreen({ venceu, pontuacao, modo, onVoltar, motivo, adversario }) {
     const { t } = useTranslation();
     const [fase, setFase] = useState(0);
+    const somTocadoRef = useRef(false);
 
     useEffect(() => {
         const timers = [
             setTimeout(() => setFase(1), 100),   // overlay
             setTimeout(() => setFase(2), 500),   // título
-            setTimeout(() => setFase(3), 900),   // pontuação
+            setTimeout(() => setFase(3), 900),   // subtítulo/pontuação
             setTimeout(() => setFase(4), 1300),  // botão
         ];
         return () => timers.forEach(clearTimeout);
     }, []);
 
+    // Tocar som apenas uma vez ao montar o componente
+    useEffect(() => {
+        if (somTocadoRef.current) return;
+        somTocadoRef.current = true;
+
+        if (venceu) {
+            audioManager.playVictory();
+        } else {
+            audioManager.playDefeat();
+        }
+    }, [venceu]);
+
     const videoSrc = modo === 'EXPLOSAO'
         ? '/img/fundos/nether_video_modoexplosao.mp4'
         : '/img/fundos/fundo_padrao_peixes_mexendo.mp4';
+
+    // Mensagem de motivo (inatividade/abandono)
+    const getMotivoTexto = () => {
+        if (!motivo) return null;
+        if (motivo === 'inatividade') {
+            // Quem perdeu por inatividade é o adversário (se eu venci) ou eu (se perdi)
+            if (venceu) {
+                return `${adversario || '???'} ${t('gameEnd.lostByInactivity')}`;
+            } else {
+                return t('gameEnd.youLostByInactivity');
+            }
+        }
+        if (motivo === 'abandono') {
+            if (venceu) {
+                return `${adversario || '???'} ${t('gameEnd.lostByForfeit')}`;
+            } else {
+                return t('gameEnd.youLostByForfeit');
+            }
+        }
+        return null;
+    };
+
+    const motivoTexto = getMotivoTexto();
 
     return (
         <div className={styles.fullscreen}>
@@ -50,6 +89,12 @@ export default function GameOverScreen({ venceu, pontuacao, modo, onVoltar }) {
                 <h1 className={`${styles.titulo} ${venceu ? styles.tituloVitoria : styles.tituloDerrota} ${fase >= 2 ? styles.visible : ''}`}>
                     {venceu ? t('gameEnd.youWin') : t('gameEnd.gameOver')}
                 </h1>
+
+                {motivoTexto && (
+                    <p className={`${styles.motivo} ${fase >= 3 ? styles.visible : ''}`}>
+                        {motivoTexto}
+                    </p>
+                )}
 
                 <p className={`${styles.pontuacao} ${fase >= 3 ? styles.visible : ''}`}>
                     {t('gameEnd.score')}: {pontuacao}

@@ -556,33 +556,6 @@ export default function Jogo() {
 
     return (
         <>
-            {/* Resultado de abandono/inatividade durante posicionamento */}
-            {estado.status === 'FINALIZADO' && abandonou && (
-                <div className={styles.container}>
-                    {estado?.modo === 'EXPLOSAO' ? (
-                        <video className={styles.bgVideo} src="/img/fundos/nether_video_modoexplosao.mp4" autoPlay loop muted playsInline ref={el => { if (el) el.playbackRate = 0.6; }} />
-                    ) : (
-                        <video className={styles.bgVideo} src="/img/fundos/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
-                    )}
-                    <header className={styles.header}>
-                        <h1 className={styles.title}>MINECRAFT BATTLESHIP</h1>
-                    </header>
-                    <div className={styles.jogoArea}>
-                        <div className={styles.statusArea}>
-                            <div className={styles.resultadoBar}>
-                                {estado.vencedor === username ? (
-                                    <span className={styles.vitoria}>🏆 {t('game.winByForfeit')}</span>
-                                ) : (
-                                    <span className={styles.derrota}>💀 {t('game.loseByInactivity')}</span>
-                                )}
-                            </div>
-                        </div>
-                        <button className={styles.btnVoltar} onClick={() => navigate('/lobby')}>
-                            {t('game.backToMenu')}
-                        </button>
-                    </div>
-                </div>
-            )}
 
             {estado.status === 'POSICIONANDO' && jaPositionei && (
                 <div className={styles.aguardandoContainer}>
@@ -771,16 +744,15 @@ export default function Jogo() {
                 onVoltar={() => navigate('/lobby')}
             />
         )}
-        {abandonou && (
-            <div className={styles.abandonouOverlay}>
-                <div className={styles.abandonouModal}>
-                    <h2 className={styles.abandonouTitulo}>⚠️ O adversário saiu da partida</h2>
-                    <p className={styles.abandonouMsg}>Você venceu por WO!</p>
-                    <button className={styles.btnVoltar} onClick={() => navigate('/lobby')}>
-                        Voltar ao Lobby
-                    </button>
-                </div>
-            </div>
+        {estado.status === 'FINALIZADO' && abandonou && (
+            <GameOverScreen
+                venceu={estado.vencedor === username}
+                pontuacao={naviosAfundados.length}
+                modo={estado.modo}
+                onVoltar={() => navigate('/lobby')}
+                motivo={abandonou.motivo}
+                adversario={adversario}
+            />
         )}
         </>
     );

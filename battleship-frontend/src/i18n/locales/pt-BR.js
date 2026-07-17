@@ -132,6 +132,10 @@ export default {
   'gameEnd.youWin': 'VOCÊ VENCEU!',
   'gameEnd.score': 'Pontuação',
   'gameEnd.backToMenu': 'VOLTAR AO MENU',
+  'gameEnd.lostByInactivity': 'perdeu por inatividade',
+  'gameEnd.youLostByInactivity': 'Você perdeu por inatividade',
+  'gameEnd.lostByForfeit': 'abandonou a partida',
+  'gameEnd.youLostByForfeit': 'Você abandonou a partida',
 
   // Tips
   'tips.0': 'Você só pode atacar uma casa por turno.',

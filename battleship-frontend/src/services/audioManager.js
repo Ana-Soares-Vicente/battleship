@@ -25,6 +25,14 @@ class AudioManager {
         this._minecraftHitAudio = new Audio('/img/audio/minecraft_hit.mp3');
         this._minecraftHitAudio.preload = 'auto';
         this._minecraftHitAudio.volume = 0.7;
+
+        this._minecraftExpAudio = new Audio('/img/audio/minecraft-exp.mp3');
+        this._minecraftExpAudio.preload = 'auto';
+        this._minecraftExpAudio.volume = 0.8;
+
+        this._blazeMorrendoAudio = new Audio('/img/audio/blaze-morrendo.mp3');
+        this._blazeMorrendoAudio.preload = 'auto';
+        this._blazeMorrendoAudio.volume = 0.8;
     }
 
     // ========================= //
@@ -149,6 +157,26 @@ class AudioManager {
         const audio = this._tntExplosionAudio.cloneNode();
         audio.volume = 0.8;
         audio.play().catch(() => {});
+    }
+
+    /** Vitória — som de XP do Minecraft */
+    playVictory() {
+        if (!this.soundOn) return;
+        const audio = new Audio('/img/audio/minecraft-exp.mp3');
+        audio.volume = 0.8;
+        audio.play().catch((e) => {
+            console.warn('[AudioManager] Erro ao tocar minecraft-exp:', e);
+        });
+    }
+
+    /** Derrota — som de blaze morrendo */
+    playDefeat() {
+        if (!this.soundOn) return;
+        const audio = new Audio('/img/audio/blaze-morrendo.mp3');
+        audio.volume = 0.8;
+        audio.play().catch((e) => {
+            console.warn('[AudioManager] Erro ao tocar blaze-morrendo:', e);
+        });
     }
 
     // ========================= //

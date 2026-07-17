@@ -95,6 +95,18 @@
     transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
+/* Motivo (inatividade/abandono) — texto menor abaixo do título */
+.motivo {
+    font-family: 'Silkscreen', monospace;
+    font-size: clamp(12px, 2vw, 18px);
+    color: #aaaaaa;
+    text-shadow: 1px 1px 0 #000000;
+    margin: 0;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
 /* Botão — estilo botão do Minecraft */
 .btnVoltar {
     font-family: 'Silkscreen', monospace;

@@ -132,6 +132,10 @@ export default {
   'gameEnd.youWin': 'YOU WIN!',
   'gameEnd.score': 'Score',
   'gameEnd.backToMenu': 'BACK TO MENU',
+  'gameEnd.lostByInactivity': 'lost by inactivity',
+  'gameEnd.youLostByInactivity': 'You lost by inactivity',
+  'gameEnd.lostByForfeit': 'left the match',
+  'gameEnd.youLostByForfeit': 'You left the match',
 
   // Tips
   'tips.0': 'You can only attack one cell per turn.',
