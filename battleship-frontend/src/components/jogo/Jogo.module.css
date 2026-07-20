@@ -314,7 +314,7 @@
 }
 
 .bannerAfundou {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -710,15 +710,6 @@
         gap: 6px;
         width: 100%;
         justify-items: center;
-    }
-
-    .bannerAfundou {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        grid-row: none;
-        grid-column: none;
     }
 
     /* Meu Porto (2nd child in DOM) */

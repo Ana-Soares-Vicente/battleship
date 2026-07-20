@@ -651,6 +651,11 @@ export default function Jogo() {
             {/* ===== JOGO ===== */}
             {estado.status === 'JOGANDO' && !abandonou && (
                 <div className={styles.jogoArea}>
+                    {/* Banner afundou — overlay fixo, não participa do layout */}
+                    {bannerAfundou && (
+                        <div className={styles.bannerAfundou}>💥 {t('game.shipSunk')}</div>
+                    )}
+
                     {/* Status Area — altura fixa, nunca empurra os tabuleiros */}
                     <div className={styles.statusArea}>
                         <div className={styles.turnoBar}>
@@ -680,11 +685,6 @@ export default function Jogo() {
 
                     {/* Tabuleiros lado a lado */}
                     <div className={styles.tabuleiros}>
-                        {/* Banner afundou — overlay absoluto, não empurra nada */}
-                        {bannerAfundou && (
-                            <div className={styles.bannerAfundou}>💥 {t('game.shipSunk')}</div>
-                        )}
-
                         {/* MINHA FROTA (lateral esquerda) */}
                         <div className={styles.frotaLateral}>
                             <span className={styles.frotaLabel}>{t('game.myFleet')}</span>
