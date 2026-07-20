@@ -149,4 +149,11 @@ export default {
   'tips.7': 'After both finish positioning, the match starts automatically.',
   'tips.8': 'Use strategy, not just luck.',
   'tips.9': 'Each ship has a different number of blocks.',
+
+  // Legend
+  'legend.water': 'Water',
+  'legend.lava': 'Lava',
+  'legend.hit': 'Hit',
+  'legend.target': 'Target',
+  'legend.sunk': 'Sunk',
 };

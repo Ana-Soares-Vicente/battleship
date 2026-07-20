@@ -752,6 +752,45 @@ export default function Jogo() {
                         </div>
                     </div>
 
+                    {/* Legenda */}
+                    <div className={styles.legenda}>
+                        {estado.modo === 'EXPLOSAO' ? (
+                            <>
+                                <div className={styles.legendaItem}>
+                                    <img src="/img/tabuleiro/balde_lava.png" alt="Lava" className={styles.legendaIcone} />
+                                    <span className={styles.legendaTexto}>{t('legend.lava')}</span>
+                                </div>
+                                <div className={styles.legendaItem}>
+                                    <img src="/img/tabuleiro/pó_blaze.png" alt="Acerto" className={styles.legendaIcone} />
+                                    <span className={styles.legendaTexto}>{t('legend.hit')}</span>
+                                </div>
+                                <div className={styles.legendaItem}>
+                                    <img src="/img/tabuleiro/alvo.png" alt="Alvo" className={styles.legendaIcone} />
+                                    <span className={styles.legendaTexto}>{t('legend.target')}</span>
+                                </div>
+                                <div className={styles.legendaItem}>
+                                    <img src="/img/barcos/barquin_2.png" alt="Afundado" className={styles.legendaIcone} />
+                                    <span className={styles.legendaTexto}>{t('legend.sunk')}</span>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className={styles.legendaItem}>
+                                    <img src="/img/tabuleiro/balde_agua.png" alt="Água" className={styles.legendaIcone} />
+                                    <span className={styles.legendaTexto}>{t('legend.water')}</span>
+                                </div>
+                                <div className={styles.legendaItem}>
+                                    <img src="/img/tabuleiro/tnt-quadrado.png" alt="Acerto" className={styles.legendaIcone} />
+                                    <span className={styles.legendaTexto}>{t('legend.hit')}</span>
+                                </div>
+                                <div className={styles.legendaItem}>
+                                    <img src="/img/barcos/barquin_2.png" alt="Afundado" className={styles.legendaIcone} />
+                                    <span className={styles.legendaTexto}>{t('legend.sunk')}</span>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
                 </div>
             )}
         </div>

@@ -149,4 +149,11 @@ export default {
   'tips.7': 'Após ambos terminarem o posicionamento, a partida começa automaticamente.',
   'tips.8': 'Utilize estratégia, não apenas sorte.',
   'tips.9': 'Cada barco possui uma quantidade diferente de blocos.',
+
+  // Legend
+  'legend.water': 'Água',
+  'legend.lava': 'Lava',
+  'legend.hit': 'Acerto',
+  'legend.target': 'Alvo',
+  'legend.sunk': 'Afundado',
 };
