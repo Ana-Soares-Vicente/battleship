@@ -22,7 +22,8 @@
     justify-content: center;
     gap: clamp(2px, 0.5vh, 8px);
     padding: clamp(4px, 1vh, 12px) 10px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     z-index: 5;
     background: #000;
 }
