@@ -712,6 +712,15 @@
         justify-items: center;
     }
 
+    .bannerAfundou {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        grid-row: none;
+        grid-column: none;
+    }
+
     /* Meu Porto (2nd child in DOM) */
     .tabuleiros > *:nth-child(2) {
         grid-row: 1;
