@@ -9,6 +9,7 @@ export default {
   'login.next': 'Avançar',
   'login.loading': 'Carregando...',
   'login.signInOptions': 'Opções de login',
+  'login.onlyRegister': 'O único método de login disponível é com usuário e senha. Cadastre-se para jogar!',
   'login.fillAll': 'Preencha todos os campos',
 
   // Register

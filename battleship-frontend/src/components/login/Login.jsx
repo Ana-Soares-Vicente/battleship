@@ -9,6 +9,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [erro, setErro] = useState('');
     const [carregando, setCarregando] = useState(false);
+    const [mostrarDica, setMostrarDica] = useState(false);
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -81,9 +82,7 @@ export default function Login() {
                     </p>
 
                     <div className={styles.buttons}>
-                        <button type="button" className={styles.btnBack} disabled={carregando}>
-                            {t('login.back')}
-                        </button>
+                
                         <button type="submit" className={styles.btnNext} disabled={carregando}>
                             {carregando ? t('login.loading') : t('login.next')}
                         </button>
@@ -91,10 +90,15 @@ export default function Login() {
                 </form>
             </div>
 
-            <div className={styles.signInOptions}>
+            <div className={styles.signInOptions} onClick={() => setMostrarDica(!mostrarDica)}>
                 <span className={styles.keyIcon}>🔑</span>
                 <span>{t('login.signInOptions')}</span>
             </div>
+            {mostrarDica && (
+                <div className={styles.dicaLogin}>
+                    {t('login.onlyRegister')}
+                </div>
+            )}
         </div>
     );
 }

@@ -9,6 +9,7 @@ export default {
   'login.next': 'Next',
   'login.loading': 'Loading...',
   'login.signInOptions': 'Sign-in options',
+  'login.onlyRegister': 'The only available login method is username and password. Register to play!',
   'login.fillAll': 'Fill in all fields',
 
   // Register
