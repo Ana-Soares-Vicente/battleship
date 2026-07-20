@@ -408,6 +408,16 @@
     letter-spacing: 1px;
 }
 
+/* === Tab Header Espelhado (Oceano Inimigo) === */
+.tabHeaderEspelhado {
+    justify-content: flex-end;
+}
+
+.tabHeaderEspelhado .tabHeaderText {
+    align-items: flex-end;
+    text-align: right;
+}
+
 /* === Tabuleiro + Frota Lateral (não mais usado) === */
 .tabuleiroComFrota {
     display: none;
@@ -646,15 +656,38 @@
 
 @media (max-width: 768px) {
     .container {
-        --cell-size: clamp(20px, 4.2vw, 30px);
-        padding: 4px;
-        gap: 2px;
+        --cell-size: clamp(22px, 5.5vw, 32px);
+        padding: 8px 6px;
+        gap: 6px;
     }
 
     .tabuleiros {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 6px;
+        width: 100%;
+        justify-items: center;
+    }
+
+    /* Meu Porto (2nd child in DOM) */
+    .tabuleiros > *:nth-child(2) {
+        grid-row: 1;
+    }
+
+    /* Minha Frota (1st child in DOM) */
+    .tabuleiros > *:nth-child(1) {
+        grid-row: 2;
+    }
+
+    /* Oceano Inimigo (3rd child) */
+    .tabuleiros > *:nth-child(3) {
+        grid-row: 3;
+        margin-top: 16px;
+    }
+
+    /* Frota Inimiga (4th child) */
+    .tabuleiros > *:nth-child(4) {
+        grid-row: 4;
     }
 
     .frotaLateral {
@@ -666,8 +699,8 @@
     }
 
     .tabHeader {
-        padding: 4px 8px;
-        gap: 6px;
+        padding: 6px 10px;
+        gap: 8px;
     }
 
     .tabSkin {
@@ -688,7 +721,7 @@
     }
 
     .turnoBar {
-        padding: 6px 12px;
+        padding: 6px 14px;
     }
 
     .meuTurno,
@@ -704,37 +737,42 @@
     }
 
     .statusArea {
-        margin-bottom: 2px;
+        margin-bottom: 4px;
     }
 
     .msgInfo {
         font-size: 9px;
         padding: 4px 10px;
     }
+
+    .header {
+        margin-bottom: 4px;
+    }
 }
 
 @media (max-width: 480px) {
     .container {
-        --cell-size: clamp(26px, 8vw, 34px);
-        padding: 2px;
+        --cell-size: clamp(28px, 8.5vw, 36px);
+        padding: 6px 4px;
     }
 
     .tabuleiros {
-        gap: 8px;
+        gap: 6px;
+    }
+
+    /* Separação entre os dois blocos de tabuleiro */
+    .tabuleiros > *:nth-child(3) {
+        margin-top: 20px;
     }
 
     .frotaLateral {
         flex-direction: row;
-        order: 1;
-    }
-
-    .tabuleiroBloco {
-        order: 0;
+        margin-top: 0;
     }
 
     .tabHeader {
-        padding: 3px 6px;
-        gap: 4px;
+        padding: 4px 8px;
+        gap: 6px;
     }
 
     .tabSkin {
@@ -779,6 +817,10 @@
     .btnVoltar {
         font-size: 10px;
         padding: 6px 14px;
+    }
+
+    .statusArea {
+        margin-bottom: 2px;
     }
 }
 

@@ -10,11 +10,21 @@ function getHeaders() {
 async function request(url, options, mensagemPadrao) {
     const res = await fetch(url, options);
     if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
+        if (res.status === 401) {
             localStorage.removeItem('token');
             localStorage.removeItem('username');
             window.location.href = '/';
             throw new Error('Sessão expirada');
+        }
+        if (res.status === 403) {
+            let msg = 'Acesso negado';
+            try {
+                const body = await res.json();
+                msg = body.message || msg;
+            } catch { /* usa mensagem padrão */ }
+            const err = new Error(msg);
+            err.status = 403;
+            throw err;
         }
         let msg = mensagemPadrao;
         try {

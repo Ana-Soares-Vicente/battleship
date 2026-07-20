@@ -50,6 +50,13 @@ export default function Jogo() {
     const carregarEstado = useCallback(async () => {
         try {
             const e = await getEstadoJogo(id);
+
+            // Partida já encerrada — não permitir acesso
+            if (e.status === 'FINALIZADO' || e.status === 'EXPIRADO' || e.status === 'ABANDONADO') {
+                navigate('/lobby', { state: { erro: 'Esta partida já foi encerrada.' } });
+                return;
+            }
+
             setEstado(e);
             // DEBUG: skins recebidas do backend
             console.log('[SKINS] Skin equipada (localStorage):', localStorage.getItem('skinAtual'));
@@ -125,9 +132,21 @@ export default function Jogo() {
                 }
             }
         } catch (e) {
+            if (e.status === 403) {
+                navigate('/lobby', { state: { erro: 'Você não possui acesso a esta partida.' } });
+                return;
+            }
+            if (e.message && (e.message.includes('não encontrado') || e.message.includes('not found'))) {
+                navigate('/lobby', { state: { erro: 'Partida não encontrada.' } });
+                return;
+            }
+            if (e.message && (e.message.includes('encerrada') || e.message.includes('ended'))) {
+                navigate('/lobby', { state: { erro: 'Esta partida já foi encerrada.' } });
+                return;
+            }
             console.error(e);
         }
-    }, [id]);
+    }, [id, navigate]);
 
     useEffect(() => {
         let inscrito = false;
@@ -672,6 +691,7 @@ export default function Jogo() {
                             <FrotaInimiga
                                 naviosAfundados={naviosAfundadosMeus}
                                 tiros={tirosRecebidos}
+                                meusNavios={meusNavios}
                                 modoJogo={estado.modo}
                             />
                         </div>
@@ -700,7 +720,7 @@ export default function Jogo() {
 
                         {/* OCEANO INIMIGO */}
                         <div className={`${styles.tabuleiroBloco} ${ehMeuTurno ? (estado.modo === 'EXPLOSAO' ? styles.tabuleiroAtivoExplosao : styles.tabuleiroAtivo) : ''}`}>
-                            <div className={styles.tabHeader}>
+                            <div className={`${styles.tabHeader} ${styles.tabHeaderEspelhado}`}>
                                 <div className={styles.tabHeaderText}>
                                     <h3 className={styles.tabTitulo}>{t('game.enemyOcean')}</h3>
                                     <span className={styles.tabNome}>{(adversario || '...').toUpperCase()}</span>

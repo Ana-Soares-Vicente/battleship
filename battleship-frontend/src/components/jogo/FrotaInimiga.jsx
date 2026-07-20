@@ -14,7 +14,7 @@ const FROTA_PADRAO = [
  * Inventário Naval — Hotbar estilo Minecraft
  * Slots quadrados com sprite do barco como ícone + corações ao lado
  */
-export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimigo = false, modoJogo }) {
+export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimigo = false, meusNavios = [], modoJogo }) {
     const { t } = useTranslation();
 
     function contarAfundadosPorTamanho() {
@@ -26,14 +26,75 @@ export default function FrotaInimiga({ naviosAfundados = [], tiros = [], ehInimi
         return contagem;
     }
 
+    /**
+     * Dado um navio posicionado, retorna as células que ele ocupa.
+     */
+    function getCelulasNavio(navio) {
+        const celulas = [];
+        for (let i = 0; i < navio.tamanho; i++) {
+            const l = navio.direcao === 'VERTICAL' ? navio.linhaInicial + i : navio.linhaInicial;
+            const c = navio.direcao === 'HORIZONTAL' ? navio.colunaInicial + i : navio.colunaInicial;
+            celulas.push({ linha: l, coluna: c });
+        }
+        return celulas;
+    }
+
+    /**
+     * Conta acertos por navio usando as posições reais (meusNavios).
+     * Retorna um mapa: tipo_index → quantidade de acertos naquele navio.
+     */
+    function contarAcertosPorNavio() {
+        if (!meusNavios || meusNavios.length === 0) return null;
+
+        const acertosPorNavio = {};
+        const tirosAcerto = tiros.filter(t => t.resultado === 'ACERTO' || t.resultado === 'AFUNDOU');
+
+        meusNavios.forEach((navio, idx) => {
+            const celulas = getCelulasNavio(navio);
+            let hits = 0;
+            for (const tiro of tirosAcerto) {
+                if (celulas.some(c => c.linha === tiro.linha && c.coluna === tiro.coluna)) {
+                    hits++;
+                }
+            }
+            acertosPorNavio[idx] = hits;
+        });
+
+        return acertosPorNavio;
+    }
+
     function contarAcertosPendentes() {
-        return tiros.filter(t => t.resultado === 'ACERTO').length;
+        return tiros.filter(t => t.resultado === 'ACERTO' || t.resultado === 'AFUNDOU').length;
     }
 
     const afundadosPorTamanho = contarAfundadosPorTamanho();
+    const acertosPorNavio = contarAcertosPorNavio();
     const acertosPendentes = contarAcertosPendentes();
 
     function buildListaNavios() {
+        // Quando temos meusNavios (Minha Frota), usar distribuição exata
+        if (acertosPorNavio && meusNavios.length > 0) {
+            // Rastrear quais navios afundados já foram associados (para tipos repetidos como CRUZADOR/SUBMARINO)
+            const afundadosUsados = [];
+
+            return meusNavios.map((navio, idx) => {
+                const hits = acertosPorNavio[idx] || 0;
+                // Um navio está afundado se foi atingido em todas as suas células
+                const afundado = hits >= navio.tamanho;
+                const currentHp = afundado ? 0 : navio.tamanho - hits;
+                const frotaInfo = FROTA_PADRAO.find(f => f.tipo === navio.tipo);
+                return {
+                    tipo: navio.tipo,
+                    tamanho: navio.tamanho,
+                    img: frotaInfo ? frotaInfo.img : FROTA_PADRAO[0].img,
+                    nomeKey: frotaInfo ? frotaInfo.nomeKey : 'ships.portaAvioes',
+                    afundado,
+                    currentHp,
+                };
+            });
+        }
+
+        // Fallback para frota inimiga (sem posições conhecidas) — distribuição estimada
         const contagemUsada = {};
         const naviosComStatus = FROTA_PADRAO.map(navio => {
             const tam = navio.tamanho;

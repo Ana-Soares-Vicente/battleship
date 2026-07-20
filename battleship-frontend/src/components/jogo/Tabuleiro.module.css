@@ -182,16 +182,18 @@
     border: 1px solid #082a4a;
 }
 
-/* Barco atingido — overlay amarelo claro translúcido */
+/* Barco atingido — overlay vermelho translúcido */
 .celulaMeuNavioAtingido {
-    background: rgba(255, 220, 60, 0.35);
-    border: 1px solid rgba(255, 210, 50, 0.5);
+    background: rgba(200, 30, 30, 0.35);
+    border: 1px solid rgba(220, 50, 50, 0.5);
+    box-shadow: inset 0 0 6px rgba(255, 50, 50, 0.2);
 }
 
-/* Barco afundado — overlay amarelo/dourado translúcido */
+/* Barco afundado — overlay vermelho mais intenso */
 .celulaMeuNavioAfundado {
-    background: rgba(218, 165, 32, 0.35);
-    border: 1px solid rgba(255, 200, 50, 0.5);
+    background: rgba(180, 20, 20, 0.45);
+    border: 1px solid rgba(200, 40, 40, 0.6);
+    box-shadow: inset 0 0 8px rgba(255, 30, 30, 0.3);
 }
 
 /* Tiro recebido na água — textura de água mais escura */
@@ -598,6 +600,20 @@
 .modoExplosao .celulaMeuNavio {
     background: #a85520;
     border: 1px solid #8b4513;
+}
+
+/* Barco atingido no modo explosão — overlay preto semitransparente */
+.modoExplosao .celulaMeuNavioAtingido {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Barco afundado no modo explosão — overlay preto mais intenso */
+.modoExplosao .celulaMeuNavioAfundado {
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Navio afundado no modo explosão — mesmo visual do modo padrão */

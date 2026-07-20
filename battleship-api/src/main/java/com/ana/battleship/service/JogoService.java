@@ -209,6 +209,7 @@ public class JogoService {
 
         Usuario atirador = buscarUsuario(username);
         Jogo jogo = buscarJogo(jogoId);
+        validarJogadorNoJogo(jogo, atirador);
 
         if (!jogo.getStatus().equals("JOGANDO"))
             throw new IllegalStateException("Jogo não está em andamento");
@@ -310,6 +311,11 @@ public class JogoService {
         Jogo jogo = buscarJogo(jogoId);
         validarJogadorNoJogo(jogo, jogador);
 
+        String status = jogo.getStatus();
+        if ("FINALIZADO".equals(status) || "EXPIRADO".equals(status) || "ABANDONADO".equals(status)) {
+            throw new IllegalStateException("Esta partida já foi encerrada");
+        }
+
         Map<String, Object> r = new HashMap<>();
         r.put("id", jogo.getId());
         r.put("token", jogo.getToken());
@@ -350,6 +356,7 @@ public class JogoService {
     public List<Map<String, Object>> getMeusTiros(Long jogoId, String username) {
         Usuario usuario = buscarUsuario(username);
         Jogo jogo = buscarJogo(jogoId);
+        validarJogadorNoJogo(jogo, usuario);
         return tiroRepo.findByJogoAndAtirador(jogo, usuario).stream().map(t -> {
             Map<String, Object> m = new HashMap<>();
             m.put("linha", t.getLinha());
@@ -448,6 +455,7 @@ public class JogoService {
     public List<Map<String, Object>> atirarExplosao(Long jogoId, String username, List<Map<String, Object>> tiros) {
         Usuario atirador = buscarUsuario(username);
         Jogo jogo = buscarJogo(jogoId);
+        validarJogadorNoJogo(jogo, atirador);
 
         if (!jogo.getModo().equals("EXPLOSAO"))
             throw new IllegalStateException("Este jogo não está em modo Explosão");

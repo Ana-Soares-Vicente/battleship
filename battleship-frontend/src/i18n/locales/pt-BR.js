@@ -110,6 +110,7 @@ export default {
   'position.vertical': '↓ Vertical',
   'position.allPositioned': 'Todos posicionados!',
   'position.controls': 'Esquerdo: posicionar • Direito: rotacionar',
+  'position.rotate': '↻ Girar',
   'position.reset': '🔄 Resetar',
   'position.confirm': '✓ Confirmar',
 

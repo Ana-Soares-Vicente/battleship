@@ -376,6 +376,19 @@ export default function Posicionamento({ jogoId, onPronto, jogador1, jogador2, m
                             </div>
                         );
                     })}
+
+                    {/* Botão de rotação */}
+                    <button
+                        className={`${styles.btnGirar} ${todosPosicionados ? styles.btnGirarDisabled : ''}`}
+                        type="button"
+                        onClick={() => setDirecao(prev => prev === 'HORIZONTAL' ? 'VERTICAL' : 'HORIZONTAL')}
+                        title={direcao === 'HORIZONTAL' ? t('position.vertical') : t('position.horizontal')}
+                        disabled={todosPosicionados}
+                    >
+                        <svg className={styles.iconeGirar} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 .34-.03.67-.09 1h2.02c.05-.33.07-.66.07-1 0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-.34.03-.67.09-1H4.07c-.05.33-.07.66-.07 1 0 4.42 3.58 8 8 8v3l4-4-4-4v3z" fill="currentColor"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>

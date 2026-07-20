@@ -1,17 +1,26 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { conectarWebSocket } from '../../services/websocket';
 import { useTranslation } from '../../i18n/useTranslation';
 import styles from './Lobby.module.css';
 
 export default function Lobby() {
     const navigate = useNavigate();
+    const location = useLocation();
     const username = localStorage.getItem('username');
     const { t } = useTranslation();
+    const [mensagemErro, setMensagemErro] = useState(location.state?.erro || '');
 
     useEffect(() => {
         conectarWebSocket(() => {});
     }, []);
+
+    useEffect(() => {
+        if (mensagemErro) {
+            const timeout = setTimeout(() => setMensagemErro(''), 5000);
+            return () => clearTimeout(timeout);
+        }
+    }, [mensagemErro]);
 
     function handleLogout() {
         localStorage.removeItem('token');
@@ -28,6 +37,11 @@ export default function Lobby() {
                 <h2 className={styles.subtitle}>BATTLESHIP</h2>
                 <span className={styles.tagline}>BETA!!</span>
             </div>
+
+            {/* Mensagem de erro */}
+            {mensagemErro && (
+                <div className={styles.erroMsg}>{mensagemErro}</div>
+            )}
 
             {/* Botões centrais */}
             <div className={styles.menuButtons}>
