@@ -103,11 +103,6 @@ export default function Register() {
                     </div>
                 </form>
             </div>
-
-            <div className={styles.signInOptions}>
-                <span className={styles.keyIcon}>🔑</span>
-                <span>{t('login.signInOptions')}</span>
-            </div>
         </div>
     );
 }
