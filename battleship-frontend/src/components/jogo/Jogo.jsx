@@ -547,7 +547,7 @@ export default function Jogo() {
             <div className={`${styles.loadingScreen} ${fadeOut ? styles.loadingFadeOut : ''}`}>
                 <video
                     className={styles.loadingVideo}
-                    src="/img/ui/loading_page.mp4"
+                    src="/img/ui/loading_page1.mp4"
                     autoPlay
                     muted
                     playsInline

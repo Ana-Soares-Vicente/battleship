@@ -18,8 +18,8 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: url('/img/ui/lobby_page.png') center/cover no-repeat;
-    filter: brightness(0.3);
+    background: url('/img/ui/lobby_page.jpg') center/cover no-repeat;
+    filter: brightness(0.9);
     opacity: 0.85;
     z-index: 0;
 }
