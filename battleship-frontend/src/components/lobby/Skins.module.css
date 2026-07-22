@@ -11,6 +11,8 @@
     padding: 20px;
     background: url('/img/fundos/fundo_mine.jpg') center/cover no-repeat;
     image-rendering: pixelated;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 /* ========================= */
@@ -29,6 +31,7 @@
     gap: 8px;
     max-width: 420px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 /* Título */
@@ -247,6 +250,52 @@
 }
 
 
+
+/* ========================= */
+/* MOBILE                    */
+/* ========================= */
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    .inventoryWindow {
+        max-width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    .skinsGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+    }
+
+    .skinThumb {
+        width: 28px;
+    }
+
+    .skinName {
+        font-size: 7px;
+    }
+
+    .skinSlot {
+        padding: 3px;
+    }
+
+    .topArea {
+        gap: 6px;
+    }
+
+    .skinDisplay {
+        width: 60px;
+        height: 110px;
+    }
+
+    .skinImg {
+        width: 48px;
+    }
+}
 
 /* ========================= */
 /* MONITORES GRANDES         */
