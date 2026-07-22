@@ -59,7 +59,7 @@ export default function Jogo() {
 
             // Partida já encerrada — não permitir acesso
             if (e.status === 'EXPIRADO' || e.status === 'ABANDONADO') {
-                navigate('/lobby', { state: { erro: 'Esta partida já foi encerrada.' } });
+                navigate('/lobby', { replace: true, state: { erro: 'Esta partida já foi encerrada.' } });
                 return;
             }
 
@@ -160,15 +160,15 @@ export default function Jogo() {
             }
         } catch (e) {
             if (e.status === 403) {
-                navigate('/lobby', { state: { erro: 'Você não possui acesso a esta partida.' } });
+                navigate('/lobby', { replace: true, state: { erro: 'Você não possui acesso a esta partida.' } });
                 return;
             }
             if (e.message && (e.message.includes('não encontrado') || e.message.includes('not found'))) {
-                navigate('/lobby', { state: { erro: 'Partida não encontrada.' } });
+                navigate('/lobby', { replace: true, state: { erro: 'Partida não encontrada.' } });
                 return;
             }
             if (e.message && (e.message.includes('encerrada') || e.message.includes('ended'))) {
-                navigate('/lobby', { state: { erro: 'Esta partida já foi encerrada.' } });
+                navigate('/lobby', { replace: true, state: { erro: 'Esta partida já foi encerrada.' } });
                 return;
             }
             console.error(e);
@@ -613,7 +613,8 @@ export default function Jogo() {
                 setRevancheSolicitante(username);
             }
         } catch (e) {
-            alert(e.message);
+            // Revanche indisponível — redirecionar para lobby
+            navigate('/lobby', { replace: true, state: { erro: e.message || 'Revanche indisponível.' } });
         } finally {
             setRevancheEnviando(false);
         }
@@ -630,7 +631,8 @@ export default function Jogo() {
                 setRevancheState('AGUARDANDO');
             }
         } catch (e) {
-            alert(e.message);
+            // Revanche indisponível — redirecionar para lobby
+            navigate('/lobby', { replace: true, state: { erro: e.message || 'Revanche indisponível.' } });
         } finally {
             setRevancheEnviando(false);
         }
@@ -895,7 +897,7 @@ export default function Jogo() {
                 venceu={estado.vencedor === username}
                 pontuacao={naviosAfundados.length}
                 modo={estado.modo}
-                onVoltar={() => navigate('/lobby')}
+                onVoltar={() => navigate('/lobby', { replace: true })}
                 onRevanche={handleRevancheClick}
                 revancheSolicitante={revancheSolicitante}
                 skinSolicitante={revancheSkinSolicitante}
@@ -906,10 +908,10 @@ export default function Jogo() {
                 venceu={estado.vencedor === username}
                 pontuacao={naviosAfundados.length}
                 modo={estado.modo}
-                onVoltar={() => navigate('/lobby')}
+                onVoltar={() => navigate('/lobby', { replace: true })}
                 motivo={abandonou.motivo}
                 adversario={adversario}
-                onRevanche={handleRevancheClick}
+                onRevanche={estado.vencedor === username ? handleRevancheClick : null}
                 revancheSolicitante={revancheSolicitante}
                 skinSolicitante={revancheSkinSolicitante}
             />

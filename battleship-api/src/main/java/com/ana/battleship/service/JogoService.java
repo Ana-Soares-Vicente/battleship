@@ -668,6 +668,22 @@ public class JogoService {
             throw new IllegalStateException("A partida ainda não terminou");
         }
 
+        // Revanche requires both players to be present in the game
+        if (jogo.getJogador2() == null) {
+            throw new IllegalStateException("Revanche indisponível: partida incompleta");
+        }
+
+        // Block revanche if the requesting player lost (they were the one who abandoned)
+        // A player who abandoned should not be able to request a rematch
+        if (jogo.getVencedor() != null && !jogo.getVencedor().getUsername().equals(username)) {
+            // The requesting player lost — check if it was an early finish (no complete game play)
+            // Allow revanche only if both players had boards with shots (normal game end)
+            long tirosNoJogo = tiroRepo.countByJogo(jogo);
+            if (tirosNoJogo == 0) {
+                throw new IllegalStateException("Revanche indisponível: partida encerrada por abandono");
+            }
+        }
+
         // If a revanche game was already created, return it
         if (jogo.getRevancheJogoId() != null) {
             Map<String, Object> r = new HashMap<>();

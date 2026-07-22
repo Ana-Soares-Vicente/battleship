@@ -8,4 +8,5 @@ public interface TiroRepository extends JpaRepository<Tiro, Long> {
     List<Tiro> findByJogoAndAtirador(Jogo jogo, Usuario atirador);
     List<Tiro> findByJogoAndAtiradorNot(Jogo jogo, Usuario atirador);
     boolean existsByJogoAndAtiradorAndLinhaAndColuna(Jogo jogo, Usuario atirador, int linha, int coluna);
+    long countByJogo(Jogo jogo);
 }
