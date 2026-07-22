@@ -1355,3 +1355,216 @@
         min-height: 65px;
     }
 }
+
+
+/* ========================= */
+/* REVANCHE — OVERLAY CONFIG */
+/* ========================= */
+
+.revancheOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+}
+
+.revancheOverlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('/img/ui/lobby_page.jpg') center/cover no-repeat;
+    filter: brightness(0.9);
+    opacity: 0.85;
+    z-index: 0;
+}
+
+.revancheOverlay > * {
+    position: relative;
+    z-index: 1;
+}
+
+.revancheContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    width: 100%;
+    max-width: 560px;
+}
+
+.revancheTitle {
+    color: #ffffff;
+    font-size: 18px;
+    text-shadow: 2px 2px 0 #3f3f3f;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.revancheContent {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+
+.revancheBtnRow {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+}
+
+.revancheBtnOption {
+    flex: 1;
+    padding: 10px 14px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 12px;
+    color: #ffffff;
+    background: linear-gradient(180deg, #7a7a7a, #5a5a5a);
+    border: 2px solid #000000;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+        0 2px 0 #000000;
+    cursor: pointer;
+    text-shadow: 1px 1px 0 #2a2a2a;
+    text-align: center;
+}
+
+.revancheBtnOption:hover {
+    background: linear-gradient(180deg, #8a8aaa, #6a6a8a);
+    border-color: #ffffff;
+}
+
+.revancheModoDesc {
+    color: #888888;
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.5;
+    white-space: pre-line;
+    margin: 0;
+}
+
+.revancheImgContainer {
+    width: 100%;
+    max-width: 440px;
+    border: 3px solid #4a4a4a;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.revancheModoImg {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    image-rendering: pixelated;
+    display: block;
+}
+
+.revancheFooter {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+.revancheBtnFooter {
+    flex: 1;
+    padding: 12px 20px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 13px;
+    color: #ffffff;
+    background: linear-gradient(180deg, #7a7a7a, #5a5a5a);
+    border: 2px solid #000000;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+        0 2px 0 #000000;
+    cursor: pointer;
+    text-shadow: 1px 1px 0 #2a2a2a;
+    text-align: center;
+    transition: background 0.1s;
+}
+
+.revancheBtnFooter:hover:not(:disabled) {
+    background: linear-gradient(180deg, #8a8aaa, #6a6a8a);
+    border-color: #ffffff;
+}
+
+.revancheBtnFooter:active:not(:disabled) {
+    box-shadow:
+        inset 0 -2px 0 rgba(255, 255, 255, 0.2),
+        inset 0 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+.revancheBtnFooter:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.revancheBtnCancel {
+    background: linear-gradient(180deg, #6a6a6a, #4a4a4a);
+}
+
+.revancheBtnCancel:hover:not(:disabled) {
+    background: linear-gradient(180deg, #7a7a7a, #5a5a5a);
+}
+
+.revancheBtnCreate {
+    background: linear-gradient(180deg, #4a8a4a, #2a6a2a);
+}
+
+.revancheBtnCreate:hover:not(:disabled) {
+    background: linear-gradient(180deg, #5a9a5a, #3a7a3a);
+    border-color: #55ff55;
+}
+
+.revancheBtnCreate:disabled {
+    background: linear-gradient(180deg, #4a6a4a, #2a4a2a);
+}
+
+/* Botão cancelar na tela de aguardando revanche */
+.revancheBtnCancelWait {
+    margin-top: 16px;
+    padding: 10px 24px;
+    font-family: 'Silkscreen', monospace;
+    font-size: 12px;
+    color: #ffffff;
+    background: linear-gradient(180deg, #6a6a6a, #4a4a4a);
+    border: 2px solid #000000;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+        0 2px 0 #000000;
+    cursor: pointer;
+    text-shadow: 1px 1px 0 #2a2a2a;
+}
+
+.revancheBtnCancelWait:hover {
+    background: linear-gradient(180deg, #7a7a7a, #5a5a5a);
+    border-color: #ffffff;
+}
+
+
+/* Skin do solicitante na tela de aceitar revanche */
+.revancheWaitSkin {
+    width: 48px;
+    height: auto;
+    image-rendering: pixelated;
+    -webkit-user-drag: none;
+    margin-bottom: 8px;
+}
+
+/* Botões na tela de aceitar revanche */
+.revancheWaitButtons {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}

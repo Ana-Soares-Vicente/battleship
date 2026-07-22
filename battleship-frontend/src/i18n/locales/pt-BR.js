@@ -157,4 +157,12 @@ export default {
   'legend.hit': 'Acerto',
   'legend.target': 'Alvo',
   'legend.sunk': 'Afundado',
+
+  // Revanche
+  'revanche.button': 'REVANCHE',
+  'revanche.title': 'Revanche',
+  'revanche.startButton': 'INICIAR REVANCHE',
+  'revanche.waitingOpponent': 'AGUARDANDO OPONENTE PARA A REVANCHE',
+  'revanche.starting': 'INICIANDO...',
+  'revanche.accepted': 'Revanche aceita! Iniciando...',
 };

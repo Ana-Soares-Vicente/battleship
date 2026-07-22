@@ -11,8 +11,9 @@ import styles from './GameOverScreen.module.css';
  * - Pontuação = quantidade de navios afundados
  * - Som de vitória (minecraft-exp) ou derrota (blaze-morrendo) ao exibir
  * - Mensagem de inatividade/abandono quando aplicável
+ * - Botão de Revanche com indicador de skin do solicitante
  */
-export default function GameOverScreen({ venceu, pontuacao, modo, onVoltar, motivo, adversario }) {
+export default function GameOverScreen({ venceu, pontuacao, modo, onVoltar, motivo, adversario, onRevanche, revancheSolicitante, skinSolicitante }) {
     const { t } = useTranslation();
     const [fase, setFase] = useState(0);
     const somTocadoRef = useRef(false);
@@ -47,7 +48,6 @@ export default function GameOverScreen({ venceu, pontuacao, modo, onVoltar, moti
     const getMotivoTexto = () => {
         if (!motivo) return null;
         if (motivo === 'inatividade') {
-            // Quem perdeu por inatividade é o adversário (se eu venci) ou eu (se perdi)
             if (venceu) {
                 return `${adversario || '???'} ${t('gameEnd.lostByInactivity')}`;
             } else {
@@ -106,6 +106,19 @@ export default function GameOverScreen({ venceu, pontuacao, modo, onVoltar, moti
                 >
                     {t('gameEnd.backToMenu')}
                 </button>
+
+                {/* Botão de Revanche */}
+                {onRevanche && (
+                    <button
+                        className={`${styles.btnRevanche} ${fase >= 4 ? styles.visible : ''}`}
+                        onClick={onRevanche}
+                    >
+                        {skinSolicitante && (
+                            <img src={skinSolicitante} alt="" className={styles.revancheSkin} draggable={false} />
+                        )}
+                        {t('revanche.button')}
+                    </button>
+                )}
             </div>
         </div>
     );

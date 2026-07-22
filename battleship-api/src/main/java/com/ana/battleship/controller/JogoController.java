@@ -94,6 +94,17 @@ public class JogoController {
         return jogoService.getLobby(principal.getName());
     }
 
+    @PostMapping("/{id}/revanche")
+    public Map<String, Object> revanche(@PathVariable Long id, @RequestBody(required = false) Map<String, Object> body, Principal principal) {
+        String modo = (body != null && body.containsKey("modo")) ? (String) body.get("modo") : null;
+        return jogoService.solicitarRevanche(id, principal.getName(), modo);
+    }
+
+    @GetMapping("/{id}/revanche-status")
+    public Map<String, Object> revancheStatus(@PathVariable Long id, Principal principal) {
+        return jogoService.getRevancheStatus(id, principal.getName());
+    }
+
     @PostMapping("/{id}/abandonar")
     public Map<String, Object> abandonar(@PathVariable Long id, Principal principal) {
         jogoService.abandonarPartidaPorId(id, principal.getName());

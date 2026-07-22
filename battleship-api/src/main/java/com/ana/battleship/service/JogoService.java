@@ -312,7 +312,7 @@ public class JogoService {
         validarJogadorNoJogo(jogo, jogador);
 
         String status = jogo.getStatus();
-        if ("FINALIZADO".equals(status) || "EXPIRADO".equals(status) || "ABANDONADO".equals(status)) {
+        if ("EXPIRADO".equals(status) || "ABANDONADO".equals(status)) {
             throw new IllegalStateException("Esta partida já foi encerrada");
         }
 
@@ -656,6 +656,120 @@ public class JogoService {
         evento.put("jogadorQueAbandonou", username);
         evento.put("vencedor", outroJogador != null ? outroJogador.getUsername() : null);
         messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+    }
+
+    @Transactional
+    public Map<String, Object> solicitarRevanche(Long jogoId, String username, String modo) {
+        Usuario jogador = buscarUsuario(username);
+        Jogo jogo = buscarJogo(jogoId);
+        validarJogadorNoJogo(jogo, jogador);
+
+        if (!"FINALIZADO".equals(jogo.getStatus())) {
+            throw new IllegalStateException("A partida ainda não terminou");
+        }
+
+        // If a revanche game was already created, return it
+        if (jogo.getRevancheJogoId() != null) {
+            Map<String, Object> r = new HashMap<>();
+            r.put("status", "INICIADA");
+            r.put("novoJogoId", jogo.getRevancheJogoId());
+            return r;
+        }
+
+        // First player requesting
+        if (jogo.getRevancheSolicitante() == null) {
+            jogo.setRevancheSolicitante(username);
+            jogo.setRevancheModo(modo != null ? modo : "PADRAO");
+            jogoRepo.save(jogo);
+
+            // Notify via WebSocket
+            Map<String, Object> evento = new HashMap<>();
+            evento.put("tipo", "REVANCHE_SOLICITADA");
+            evento.put("solicitante", username);
+            evento.put("modo", jogo.getRevancheModo());
+            String skinSolicitante = jogo.getJogador1().getUsername().equals(username) ? jogo.getSkinJogador1() : jogo.getSkinJogador2();
+            evento.put("skinSolicitante", skinSolicitante);
+            messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+
+            Map<String, Object> r = new HashMap<>();
+            r.put("status", "AGUARDANDO_OPONENTE");
+            r.put("solicitante", username);
+            r.put("modo", jogo.getRevancheModo());
+            return r;
+        }
+
+        // Same player requesting again (already requested)
+        if (jogo.getRevancheSolicitante().equals(username)) {
+            // Update mode if changed
+            if (modo != null) {
+                jogo.setRevancheModo(modo);
+                jogoRepo.save(jogo);
+            }
+            Map<String, Object> r = new HashMap<>();
+            r.put("status", "AGUARDANDO_OPONENTE");
+            r.put("solicitante", username);
+            r.put("modo", jogo.getRevancheModo());
+            return r;
+        }
+
+        // Second player accepting — create new game!
+        String modoRevanche = jogo.getRevancheModo();
+        Usuario jogador1Antigo = jogo.getJogador1();
+        Usuario jogador2Antigo = jogo.getJogador2();
+
+        // Create a new game with both players already in it
+        Jogo novoJogo = Jogo.builder()
+                .jogador1(jogador1Antigo)
+                .jogador2(jogador2Antigo)
+                .status("POSICIONANDO")
+                .token(gerarToken())
+                .skinJogador1(jogo.getSkinJogador1())
+                .skinJogador2(jogo.getSkinJogador2())
+                .modo(modoRevanche)
+                .build();
+        novoJogo = jogoRepo.save(novoJogo);
+
+        // Create boards for both players
+        tabuleiroRepo.save(Tabuleiro.builder().jogo(novoJogo).dono(jogador1Antigo).build());
+        tabuleiroRepo.save(Tabuleiro.builder().jogo(novoJogo).dono(jogador2Antigo).build());
+
+        // Update old game with reference to new game
+        jogo.setRevancheJogoId(novoJogo.getId());
+        jogoRepo.save(jogo);
+
+        // Notify both players via WebSocket
+        Map<String, Object> evento = new HashMap<>();
+        evento.put("tipo", "REVANCHE_INICIADA");
+        evento.put("novoJogoId", novoJogo.getId());
+        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+
+        Map<String, Object> r = new HashMap<>();
+        r.put("status", "INICIADA");
+        r.put("novoJogoId", novoJogo.getId());
+        return r;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getRevancheStatus(Long jogoId, String username) {
+        Usuario jogador = buscarUsuario(username);
+        Jogo jogo = buscarJogo(jogoId);
+        validarJogadorNoJogo(jogo, jogador);
+
+        Map<String, Object> r = new HashMap<>();
+        r.put("solicitante", jogo.getRevancheSolicitante());
+        r.put("modo", jogo.getRevancheModo());
+        r.put("novoJogoId", jogo.getRevancheJogoId());
+
+        if (jogo.getRevancheJogoId() != null) {
+            r.put("status", "INICIADA");
+        } else if (jogo.getRevancheSolicitante() != null) {
+            String skinSolicitante = jogo.getJogador1().getUsername().equals(jogo.getRevancheSolicitante()) ? jogo.getSkinJogador1() : jogo.getSkinJogador2();
+            r.put("skinSolicitante", skinSolicitante);
+            r.put("status", "AGUARDANDO_OPONENTE");
+        } else {
+            r.put("status", "NENHUMA");
+        }
+        return r;
     }
 
     private Usuario buscarUsuario(String username) {

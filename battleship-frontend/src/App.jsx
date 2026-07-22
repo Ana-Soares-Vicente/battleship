@@ -9,8 +9,14 @@ import Skins from './components/lobby/Skins';
 import Jogo from './components/jogo/Jogo';
 import PrivateRoute from './components/PrivateRoute';
 import audioManager from './services/audioManager';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import './index.css';
+
+// Wrapper para forçar remontagem do Jogo ao mudar de partida (revanche)
+function JogoWrapper() {
+    const { id } = useParams();
+    return <Jogo key={id} />;
+}
 
 function App() {
     useEffect(() => {
@@ -29,7 +35,7 @@ function App() {
                 <Route path="/entrar-token" element={<PrivateRoute><EntrarPartida /></PrivateRoute>} />
                 <Route path="/options" element={<PrivateRoute><Options /></PrivateRoute>} />
                 <Route path="/skins" element={<PrivateRoute><Skins /></PrivateRoute>} />
-                <Route path="/jogo/:id" element={<PrivateRoute><Jogo /></PrivateRoute>} />
+                <Route path="/jogo/:id" element={<PrivateRoute><JogoWrapper /></PrivateRoute>} />
             </Routes>
         </Router>
     );

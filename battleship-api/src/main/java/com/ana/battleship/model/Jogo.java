@@ -44,6 +44,10 @@ public class Jogo {
 
     private Instant ultimaAtividade;
 
+    private String revancheSolicitante; // username of who requested
+    private String revancheModo; // mode chosen for revanche
+    private Long revancheJogoId; // ID of the new game created after both accept
+
     @PrePersist
     void onCreate() {
         this.criadoEm = Instant.now();

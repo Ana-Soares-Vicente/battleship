@@ -177,3 +177,16 @@ export function abandonarJogoBeacon(id) {
         keepalive: true,
     }).catch(() => {});
 }
+
+
+export async function solicitarRevanche(jogoId, modo) {
+    return request(`${API_URL}/jogos/${jogoId}/revanche`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ modo: modo || 'PADRAO' }),
+    }, 'Erro ao solicitar revanche');
+}
+
+export async function getRevancheStatus(jogoId) {
+    return request(`${API_URL}/jogos/${jogoId}/revanche-status`, { headers: getHeaders() }, 'Erro ao buscar status da revanche');
+}

@@ -157,4 +157,12 @@ export default {
   'legend.hit': 'Hit',
   'legend.target': 'Target',
   'legend.sunk': 'Sunk',
+
+  // Revanche
+  'revanche.button': 'REMATCH',
+  'revanche.title': 'Rematch',
+  'revanche.startButton': 'START REMATCH',
+  'revanche.waitingOpponent': 'WAITING FOR OPPONENT FOR REMATCH',
+  'revanche.starting': 'STARTING...',
+  'revanche.accepted': 'Rematch accepted! Starting...',
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getEstadoJogo, getMeusTiros, atirar, getMinhaFrota, getTirosRecebidos, getNaviosAfundadosInimigo, atirarExplosao, getTirosDisponiveis, abandonarJogoBeacon } from '../../services/api';
+import { getEstadoJogo, getMeusTiros, atirar, getMinhaFrota, getTirosRecebidos, getNaviosAfundadosInimigo, atirarExplosao, getTirosDisponiveis, abandonarJogoBeacon, solicitarRevanche, getRevancheStatus } from '../../services/api';
 import { conectarWebSocket, inscrever, desconectarWebSocket } from '../../services/websocket';
 import audioManager from '../../services/audioManager';
 import { useTranslation } from '../../i18n/useTranslation';
@@ -35,6 +35,12 @@ export default function Jogo() {
     const [tirosDisponiveis, setTirosDisponiveis] = useState(0);
     const [processandoExplosao, setProcessandoExplosao] = useState(false);
     const [abandonou, setAbandonou] = useState(null);
+    const [revancheState, setRevancheState] = useState(null); // null | 'CONFIG' | 'AGUARDANDO' | 'ACEITA'
+    const [revancheModoIndex, setRevancheModoIndex] = useState(0);
+    const [revancheSolicitante, setRevancheSolicitante] = useState(null);
+    const [revancheSkinSolicitante, setRevancheSkinSolicitante] = useState(null);
+    const [revancheModo, setRevancheModo] = useState(null);
+    const [revancheEnviando, setRevancheEnviando] = useState(false);
     const username = localStorage.getItem('username');
     const minhaSkin = getMinhaSkinEquipada();
     const { t } = useTranslation();
@@ -52,7 +58,7 @@ export default function Jogo() {
             const e = await getEstadoJogo(id);
 
             // Partida já encerrada — não permitir acesso
-            if (e.status === 'FINALIZADO' || e.status === 'EXPIRADO' || e.status === 'ABANDONADO') {
+            if (e.status === 'EXPIRADO' || e.status === 'ABANDONADO') {
                 navigate('/lobby', { state: { erro: 'Esta partida já foi encerrada.' } });
                 return;
             }
@@ -130,6 +136,27 @@ export default function Jogo() {
                     loadingJaMostrouRef.current = true;
                     setMostrarLoading(true);
                 }
+            }
+            // Load revanche status if game is finished
+            if (e.status === 'FINALIZADO') {
+                try {
+                    const revStatus = await getRevancheStatus(id);
+                    if (revStatus && revStatus.status !== 'NENHUMA') {
+                        setRevancheSolicitante(revStatus.solicitante);
+                        setRevancheModo(revStatus.modo);
+                        if (revStatus.skinSolicitante) setRevancheSkinSolicitante(revStatus.skinSolicitante);
+                        if (revStatus.status === 'INICIADA' && revStatus.novoJogoId) {
+                            navigate(`/jogo/${revStatus.novoJogoId}`);
+                            return;
+                        }
+                        if (revStatus.status === 'AGUARDANDO_OPONENTE') {
+                            if (revStatus.solicitante === username) {
+                                setRevancheState('AGUARDANDO');
+                            }
+                            // The other player stays on GameOverScreen and can click "Revanche" to accept
+                        }
+                    }
+                } catch { /* ignore */ }
             }
         } catch (e) {
             if (e.status === 403) {
@@ -359,6 +386,19 @@ export default function Jogo() {
                         setEstado(prev => prev ? {...prev, status: 'FINALIZADO', vencedor: evento.vencedor} : prev);
                         break;
 
+                    case 'REVANCHE_SOLICITADA':
+                        setRevancheSolicitante(evento.solicitante);
+                        setRevancheSkinSolicitante(evento.skinSolicitante);
+                        setRevancheModo(evento.modo);
+                        // Do NOT automatically show waiting screen for the receiving player.
+                        // They stay on GameOverScreen and can click "Revanche" to accept directly.
+                        break;
+
+                    case 'REVANCHE_INICIADA':
+                        setRevancheState(null);
+                        navigate(`/jogo/${evento.novoJogoId}`);
+                        break;
+
                     default:
                         break;
                 }
@@ -538,6 +578,61 @@ export default function Jogo() {
             setAlvosExplosao([]);
         } finally {
             setProcessandoExplosao(false);
+        }
+    }
+
+    // ========================= //
+    // REVANCHE — HANDLERS       //
+    // ========================= //
+
+    const REVANCHE_MODOS = [
+        { id: 'PADRAO', labelKey: 'createMatch.modeStandard', descKey: 'createMatch.modeStandardDesc', img: '/img/modos/modo_padrao.png' },
+        { id: 'EXPLOSAO', labelKey: 'createMatch.modeExplosion', descKey: 'createMatch.modeExplosionDesc', img: '/img/modos/modo_explosao.png' },
+    ];
+
+    function handleRevancheClick() {
+        // If the other player already requested, accept immediately (no waiting screen)
+        if (revancheSolicitante && revancheSolicitante !== username) {
+            handleAceitarRevanche();
+        } else {
+            // Open config screen to choose mode
+            setRevancheState('CONFIG');
+        }
+    }
+
+    async function handleIniciarRevanche() {
+        setRevancheEnviando(true);
+        try {
+            const modoEscolhido = REVANCHE_MODOS[revancheModoIndex].id;
+            const res = await solicitarRevanche(id, modoEscolhido);
+            if (res.status === 'INICIADA') {
+                navigate(`/jogo/${res.novoJogoId}`);
+            } else {
+                setRevancheState('AGUARDANDO');
+                setRevancheModo(modoEscolhido);
+                setRevancheSolicitante(username);
+            }
+        } catch (e) {
+            alert(e.message);
+        } finally {
+            setRevancheEnviando(false);
+        }
+    }
+
+    async function handleAceitarRevanche() {
+        setRevancheEnviando(true);
+        try {
+            const res = await solicitarRevanche(id, revancheModo);
+            if (res.status === 'INICIADA') {
+                navigate(`/jogo/${res.novoJogoId}`);
+            } else {
+                // Should not happen, but fallback to waiting
+                setRevancheState('AGUARDANDO');
+            }
+        } catch (e) {
+            alert(e.message);
+        } finally {
+            setRevancheEnviando(false);
         }
     }
 
@@ -795,15 +890,18 @@ export default function Jogo() {
             )}
         </div>
         {/* TELA DE FIM DE JOGO — estilo Minecraft (fullscreen, fora do container) */}
-        {estado.status === 'FINALIZADO' && !abandonou && (
+        {estado.status === 'FINALIZADO' && !abandonou && revancheState !== 'CONFIG' && revancheState !== 'AGUARDANDO' && (
             <GameOverScreen
                 venceu={estado.vencedor === username}
                 pontuacao={naviosAfundados.length}
                 modo={estado.modo}
                 onVoltar={() => navigate('/lobby')}
+                onRevanche={handleRevancheClick}
+                revancheSolicitante={revancheSolicitante}
+                skinSolicitante={revancheSkinSolicitante}
             />
         )}
-        {estado.status === 'FINALIZADO' && abandonou && (
+        {estado.status === 'FINALIZADO' && abandonou && revancheState !== 'CONFIG' && revancheState !== 'AGUARDANDO' && (
             <GameOverScreen
                 venceu={estado.vencedor === username}
                 pontuacao={naviosAfundados.length}
@@ -811,7 +909,86 @@ export default function Jogo() {
                 onVoltar={() => navigate('/lobby')}
                 motivo={abandonou.motivo}
                 adversario={adversario}
+                onRevanche={handleRevancheClick}
+                revancheSolicitante={revancheSolicitante}
+                skinSolicitante={revancheSkinSolicitante}
             />
+        )}
+
+        {/* REVANCHE — TELA DE CONFIGURAÇÃO (reutiliza estilo de Criar Partida) */}
+        {estado.status === 'FINALIZADO' && revancheState === 'CONFIG' && (
+            <div className={styles.revancheOverlay}>
+                <div className={styles.revancheContainer}>
+                    <h1 className={styles.revancheTitle}>{t('revanche.title')} - {adversario || '???'}</h1>
+
+                    <div className={styles.revancheContent}>
+                        <div className={styles.revancheBtnRow}>
+                            <button className={styles.revancheBtnOption} onClick={() => setRevancheModoIndex(prev => (prev + 1) % REVANCHE_MODOS.length)} disabled={revancheEnviando}>
+                                {t('createMatch.gameMode')}: {t(REVANCHE_MODOS[revancheModoIndex].labelKey)}
+                            </button>
+                        </div>
+
+                        <p className={styles.revancheModoDesc}>{t(REVANCHE_MODOS[revancheModoIndex].descKey)}</p>
+
+                        <div className={styles.revancheImgContainer}>
+                            <img
+                                src={REVANCHE_MODOS[revancheModoIndex].img}
+                                alt={t(REVANCHE_MODOS[revancheModoIndex].labelKey)}
+                                className={styles.revancheModoImg}
+                                draggable={false}
+                            />
+                        </div>
+                    </div>
+
+                    <div className={styles.revancheFooter}>
+                        <button className={`${styles.revancheBtnFooter} ${styles.revancheBtnCancel}`} onClick={() => setRevancheState(null)}>
+                            {t('createMatch.cancel')}
+                        </button>
+                        <button
+                            className={`${styles.revancheBtnFooter} ${styles.revancheBtnCreate}`}
+                            onClick={handleIniciarRevanche}
+                            disabled={revancheEnviando}
+                        >
+                            {revancheEnviando ? t('revanche.starting') : t('revanche.startButton')}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* REVANCHE — TELA DE AGUARDANDO (para quem solicitou: espera o oponente aceitar) */}
+        {estado.status === 'FINALIZADO' && revancheState === 'AGUARDANDO' && (
+            <div className={styles.aguardandoContainer}>
+                {revancheModo === 'EXPLOSAO' ? (
+                    <video className={styles.aguardandoVideo} src="/img/fundos/nether_video_modoexplosao.mp4" autoPlay loop muted playsInline ref={el => { if (el) el.playbackRate = 0.6; }} />
+                ) : (
+                    <video className={styles.aguardandoVideo} src="/img/fundos/fundo_padrao_peixes_mexendo.mp4" autoPlay loop muted playsInline />
+                )}
+                <div className={styles.aguardandoContent}>
+                    <h1 className={styles.aguardandoTitle}>MINECRAFT BATTLESHIP</h1>
+                    <div className={styles.aguardandoPainel}>
+                        <div className={styles.painelHeader}>
+                            <span>{t('revanche.waitingOpponent')}<span className={styles.dots}>...</span></span>
+                        </div>
+                        <div className={styles.painelBody}>
+                            <p className={styles.dicaTexto}>
+                                {[
+                                    t('tips.0'), t('tips.1'), t('tips.2'), t('tips.3'), t('tips.4'),
+                                    t('tips.5'), t('tips.6'), t('tips.7'), t('tips.8'), t('tips.9'),
+                                ][Math.floor(Math.random() * 10)]}
+                            </p>
+                        </div>
+                        <div className={styles.painelFooter}>
+                            <div className={styles.loadBar}>
+                                <div className={styles.loadBarFill} />
+                            </div>
+                        </div>
+                    </div>
+                    <button className={styles.revancheBtnCancelWait} onClick={() => setRevancheState(null)}>
+                        {t('createMatch.cancel')}
+                    </button>
+                </div>
+            </div>
         )}
         </>
     );
