@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'battleship-api'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['172.20.128.1:8080']
+        labels:
+          application: battleship-api

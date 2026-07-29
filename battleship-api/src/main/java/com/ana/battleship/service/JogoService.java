@@ -2,9 +2,12 @@ package com.ana.battleship.service;
 
 import com.ana.battleship.model.*;
 import com.ana.battleship.repository.*;
+import io.micrometer.observation.annotation.Observed;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,7 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Observed(name = "jogo-service")
 public class JogoService {
 
     private final JogoRepository jogoRepo;
@@ -35,6 +39,7 @@ public class JogoService {
         jogoRepo.save(jogo);
     }
 
+    @CacheEvict(value = "lobby", allEntries = true)
     @Transactional
     public Jogo criarJogo(String username, String skin, String modo) {
         Usuario jogador = buscarUsuario(username);
@@ -60,6 +65,7 @@ public class JogoService {
         return jogo;
     }
 
+    @CacheEvict(value = "lobby", allEntries = true)
     @Transactional
     public Jogo entrarPorToken(String token, String username, String skin) {
         Jogo jogo = jogoRepo.findByToken(token.toUpperCase())
@@ -84,6 +90,7 @@ public class JogoService {
         return sb.toString();
     }
 
+    @CacheEvict(value = "lobby", allEntries = true)
     @Transactional
     public Jogo entrarNoJogo(Long jogoId, String username, String skin) {
         Usuario jogador = buscarUsuario(username);
@@ -438,6 +445,7 @@ public class JogoService {
         }
     }
 
+    @Cacheable("lobby")
     public List<Map<String, Object>> getLobby(String username) {
         Instant threshold = Instant.now().minusSeconds(120); // 2 min
         return jogoRepo.findByStatusAndUltimaAtividadeAfter("AGUARDANDO", threshold).stream()

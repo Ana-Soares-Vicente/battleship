@@ -4,6 +4,7 @@ import com.ana.battleship.model.Usuario;
 import com.ana.battleship.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
+@Observed(name = "auth-service")
 public class AuthService implements UserDetailsService {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
