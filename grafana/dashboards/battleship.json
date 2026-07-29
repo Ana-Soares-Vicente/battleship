@@ -1,0 +1,88 @@
+{
+  "annotations": { "list": [] },
+  "title": "Battleship API",
+  "uid": "battleship-api",
+  "panels": [
+    {
+      "title": "Request Rate (req/s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [{ "expr": "rate(http_server_requests_seconds_count{application=\"battleship-api\"}[1m])", "legendFormat": "{{method}} {{uri}} {{status}}" }]
+    },
+    {
+      "title": "Response Time p95 (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [{ "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "{{method}} {{uri}}" }]
+    },
+    {
+      "title": "JVM Memory Used",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [{ "expr": "jvm_memory_used_bytes{application=\"battleship-api\"}", "legendFormat": "{{area}} - {{id}}" }]
+    },
+    {
+      "title": "Active HTTP Connections",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [{ "expr": "http_server_requests_active_seconds_gcount{application=\"battleship-api\"}", "legendFormat": "active requests" }]
+    },
+    {
+      "title": "DB Connection Pool",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        { "expr": "hikaricp_connections_active{application=\"battleship-api\"}", "legendFormat": "active" },
+        { "expr": "hikaricp_connections_idle{application=\"battleship-api\"}", "legendFormat": "idle" },
+        { "expr": "hikaricp_connections_pending{application=\"battleship-api\"}", "legendFormat": "pending" }
+      ]
+    },
+    {
+      "title": "DB Query Time - Repository Calls (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        { "expr": "spring_data_repository_invocations_seconds_max{application=\"battleship-api\"} * 1000", "legendFormat": "MAX {{repository}}.{{method}}" },
+        { "expr": "rate(spring_data_repository_invocations_seconds_sum{application=\"battleship-api\"}[1m]) / rate(spring_data_repository_invocations_seconds_count{application=\"battleship-api\"}[1m]) * 1000", "legendFormat": "AVG {{repository}}.{{method}}" }
+      ]
+    },
+    {
+      "title": "DB Query Count (queries/s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        { "expr": "rate(spring_data_repository_invocations_seconds_count{application=\"battleship-api\"}[1m])", "legendFormat": "{{repository}}.{{method}}" }
+      ]
+    },
+    {
+      "title": "Slow Queries (>100ms)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [{ "expr": "spring_data_repository_invocations_seconds_max{application=\"battleship-api\"} * 1000 > 100", "legendFormat": "{{repository}}.{{method}}" }],
+      "options": { "colorMode": "value", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 100}, {"color": "red", "value": 500}] } } }
+    },
+    {
+      "title": "HikariCP Connection Acquire Time (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
+      "targets": [
+        { "expr": "hikaricp_connections_acquire_seconds_max{application=\"battleship-api\"} * 1000", "legendFormat": "max acquire time" },
+        { "expr": "rate(hikaricp_connections_acquire_seconds_sum{application=\"battleship-api\"}[1m]) / rate(hikaricp_connections_acquire_seconds_count{application=\"battleship-api\"}[1m]) * 1000", "legendFormat": "avg acquire time" }
+      ]
+    },
+    {
+      "title": "Connection Usage Time (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
+      "targets": [
+        { "expr": "hikaricp_connections_usage_seconds_max{application=\"battleship-api\"} * 1000", "legendFormat": "max usage time" },
+        { "expr": "rate(hikaricp_connections_usage_seconds_sum{application=\"battleship-api\"}[1m]) / rate(hikaricp_connections_usage_seconds_count{application=\"battleship-api\"}[1m]) * 1000", "legendFormat": "avg usage time" }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "timezone": "browser",
+  "refresh": "10s",
+  "time": { "from": "now-15m", "to": "now" }
+}
