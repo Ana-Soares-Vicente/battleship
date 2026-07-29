@@ -3,8 +3,20 @@
 *.iml
 
 # H2 database files
+data/
 battleship-api/data/
+
+# Logs
+*.log
+
+# Build artifacts
+battleship-api/target/
+battleship-api/META-INF/
 
 # OS
 Thumbs.db
 .DS_Store
+
+# Node
+battleship-frontend/node_modules/
+battleship-frontend/dist/
