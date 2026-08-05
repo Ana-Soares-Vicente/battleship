@@ -1,5 +1,6 @@
 package com.ana.battleship.service;
 
+import com.ana.battleship.config.BusinessMetrics;
 import com.ana.battleship.model.*;
 import com.ana.battleship.repository.*;
 import io.micrometer.observation.annotation.Observed;
@@ -8,10 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.ana.battleship.config.RedisWebSocketRelay.WebSocketBroadcaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -26,8 +28,9 @@ public class JogoService {
     private final NavioRepository navioRepo;
     private final TiroRepository tiroRepo;
     private final UsuarioRepository usuarioRepo;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketBroadcaster messagingTemplate;
     private final EntityManager entityManager;
+    private final BusinessMetrics businessMetrics;
 
     // Frota padrão: tipo -> tamanho
     private static final Map<String, Integer> FROTA = Map.of(
@@ -60,7 +63,7 @@ public class JogoService {
         evento.put("tipo", "NOVO_JOGO");
         evento.put("id", jogo.getId());
         evento.put("jogador1", jogador.getUsername());
-        messagingTemplate.convertAndSend("/topic/lobby", (Object) evento);
+        messagingTemplate.broadcast("/topic/lobby", evento);
 
         return jogo;
     }
@@ -114,12 +117,12 @@ public class JogoService {
         evento.put("jogador2", jogador.getUsername());
         evento.put("skinJogador2", skin);
         evento.put("status", jogo.getStatus());
-        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+        messagingTemplate.broadcast("/topic/jogo/" + jogoId, evento);
 
         Map<String, Object> eventoLobby = new HashMap<>();
         eventoLobby.put("tipo", "JOGO_REMOVIDO");
         eventoLobby.put("id", jogoId);
-        messagingTemplate.convertAndSend("/topic/lobby", (Object) eventoLobby);
+        messagingTemplate.broadcast("/topic/lobby", eventoLobby);
 
         return jogo;
     }
@@ -193,6 +196,11 @@ public class JogoService {
             jogo.setStatus("JOGANDO");
             jogo.setTurnoAtual(jogo.getJogador1());
             System.out.println(">>> JOGO #" + jogoId + " MUDOU PARA JOGANDO!");
+            businessMetrics.matchStarted();
+            // Record lobby wait time (time from creation to match start)
+            if (jogo.getCriadoEm() != null) {
+                businessMetrics.recordLobbyWaitTime(Duration.between(jogo.getCriadoEm(), Instant.now()));
+            }
         }
         jogoRepo.save(jogo);
 
@@ -205,7 +213,7 @@ public class JogoService {
         if (jogo.getStatus().equals("JOGANDO")) {
             evento.put("turnoAtual", jogo.getTurnoAtual().getUsername());
         }
-        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+        messagingTemplate.broadcast("/topic/jogo/" + jogoId, evento);
     }
 
 
@@ -237,14 +245,18 @@ public class JogoService {
 
         if (atingido == null) {
             resultado = "AGUA";
+            businessMetrics.recordShotMiss();
         } else {
             atingido.setAcertos(atingido.getAcertos() + 1);
             navioRepo.save(atingido);
             if (atingido.estaAfundado()) {
                 resultado = "AFUNDOU";
                 tipoAfundado = atingido.getTipo();
+                businessMetrics.recordShotHit();
+                businessMetrics.recordShipSunk();
             } else {
                 resultado = "ACERTO";
+                businessMetrics.recordShotHit();
             }
         }
 
@@ -257,6 +269,11 @@ public class JogoService {
         if (fimDeJogo) {
             jogo.setStatus("FINALIZADO");
             jogo.setVencedor(atirador);
+            businessMetrics.recordMatchFinished();
+            businessMetrics.matchEnded();
+            if (jogo.getCriadoEm() != null) {
+                businessMetrics.recordMatchDuration(Duration.between(jogo.getCriadoEm(), Instant.now()));
+            }
         } else if (resultado.equals("AGUA")) {
             // Só troca turno se errou — acertou ou afundou continua jogando
             jogo.setTurnoAtual(oponente);
@@ -303,7 +320,7 @@ public class JogoService {
         evento.put("fimDeJogo", fimDeJogo);
         evento.put("vencedor", fimDeJogo ? atirador.getUsername() : null);
         evento.put("turnoAtual", proximoTurno);
-        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+        messagingTemplate.broadcast("/topic/jogo/" + jogoId, evento);
 
         long t2 = System.currentTimeMillis();
         System.out.println("[WEBSOCKET ENVIADO] tempo_ws=" + (t2 - t1) + "ms | tempo_total=" + (t2 - t0) + "ms");
@@ -513,12 +530,15 @@ public class JogoService {
 
             if (atingido == null) {
                 resultado = "AGUA";
+                businessMetrics.recordShotMiss();
             } else {
                 atingido.setAcertos(atingido.getAcertos() + 1);
                 navioRepo.save(atingido);
                 if (atingido.estaAfundado()) {
                     resultado = "AFUNDOU";
                     tipoAfundado = atingido.getTipo();
+                    businessMetrics.recordShotHit();
+                    businessMetrics.recordShipSunk();
                     navioAfundadoInfo = new HashMap<>();
                     navioAfundadoInfo.put("tipo", atingido.getTipo());
                     navioAfundadoInfo.put("tamanho", atingido.getTamanho());
@@ -527,6 +547,7 @@ public class JogoService {
                     navioAfundadoInfo.put("direcao", atingido.getDirecao());
                 } else {
                     resultado = "ACERTO";
+                    businessMetrics.recordShotHit();
                 }
             }
 
@@ -549,6 +570,11 @@ public class JogoService {
         if (fimDeJogo) {
             jogo.setStatus("FINALIZADO");
             jogo.setVencedor(atirador);
+            businessMetrics.recordMatchFinished();
+            businessMetrics.matchEnded();
+            if (jogo.getCriadoEm() != null) {
+                businessMetrics.recordMatchDuration(Duration.between(jogo.getCriadoEm(), Instant.now()));
+            }
         } else {
             // Sempre troca turno no modo explosão
             jogo.setTurnoAtual(oponente);
@@ -564,7 +590,7 @@ public class JogoService {
         evento.put("fimDeJogo", fimDeJogo);
         evento.put("vencedor", fimDeJogo ? atirador.getUsername() : null);
         evento.put("turnoAtual", fimDeJogo ? null : oponente.getUsername());
-        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+        messagingTemplate.broadcast("/topic/jogo/" + jogoId, evento);
 
         return resultados;
     }
@@ -605,17 +631,26 @@ public class JogoService {
                 evento.put("tipo", "ABANDONO");
                 evento.put("motivo", "desconexão");
                 evento.put("vencedor", null);
-                messagingTemplate.convertAndSend("/topic/jogo/" + jogo.getId(), (Object) evento);
+                messagingTemplate.broadcast("/topic/jogo/" + jogo.getId(), evento);
 
             } else if ("POSICIONANDO".equals(jogo.getStatus()) || "JOGANDO".equals(jogo.getStatus())) {
                 Usuario outroJogador = jogo.getJogador1().getId().equals(jogador.getId())
                         ? jogo.getJogador2() : jogo.getJogador1();
 
+                boolean estaJogando = "JOGANDO".equals(jogo.getStatus());
                 jogo.setStatus("FINALIZADO");
                 if (outroJogador != null) {
                     jogo.setVencedor(outroJogador);
                 }
                 jogoRepo.save(jogo);
+
+                if (estaJogando) {
+                    businessMetrics.recordMatchFinished();
+                    businessMetrics.matchEnded();
+                    if (jogo.getCriadoEm() != null) {
+                        businessMetrics.recordMatchDuration(Duration.between(jogo.getCriadoEm(), Instant.now()));
+                    }
+                }
                 log.info("Jogo #{} abandonado por desconexão do jogador {}. Vencedor: {}",
                         jogo.getId(), username, outroJogador != null ? outroJogador.getUsername() : "nenhum");
 
@@ -624,7 +659,7 @@ public class JogoService {
                 evento.put("motivo", "desconexão");
                 evento.put("jogadorQueAbandonou", username);
                 evento.put("vencedor", outroJogador != null ? outroJogador.getUsername() : null);
-                messagingTemplate.convertAndSend("/topic/jogo/" + jogo.getId(), (Object) evento);
+                messagingTemplate.broadcast("/topic/jogo/" + jogo.getId(), evento);
             }
         }
     }
@@ -649,11 +684,20 @@ public class JogoService {
         Usuario outroJogador = jogo.getJogador1().getId().equals(jogador.getId())
                 ? jogo.getJogador2() : jogo.getJogador1();
 
+        boolean estaJogando = "JOGANDO".equals(jogo.getStatus());
         jogo.setStatus("FINALIZADO");
         if (outroJogador != null) {
             jogo.setVencedor(outroJogador);
         }
         jogoRepo.save(jogo);
+
+        if (estaJogando) {
+            businessMetrics.recordMatchFinished();
+            businessMetrics.matchEnded();
+            if (jogo.getCriadoEm() != null) {
+                businessMetrics.recordMatchDuration(Duration.between(jogo.getCriadoEm(), Instant.now()));
+            }
+        }
 
         log.info("Jogo #{} abandonado voluntariamente por {}. Vencedor: {}",
                 jogo.getId(), username, outroJogador != null ? outroJogador.getUsername() : "nenhum");
@@ -663,7 +707,7 @@ public class JogoService {
         evento.put("motivo", "abandono");
         evento.put("jogadorQueAbandonou", username);
         evento.put("vencedor", outroJogador != null ? outroJogador.getUsername() : null);
-        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+        messagingTemplate.broadcast("/topic/jogo/" + jogoId, evento);
     }
 
     @Transactional
@@ -713,7 +757,7 @@ public class JogoService {
             evento.put("modo", jogo.getRevancheModo());
             String skinSolicitante = jogo.getJogador1().getUsername().equals(username) ? jogo.getSkinJogador1() : jogo.getSkinJogador2();
             evento.put("skinSolicitante", skinSolicitante);
-            messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+            messagingTemplate.broadcast("/topic/jogo/" + jogoId, evento);
 
             Map<String, Object> r = new HashMap<>();
             r.put("status", "AGUARDANDO_OPONENTE");
@@ -761,11 +805,21 @@ public class JogoService {
         jogo.setRevancheJogoId(novoJogo.getId());
         jogoRepo.save(jogo);
 
-        // Notify both players via WebSocket
-        Map<String, Object> evento = new HashMap<>();
-        evento.put("tipo", "REVANCHE_INICIADA");
-        evento.put("novoJogoId", novoJogo.getId());
-        messagingTemplate.convertAndSend("/topic/jogo/" + jogoId, (Object) evento);
+        // Notify both players via WebSocket AFTER transaction commits
+        // This prevents the race condition where the other player navigates
+        // to the new game before the transaction is committed to the database
+        final Long novoJogoIdFinal = novoJogo.getId();
+        final Long jogoIdFinal = jogoId;
+        org.springframework.transaction.support.TransactionSynchronizationManager
+                .registerSynchronization(new org.springframework.transaction.support.TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        Map<String, Object> evento = new HashMap<>();
+                        evento.put("tipo", "REVANCHE_INICIADA");
+                        evento.put("novoJogoId", novoJogoIdFinal);
+                        messagingTemplate.broadcast("/topic/jogo/" + jogoIdFinal, evento);
+                    }
+                });
 
         Map<String, Object> r = new HashMap<>();
         r.put("status", "INICIADA");

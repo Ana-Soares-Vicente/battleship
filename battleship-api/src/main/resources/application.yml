@@ -1,6 +1,12 @@
 spring:
   application:
     name: battleship-api
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.data.redis.RedisHealthContributorAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.data.redis.RedisReactiveHealthContributorAutoConfiguration
   datasource:
     url: ${DB_URL:jdbc:h2:file:./data/battleship;AUTO_SERVER=TRUE}
     username: ${DB_USERNAME:sa}
@@ -19,10 +25,10 @@ spring:
       path: /h2-console
   flyway:
     enabled: false
-  data:
-    redis:
-      host: ${SPRING_REDIS_HOST:localhost}
-      port: 6379
+
+app:
+  redis:
+    enabled: ${REDIS_ENABLED:false}
 
 jwt:
   secret: ${JWT_SECRET:super-secret-key-for-development-only-change-in-prod}
@@ -40,9 +46,14 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    redis:
+      enabled: false
   metrics:
     tags:
       application: battleship-api
+    enable:
+      cache: true
     distribution:
       percentiles-histogram:
         http.server.requests: true
@@ -57,7 +68,7 @@ management:
     tracing:
       export:
         otlp:
-          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}
 
 logging:
   pattern:

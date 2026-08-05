@@ -17,9 +17,11 @@ import org.springframework.web.socket.config.annotation.*;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final AuthService authService;
+    private final WebSocketMetrics webSocketMetrics;
 
-    public WebSocketConfig(AuthService authService) {
+    public WebSocketConfig(AuthService authService, WebSocketMetrics webSocketMetrics) {
         this.authService = authService;
+        this.webSocketMetrics = webSocketMetrics;
     }
 
     @Override
@@ -34,6 +36,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*");
         // SockJS fallback (caso queira usar SockJS também)
         registry.addEndpoint("/ws-sockjs").setAllowedOriginPatterns("*").withSockJS();
+    }
+
+    @Override
+    public void configureClientOutboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new ChannelInterceptor() {
+            @Override
+            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+                webSocketMetrics.recordMessageSent();
+                return message;
+            }
+        });
     }
 
     @Override

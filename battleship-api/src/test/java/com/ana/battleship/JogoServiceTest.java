@@ -1,5 +1,7 @@
 package com.ana.battleship;
 
+import com.ana.battleship.config.BusinessMetrics;
+import com.ana.battleship.config.RedisWebSocketRelay.WebSocketBroadcaster;
 import com.ana.battleship.model.*;
 import com.ana.battleship.repository.*;
 import com.ana.battleship.service.JogoService;
@@ -13,7 +15,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.*;
 
@@ -31,8 +32,9 @@ class JogoServiceTest {
     @Mock private NavioRepository navioRepo;
     @Mock private TiroRepository tiroRepo;
     @Mock private UsuarioRepository usuarioRepo;
-    @Mock private SimpMessagingTemplate messagingTemplate;
+    @Mock private WebSocketBroadcaster messagingTemplate;
     @Mock private EntityManager entityManager;
+    @Mock private BusinessMetrics businessMetrics;
 
     private JogoService jogoService;
 
@@ -41,7 +43,7 @@ class JogoServiceTest {
 
     @BeforeEach
     void setUp() {
-        jogoService = new JogoService(jogoRepo, tabuleiroRepo, navioRepo, tiroRepo, usuarioRepo, messagingTemplate, entityManager);
+        jogoService = new JogoService(jogoRepo, tabuleiroRepo, navioRepo, tiroRepo, usuarioRepo, messagingTemplate, entityManager, businessMetrics);
 
         jogador1 = Usuario.builder().id(1L).username("ana").email("ana@gmail.com").senha("x").build();
         jogador2 = Usuario.builder().id(2L).username("bob").email("bob@gmail.com").senha("x").build();
@@ -73,7 +75,7 @@ class JogoServiceTest {
             assertThat(jogo.getModo()).isEqualTo("PADRAO");
 
             verify(tabuleiroRepo).save(any(Tabuleiro.class));
-            verify(messagingTemplate).convertAndSend(eq("/topic/lobby"), any(Object.class));
+            verify(messagingTemplate).broadcast(eq("/topic/lobby"), any(Object.class));
         }
 
         @Test
@@ -143,8 +145,8 @@ class JogoServiceTest {
             assertThat(result.getStatus()).isEqualTo("POSICIONANDO");
             assertThat(result.getJogador2()).isEqualTo(jogador2);
             assertThat(result.getSkinJogador2()).isEqualTo("naval");
-            verify(messagingTemplate).convertAndSend(eq("/topic/jogo/1"), any(Object.class));
-            verify(messagingTemplate).convertAndSend(eq("/topic/lobby"), any(Object.class));
+            verify(messagingTemplate).broadcast(eq("/topic/jogo/1"), any(Object.class));
+            verify(messagingTemplate).broadcast(eq("/topic/lobby"), any(Object.class));
         }
 
         @Test
@@ -447,7 +449,7 @@ class JogoServiceTest {
 
             assertThat(jogo.getStatus()).isEqualTo("FINALIZADO");
             assertThat(jogo.getVencedor()).isEqualTo(jogador2);
-            verify(messagingTemplate).convertAndSend(eq("/topic/jogo/1"), any(Object.class));
+            verify(messagingTemplate).broadcast(eq("/topic/jogo/1"), any(Object.class));
         }
 
         @Test

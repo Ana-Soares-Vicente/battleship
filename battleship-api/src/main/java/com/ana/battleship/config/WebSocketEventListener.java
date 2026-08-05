@@ -19,6 +19,7 @@ import java.util.concurrent.*;
 public class WebSocketEventListener {
 
     private final JogoService jogoService;
+    private final WebSocketMetrics webSocketMetrics;
 
     // Mapeia sessionId -> username
     private final ConcurrentHashMap<String, String> sessionUserMap = new ConcurrentHashMap<>();
@@ -41,7 +42,13 @@ public class WebSocketEventListener {
         if (user != null && user.getName() != null) {
             String username = user.getName();
             sessionUserMap.put(sessionId, username);
-            userSessionsMap.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet()).add(sessionId);
+            Set<String> sessions = userSessionsMap.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet());
+            boolean firstSession = sessions.isEmpty();
+            sessions.add(sessionId);
+
+            if (firstSession) {
+                webSocketMetrics.playerConnected();
+            }
 
             // Cancelar timer de abandono se existir (jogador reconectou)
             ScheduledFuture<?> timer = abandonTimers.remove(username);
@@ -71,6 +78,7 @@ public class WebSocketEventListener {
                 // Só iniciar grace period se NÃO tem mais nenhuma sessão ativa
                 if (sessions.isEmpty()) {
                     userSessionsMap.remove(username);
+                    webSocketMetrics.playerDisconnected();
                     log.info("WebSocket desconectado (última sessão): username={}. Iniciando grace period de {}s", username, GRACE_PERIOD_SECONDS);
 
                     // Iniciar timer de grace period

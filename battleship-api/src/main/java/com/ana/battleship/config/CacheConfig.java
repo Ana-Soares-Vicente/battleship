@@ -1,13 +1,10 @@
 package com.ana.battleship.config;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -21,12 +18,11 @@ import java.util.Map;
 
 @Configuration
 @EnableCaching
+@ConditionalOnProperty(name = "app.redis.enabled", havingValue = "true", matchIfMissing = false)
 public class CacheConfig {
 
     @Bean
-    @Primary
-    @ConditionalOnBean(RedisConnectionFactory.class)
-    public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
+    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
 
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
@@ -40,12 +36,7 @@ public class CacheConfig {
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig.entryTtl(Duration.ofMinutes(5)))
                 .withInitialCacheConfigurations(cacheConfigurations)
+                .enableStatistics()
                 .build();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(RedisConnectionFactory.class)
-    public CacheManager simpleCacheManager() {
-        return new ConcurrentMapCacheManager("lobby");
     }
 }
