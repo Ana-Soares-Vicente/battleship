@@ -45,7 +45,7 @@ spec:
             - name: SPRING_REDIS_HOST
               value: "redis"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://jaeger:4318/v1/traces"
+              value: "http://jaeger:4318"
           resources:
             requests:
               memory: "256Mi"

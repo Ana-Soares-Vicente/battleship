@@ -1,7 +1,8 @@
 {
+  "id": null,
   "annotations": { "list": [] },
-  "description": "Dashboard completo de observabilidade do Battleship API — métricas de jogo, performance, JVM, banco, cache e WebSocket.",
-  "title": "⚓ Battleship - Dashboard Completo",
+  "description": "Battleship API - Observabilidade completa com metricas de negocio e tecnicas",
+  "title": "Battleship - Dashboard Completo",
   "uid": "battleship-completo",
   "schemaVersion": 39,
   "timezone": "browser",
@@ -12,472 +13,289 @@
   "templating": { "list": [] },
   "panels": [
     {
-      "title": "🎯 VISÃO GERAL DO JOGO",
+      "title": "KPIs",
       "type": "row",
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
       "collapsed": false
     },
     {
       "title": "Partidas Criadas",
-      "description": "Taxa de novas partidas sendo criadas por segundo",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 1 },
-      "targets": [
-        { "expr": "rate(http_server_requests_seconds_count{uri=\"/api/jogos\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "criar jogo", "refId": "A" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "fixed", "fixedColor": "blue" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 15,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } }
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "targets": [{ "expr": "sum(http_server_requests_seconds_count{uri=\"/api/jogos\", method=\"POST\", status=\"201\", application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "area", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" } } }
+    },
+    {
+      "title": "Partidas Finalizadas",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "targets": [{ "expr": "sum(battleship_matches_finished_total{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "area", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" } } }
+    },
+    {
+      "title": "Jogos em Andamento",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "targets": [{ "expr": "sum(battleship_matches_active{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "area", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 20}, {"color": "red", "value": 50}] } } }
+    },
+    {
+      "title": "Jogadores Online",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "targets": [{ "expr": "sum(battleship_players_online{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "area", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 50}, {"color": "red", "value": 100}] } } }
+    },
+    {
+      "title": "Sessoes WebSocket",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "targets": [{ "expr": "sum(spring_websocket_sessions{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "area", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "purple" } } }
     },
     {
       "title": "Tiros Disparados",
-      "description": "Taxa de tiros normais e em explosão por segundo",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "targets": [{ "expr": "sum(battleship_shots_hit_total{application=\"battleship-api\"}) + sum(battleship_shots_miss_total{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "area", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" } } }
+    },
+    {
+      "title": "Navios Afundados",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 5 },
+      "targets": [{ "expr": "sum(battleship_ships_sunk_total{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "area", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" } } }
+    },
+    {
+      "title": "Precisao dos Tiros",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 5 },
+      "targets": [{ "expr": "sum(battleship_shots_hit_total{application=\"battleship-api\"}) / (sum(battleship_shots_hit_total{application=\"battleship-api\"}) + sum(battleship_shots_miss_total{application=\"battleship-api\"})) * 100", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 1, "color": { "mode": "thresholds" }, "thresholds": { "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 30}, {"color": "green", "value": 50}] } } }
+    },
+    {
+      "title": "Latencia Media",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 5 },
+      "targets": [{ "expr": "sum(rate(http_server_requests_seconds_sum{uri=~\"/api/.*\", application=\"battleship-api\"}[5m])) / sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\", application=\"battleship-api\"}[5m])) * 1000", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 1, "color": { "mode": "thresholds" }, "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 200}, {"color": "red", "value": 1000}] } } }
+    },
+    {
+      "title": "Tempo Medio da Partida",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 5 },
+      "targets": [{ "expr": "sum(battleship_match_duration_seconds_sum{application=\"battleship-api\"}) / sum(battleship_match_duration_seconds_count{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 0, "color": { "mode": "fixed", "fixedColor": "super-light-blue" } } }
+    },
+    {
+      "title": "Tempo Medio no Lobby",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 5 },
+      "targets": [{ "expr": "sum(battleship_lobby_wait_time_seconds_sum{application=\"battleship-api\"}) / sum(battleship_lobby_wait_time_seconds_count{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 1, "color": { "mode": "fixed", "fixedColor": "light-purple" } } }
+    },
+    {
+      "title": "Media de Tiros/Partida",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 5 },
+      "targets": [{ "expr": "(sum(battleship_shots_hit_total{application=\"battleship-api\"}) + sum(battleship_shots_miss_total{application=\"battleship-api\"})) / sum(battleship_matches_finished_total{application=\"battleship-api\"})", "refId": "A" }],
+      "options": { "colorMode": "background", "graphMode": "none", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
+      "fieldConfig": { "defaults": { "decimals": 1, "color": { "mode": "fixed", "fixedColor": "light-orange" } } }
+    },
+    {
+      "title": "Gameplay",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "collapsed": false
+    },
+    {
+      "title": "Partidas Finalizadas/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 1 },
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 10 },
       "targets": [
-        { "expr": "rate(http_server_requests_seconds_count{uri=~\"/api/jogos/.*/atirar\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "🎯 tiro normal", "refId": "A" },
-        { "expr": "rate(http_server_requests_seconds_count{uri=~\"/api/jogos/.*/atirar-explosao\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "💥 tiro explosão", "refId": "B" }
+        { "expr": "sum(rate(battleship_matches_finished_total{application=\"battleship-api\"}[1m]))", "legendFormat": "finalizadas/s", "refId": "A" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 20,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "fixed", "fixedColor": "green" }, "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } }
+    },
+    {
+      "title": "Tiros/s",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 10 },
+      "targets": [
+        { "expr": "sum(rate(battleship_shots_hit_total{application=\"battleship-api\"}[1m]))", "legendFormat": "acertos/s", "refId": "A" },
+        { "expr": "sum(rate(battleship_shots_miss_total{application=\"battleship-api\"}[1m]))", "legendFormat": "erros/s", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
-      "title": "Jogadores Entrando",
-      "description": "Taxa de jogadores entrando nas partidas (por ID ou token)",
+      "title": "Navios Afundados/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 1 },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 10 },
+      "targets": [
+        { "expr": "sum(rate(battleship_ships_sunk_total{application=\"battleship-api\"}[1m]))", "legendFormat": "navios/s", "refId": "A" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "fixed", "fixedColor": "red" }, "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } }
+    },
+    {
+      "title": "Entradas em Partidas/s",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 17 },
       "targets": [
         { "expr": "rate(http_server_requests_seconds_count{uri=~\"/api/jogos/.*/entrar\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "entrar por ID", "refId": "A" },
         { "expr": "rate(http_server_requests_seconds_count{uri=~\"/api/jogos/entrar-por-token/.*\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "entrar por token", "refId": "B" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 15,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
     },
     {
-      "title": "Registros e Logins",
-      "description": "Taxa de autenticação — registros e logins por segundo",
+      "title": "Acessos ao Lobby/s",
       "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 8 },
-      "targets": [
-        { "expr": "rate(http_server_requests_seconds_count{uri=\"/api/auth/register\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "📝 register", "refId": "A" },
-        { "expr": "rate(http_server_requests_seconds_count{uri=\"/api/auth/login\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "🔑 login", "refId": "B" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 15,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "Revanche e Abandono",
-      "description": "Taxa de revanches solicitadas e partidas abandonadas",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 8 },
-      "targets": [
-        { "expr": "rate(http_server_requests_seconds_count{uri=~\"/api/jogos/.*/revanche\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "🔄 revanche", "refId": "A" },
-        { "expr": "rate(http_server_requests_seconds_count{uri=~\"/api/jogos/.*/abandonar\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "🏳️ abandono", "refId": "B" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 15,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "Lobby - Consultas",
-      "description": "Frequência de consultas ao lobby de partidas disponíveis",
-      "type": "timeseries",
-      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 8 },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 17 },
       "targets": [
         { "expr": "rate(http_server_requests_seconds_count{uri=\"/api/jogos/lobby\", method=\"GET\", application=\"battleship-api\"}[1m])", "legendFormat": "lobby", "refId": "A" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "fixed", "fixedColor": "purple" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 15,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "fixed", "fixedColor": "purple" }, "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } }
     },
     {
-      "title": "⚡ LATÊNCIA E PERFORMANCE",
+      "title": "Revanches e Abandonos/s",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 17 },
+      "targets": [
+        { "expr": "rate(http_server_requests_seconds_count{uri=~\"/api/jogos/.*/revanche\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "revanche", "refId": "A" },
+        { "expr": "rate(http_server_requests_seconds_count{uri=~\"/api/jogos/.*/abandonar\", method=\"POST\", application=\"battleship-api\"}[1m])", "legendFormat": "abandono", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "title": "Duracao das Partidas (p50/p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        { "expr": "battleship_match_duration_seconds{quantile=\"0.5\", application=\"battleship-api\"}", "legendFormat": "p50", "refId": "A" },
+        { "expr": "battleship_match_duration_seconds{quantile=\"0.95\", application=\"battleship-api\"}", "legendFormat": "p95", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "title": "Tempo de Espera no Lobby (p50/p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        { "expr": "battleship_lobby_wait_time_seconds{quantile=\"0.5\", application=\"battleship-api\"}", "legendFormat": "p50", "refId": "A" },
+        { "expr": "battleship_lobby_wait_time_seconds{quantile=\"0.95\", application=\"battleship-api\"}", "legendFormat": "p95", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "title": "Performance",
       "type": "row",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
       "collapsed": false
     },
     {
-      "title": "Latência p95 — Endpoints de Jogo",
-      "description": "Percentil 95 de tempo de resposta dos endpoints principais do jogo",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "title": "Top 5 Endpoints Mais Lentos",
+      "description": "Latencia media dos 5 endpoints mais lentos (exclui actuator)",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
       "targets": [
-        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri=~\"/api/jogos/.*/atirar\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "atirar p95", "refId": "A" },
-        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri=\"/api/jogos\", method=\"POST\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "criar jogo p95", "refId": "B" },
-        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri=~\"/api/jogos/.*/posicionar-navios\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "posicionar p95", "refId": "C" }
+        { "expr": "topk(5, rate(http_server_requests_seconds_sum{uri=~\"/api/.*\", application=\"battleship-api\"}[5m]) / rate(http_server_requests_seconds_count{uri=~\"/api/.*\", application=\"battleship-api\"}[5m]) * 1000)", "legendFormat": "{{method}} {{uri}}", "refId": "A", "format": "table", "instant": true }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true,
-            "thresholdsStyle": { "mode": "dashed" }
-          },
-          "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 200}, {"color": "red", "value": 1000}] }
-        }
-      },
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value": "Latencia (ms)", "method": "Metodo", "uri": "Endpoint" } } }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 2, "color": { "mode": "thresholds" }, "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 100}, {"color": "red", "value": 500}] } } },
+      "options": { "showHeader": true, "sortBy": [{ "displayName": "Latencia (ms)", "desc": true }] }
+    },
+    {
+      "title": "Latencia p95 - Endpoints de Jogo",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri=~\"/api/jogos/.*/atirar|/api/jogos/.*/atirar-explosao\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "tiros p95", "refId": "A" },
+        { "expr": "histogram_quantile(0.5, rate(http_server_requests_seconds_bucket{uri=~\"/api/jogos/.*/atirar|/api/jogos/.*/atirar-explosao\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "tiros p50", "refId": "B" },
+        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri=\"/api/jogos\", method=\"POST\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "criar jogo p95", "refId": "C" },
+        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri=\"/api/auth/login\", method=\"POST\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "login p95", "refId": "D" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true, "thresholdsStyle": { "mode": "dashed" } }, "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 200}, {"color": "red", "value": 1000}] } } },
       "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"] }, "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
-      "title": "Latência p95 — Auth",
-      "description": "Percentil 95 de tempo de resposta dos endpoints de autenticação",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
-      "targets": [
-        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri=\"/api/auth/login\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "login p95", "refId": "A" },
-        { "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri=\"/api/auth/register\", application=\"battleship-api\"}[1m])) * 1000", "legendFormat": "register p95", "refId": "B" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true,
-            "thresholdsStyle": { "mode": "dashed" }
-          },
-          "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 300}, {"color": "red", "value": 1000}] }
-        }
-      },
-      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"] }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "Latência Média por Endpoint",
-      "description": "Tempo médio de resposta de cada endpoint",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
-      "targets": [
-        { "expr": "rate(http_server_requests_seconds_sum{application=\"battleship-api\"}[1m]) / rate(http_server_requests_seconds_count{application=\"battleship-api\"}[1m]) * 1000", "legendFormat": "{{method}} {{uri}}", "refId": "A" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 1,
-            "fillOpacity": 5,
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        }
-      },
-      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean"] }, "tooltip": { "mode": "multi", "sort": "desc" } }
-    },
-    {
       "title": "Taxa de Erros HTTP",
-      "description": "Erros de cliente (4xx) e servidor (5xx) por segundo",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
       "targets": [
-        { "expr": "sum(rate(http_server_requests_seconds_count{status=~\"4..\", application=\"battleship-api\"}[1m]))", "legendFormat": "⚠️ 4xx (client)", "refId": "A" },
-        { "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\", application=\"battleship-api\"}[1m]))", "legendFormat": "🔴 5xx (server)", "refId": "B" }
+        { "expr": "sum(rate(http_server_requests_seconds_count{status=~\"4..\", application=\"battleship-api\"}[1m]))", "legendFormat": "4xx (client)", "refId": "A" },
+        { "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\", application=\"battleship-api\"}[1m]))", "legendFormat": "5xx (server)", "refId": "B" }
       ],
       "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 25,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        },
+        "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 25, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "🔴 5xx (server)" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "⚠️ 4xx (client)" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+          { "matcher": { "id": "byName", "options": "5xx (server)" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "4xx (client)" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
     },
     {
-      "title": "🖥️ JVM E RECURSOS",
-      "type": "row",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
-      "collapsed": false
-    },
-    {
-      "title": "JVM Heap Memory",
-      "description": "Memória heap utilizada vs máximo disponível",
+      "title": "Rate Limiting (429)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
       "targets": [
-        { "expr": "jvm_memory_used_bytes{area=\"heap\", application=\"battleship-api\"}", "legendFormat": "used — {{id}}", "refId": "A" },
-        { "expr": "jvm_memory_max_bytes{area=\"heap\", application=\"battleship-api\"}", "legendFormat": "max — {{id}}", "refId": "B" }
+        { "expr": "sum by (uri) (rate(http_server_requests_seconds_count{status=\"429\", application=\"battleship-api\"}[1m]))", "legendFormat": "429 - {{uri}}", "refId": "A" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 10, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true }
-        }
-      },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last"] }, "tooltip": { "mode": "multi" } }
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "fixed", "fixedColor": "red" }, "custom": { "lineWidth": 2, "fillOpacity": 25, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true, "drawStyle": "bars" } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } }
     },
     {
-      "title": "JVM Non-Heap Memory",
-      "description": "Memória non-heap (metaspace, code cache, etc)",
+      "title": "Repository - Tempo de Query (MAX e AVG)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 48 },
       "targets": [
-        { "expr": "jvm_memory_used_bytes{area=\"nonheap\", application=\"battleship-api\"}", "legendFormat": "{{id}}", "refId": "A" }
+        { "expr": "spring_data_repository_invocations_seconds_max{application=\"battleship-api\"} * 1000 > 0", "legendFormat": "MAX {{repository}}.{{method}}", "refId": "A" },
+        { "expr": "(rate(spring_data_repository_invocations_seconds_sum{application=\"battleship-api\"}[1m]) / rate(spring_data_repository_invocations_seconds_count{application=\"battleship-api\"}[1m])) * 1000 > 0", "legendFormat": "AVG {{repository}}.{{method}}", "refId": "B" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes",
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 10, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true }
-        }
-      },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["last"] }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "GC Pauses",
-      "description": "Tempo gasto em garbage collection por segundo",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 41 },
-      "targets": [
-        { "expr": "rate(jvm_gc_pause_seconds_sum{application=\"battleship-api\"}[1m])", "legendFormat": "{{action}} — {{cause}}", "refId": "A" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "color": { "mode": "fixed", "fixedColor": "orange" },
-          "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true, "drawStyle": "bars", "barAlignment": 0 }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "Threads",
-      "description": "Contagem de threads ativas na JVM",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 41 },
-      "targets": [
-        { "expr": "jvm_threads_live_threads{application=\"battleship-api\"}", "legendFormat": "live", "refId": "A" },
-        { "expr": "jvm_threads_peak_threads{application=\"battleship-api\"}", "legendFormat": "peak", "refId": "B" },
-        { "expr": "jvm_threads_daemon_threads{application=\"battleship-api\"}", "legendFormat": "daemon", "refId": "C" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 8, "showPoints": "never", "spanNulls": true }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "CPU Usage",
-      "description": "Uso de CPU do processo Java vs sistema",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 41 },
-      "targets": [
-        { "expr": "process_cpu_usage{application=\"battleship-api\"}", "legendFormat": "☕ process", "refId": "A" },
-        { "expr": "system_cpu_usage{application=\"battleship-api\"}", "legendFormat": "🖥️ system", "refId": "B" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1,
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "🗄️ BANCO DE DADOS",
-      "type": "row",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 49 },
-      "collapsed": false
-    },
-    {
-      "title": "HikariCP — Pool de Conexões",
-      "description": "Estado das conexões no pool HikariCP (ativas, ociosas, pendentes)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 50 },
-      "targets": [
-        { "expr": "hikaricp_connections_active{application=\"battleship-api\"}", "legendFormat": "🟢 active", "refId": "A" },
-        { "expr": "hikaricp_connections_idle{application=\"battleship-api\"}", "legendFormat": "🔵 idle", "refId": "B" },
-        { "expr": "hikaricp_connections_pending{application=\"battleship-api\"}", "legendFormat": "🟡 pending", "refId": "C" },
-        { "expr": "hikaricp_connections{application=\"battleship-api\"}", "legendFormat": "⚪ total", "refId": "D" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 10, "showPoints": "never", "spanNulls": true }
-        }
-      },
-      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["last"] }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "HikariCP — Tempo de Aquisição",
-      "description": "Tempo para adquirir uma conexão do pool (máximo e média)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 50 },
-      "targets": [
-        { "expr": "hikaricp_connections_acquire_seconds_max{application=\"battleship-api\"} * 1000", "legendFormat": "max acquire", "refId": "A" },
-        { "expr": "rate(hikaricp_connections_acquire_seconds_sum{application=\"battleship-api\"}[1m]) / rate(hikaricp_connections_acquire_seconds_count{application=\"battleship-api\"}[1m]) * 1000", "legendFormat": "avg acquire", "refId": "B" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "gradientMode": "scheme",
-            "showPoints": "never",
-            "spanNulls": true,
-            "thresholdsStyle": { "mode": "dashed" }
-          },
-          "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 50}, {"color": "red", "value": 200}] }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
-    },
-    {
-      "title": "Repository — Tempo de Query",
-      "description": "Tempo de execução das queries nos repositories (máximo e média)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 58 },
-      "targets": [
-        { "expr": "spring_data_repository_invocations_seconds_max{application=\"battleship-api\"} * 1000", "legendFormat": "MAX {{repository}}.{{method}}", "refId": "A" },
-        { "expr": "rate(spring_data_repository_invocations_seconds_sum{application=\"battleship-api\"}[1m]) / rate(spring_data_repository_invocations_seconds_count{application=\"battleship-api\"}[1m]) * 1000", "legendFormat": "AVG {{repository}}.{{method}}", "refId": "B" }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "lineWidth": 2,
-            "fillOpacity": 8,
-            "showPoints": "never",
-            "spanNulls": true,
-            "thresholdsStyle": { "mode": "dashed" }
-          },
-          "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 100}, {"color": "red", "value": 500}] }
-        }
-      },
+      "fieldConfig": { "defaults": { "unit": "ms", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 8, "showPoints": "never", "spanNulls": true, "thresholdsStyle": { "mode": "dashed" } }, "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 100}, {"color": "red", "value": 500}] } } },
       "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"] }, "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
-      "title": "Repository — Queries/s",
-      "description": "Taxa de invocações dos repositories por segundo",
+      "title": "Repository - Queries/s",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 58 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 48 },
       "targets": [
-        { "expr": "rate(spring_data_repository_invocations_seconds_count{application=\"battleship-api\"}[1m])", "legendFormat": "{{repository}}.{{method}}", "refId": "A" }
+        { "expr": "rate(spring_data_repository_invocations_seconds_count{application=\"battleship-api\"}[1m]) > 0", "legendFormat": "{{repository}}.{{method}}", "refId": "A" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 1, "fillOpacity": 5, "showPoints": "never", "spanNulls": true }
-        }
-      },
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 1, "fillOpacity": 5, "showPoints": "never", "spanNulls": true } } },
       "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean"] }, "tooltip": { "mode": "multi", "sort": "desc" } }
     },
     {
-      "title": "🛡️ CACHE E RATE LIMITING",
-      "type": "row",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 66 },
-      "collapsed": false
-    },
-    {
-      "title": "Cache — Hit vs Miss",
-      "description": "Taxa de acertos e falhas no cache (lobby, etc)",
+      "title": "Cache - Hit vs Miss (Redis)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 67 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 56 },
       "targets": [
-        { "expr": "rate(cache_gets_total{result=\"hit\", application=\"battleship-api\"}[1m])", "legendFormat": "✅ HIT — {{cache}}", "refId": "A" },
-        { "expr": "rate(cache_gets_total{result=\"miss\", application=\"battleship-api\"}[1m])", "legendFormat": "❌ MISS — {{cache}}", "refId": "B" }
+        { "expr": "rate(cache_gets_total{result=\"hit\", application=\"battleship-api\"}[1m])", "legendFormat": "HIT - {{cache}}", "refId": "A" },
+        { "expr": "rate(cache_gets_total{result=\"miss\", application=\"battleship-api\"}[1m])", "legendFormat": "MISS - {{cache}}", "refId": "B" }
       ],
       "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true }
-        },
+        "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } },
         "overrides": [
           { "matcher": { "id": "byRegexp", "options": ".*HIT.*" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
           { "matcher": { "id": "byRegexp", "options": ".*MISS.*" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
@@ -486,65 +304,106 @@
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
     },
     {
-      "title": "Rate Limit — Requests Bloqueados (429)",
-      "description": "Requisições bloqueadas pelo rate limiter por segundo",
+      "title": "HikariCP - Pool de Conexoes",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 67 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 56 },
       "targets": [
-        { "expr": "rate(http_server_requests_seconds_count{status=\"429\", application=\"battleship-api\"}[1m])", "legendFormat": "🚫 429 — {{uri}}", "refId": "A" }
+        { "expr": "hikaricp_connections_active{application=\"battleship-api\"}", "legendFormat": "active", "refId": "A" },
+        { "expr": "hikaricp_connections_idle{application=\"battleship-api\"}", "legendFormat": "idle", "refId": "B" },
+        { "expr": "hikaricp_connections_pending{application=\"battleship-api\"}", "legendFormat": "pending", "refId": "C" },
+        { "expr": "hikaricp_connections{application=\"battleship-api\"}", "legendFormat": "total", "refId": "D" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "fixed", "fixedColor": "red" },
-          "custom": { "lineWidth": 2, "fillOpacity": 25, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true, "drawStyle": "bars" }
-        }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } }
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10, "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["last"] }, "tooltip": { "mode": "multi" } }
     },
     {
-      "title": "🌐 WEBSOCKET",
+      "title": "Infraestrutura",
       "type": "row",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 75 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 64 },
       "collapsed": false
     },
     {
-      "title": "WebSocket — Sessões Ativas",
-      "description": "Número de conexões WebSocket ativas no momento",
-      "type": "stat",
-      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 76 },
+      "title": "JVM Heap Memory",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 65 },
       "targets": [
-        { "expr": "spring_websocket_sessions{application=\"battleship-api\"}", "legendFormat": "sessões", "refId": "A" }
+        { "expr": "sum(jvm_memory_used_bytes{area=\"heap\", application=\"battleship-api\"})", "legendFormat": "used", "refId": "A" },
+        { "expr": "sum(jvm_memory_max_bytes{area=\"heap\", application=\"battleship-api\"})", "legendFormat": "max", "refId": "B" }
       ],
-      "options": { "colorMode": "background", "graphMode": "area", "textMode": "value_and_name", "reduceOptions": { "calcs": ["last"] } },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{"color": "dark-green", "value": null}, {"color": "dark-yellow", "value": 50}, {"color": "dark-red", "value": 100}] } } }
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
     },
     {
-      "title": "Mensagens STOMP",
-      "description": "Taxa de mensagens WebSocket enviadas e recebidas por segundo",
+      "title": "CPU Usage",
       "type": "timeseries",
-      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 76 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 65 },
       "targets": [
-        { "expr": "rate(spring_websocket_messages_sent_total{application=\"battleship-api\"}[1m])", "legendFormat": "📤 enviadas/s", "refId": "A" },
-        { "expr": "rate(spring_websocket_messages_received_total{application=\"battleship-api\"}[1m])", "legendFormat": "📥 recebidas/s", "refId": "B" }
+        { "expr": "system_cpu_usage{application=\"battleship-api\"}", "legendFormat": "system", "refId": "A" },
+        { "expr": "process_cpu_usage{application=\"battleship-api\"}", "legendFormat": "process (JVM)", "refId": "B" }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps",
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true }
-        }
-      },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1, "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 15, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "title": "Threads",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 73 },
+      "targets": [
+        { "expr": "jvm_threads_live_threads{application=\"battleship-api\"}", "legendFormat": "live", "refId": "A" },
+        { "expr": "jvm_threads_peak_threads{application=\"battleship-api\"}", "legendFormat": "peak", "refId": "B" },
+        { "expr": "jvm_threads_daemon_threads{application=\"battleship-api\"}", "legendFormat": "daemon", "refId": "C" }
+      ],
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 8, "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "title": "GC Pauses",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 73 },
+      "targets": [
+        { "expr": "rate(jvm_gc_pause_seconds_sum{application=\"battleship-api\"}[1m])", "legendFormat": "{{action}} - {{cause}}", "refId": "A" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "fixed", "fixedColor": "orange" }, "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true, "drawStyle": "bars", "barAlignment": 0 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "title": "HikariCP - Tempo de Aquisicao",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 73 },
+      "targets": [
+        { "expr": "hikaricp_connections_acquire_seconds_max{application=\"battleship-api\"} * 1000", "legendFormat": "max acquire", "refId": "A" },
+        { "expr": "rate(hikaricp_connections_acquire_seconds_sum{application=\"battleship-api\"}[1m]) / rate(hikaricp_connections_acquire_seconds_count{application=\"battleship-api\"}[1m]) * 1000", "legendFormat": "avg acquire", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true, "thresholdsStyle": { "mode": "dashed" } }, "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 50}, {"color": "red", "value": 200}] } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "title": "WebSocket - Sessoes e Jogadores",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 81 },
+      "targets": [
+        { "expr": "spring_websocket_sessions{application=\"battleship-api\"}", "legendFormat": "sessoes", "refId": "A" },
+        { "expr": "battleship_players_online{application=\"battleship-api\"}", "legendFormat": "jogadores online", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "title": "Mensagens STOMP/s",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 81 },
+      "targets": [
+        { "expr": "rate(spring_websocket_messages_sent_total{application=\"battleship-api\"}[1m])", "legendFormat": "enviadas/s", "refId": "A" },
+        { "expr": "rate(spring_websocket_messages_received_total{application=\"battleship-api\"}[1m])", "legendFormat": "recebidas/s", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "scheme", "showPoints": "never", "spanNulls": true } } },
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
     },
     {
       "title": "Uptime",
-      "description": "Tempo desde o último restart da aplicação",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 76 },
-      "targets": [
-        { "expr": "process_uptime_seconds{application=\"battleship-api\"}", "legendFormat": "uptime", "refId": "A" }
-      ],
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 89 },
+      "targets": [{ "expr": "process_uptime_seconds{application=\"battleship-api\"}", "refId": "A" }],
       "options": { "colorMode": "background", "graphMode": "none", "textMode": "value", "reduceOptions": { "calcs": ["last"] } },
       "fieldConfig": { "defaults": { "unit": "dtdurations", "color": { "mode": "fixed", "fixedColor": "dark-green" } } }
     }

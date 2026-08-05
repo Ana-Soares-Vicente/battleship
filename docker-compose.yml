@@ -1,4 +1,10 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    network_mode: host
+    restart: unless-stopped
+
   jaeger:
     image: jaegertracing/all-in-one:1.58
     container_name: jaeger
