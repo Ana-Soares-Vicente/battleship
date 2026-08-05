@@ -99,6 +99,6 @@ export default function Login() {
                     {t('login.onlyRegister')}
                 </div>
             )}
-        </div>
+        </div>                           
     );
 }
